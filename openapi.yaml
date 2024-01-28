@@ -1,0 +1,832 @@
+openapi: 3.0.3
+info:
+  title: elrek-system_GO
+  description: Ez lenni elrek-system_GO backend cuccli
+  version: 1.0.0
+#servers:
+#  - url: 'yas'
+paths:
+  /login:
+    post:
+      description: Endpoint for user login
+      requestBody:
+        description: UserLogin object that needs to be logged in
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './openapi_objects/user.yaml#/components/schemas/UserLogin'
+      responses:
+        200:
+          description: User was logged in successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example: 'User logged in successfully'
+                # Return some kind of token here maybe?
+        401:
+          description: User was not logged in successfully
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - login
+  /users:
+    get:
+      description: Endpoint for user(s) listing
+      responses:
+        200:
+          description: Returns a list of users
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/user.yaml#/components/schemas/UserListSuccessResponse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/user.yaml#/components/schemas/UserListErrorResponse'
+      tags:
+        - users
+    post:
+      description: Endpoint for user creation
+      requestBody:
+        description: User object that needs to be added to the database
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './openapi_objects/user.yaml#/components/schemas/UserCreate'
+      responses:
+        200:
+          description: User was created successfully
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - users
+  /users/{id}:
+    get:
+      description: Endpoint for user listing
+      parameters:
+        - name: id
+          in: path
+          description: ID of the user to list
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Returns a user
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/user.yaml#/components/schemas/User'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/user.yaml#/components/schemas/UserListErrorResponse'
+      tags:
+        - users
+    put:
+      description: Endpoint for user update
+      parameters:
+        - name: id
+          in: path
+          description: ID of the user to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: User object that needs to be updated in the database
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './openapi_objects/user.yaml#/components/schemas/UserUpdate'
+      responses:
+        200:
+          description: User was updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - users
+    delete:
+      description: Endpoint for user deletion
+      parameters:
+        - name: id
+          in: path
+          description: ID of the user to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: User was deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - users
+  /services:
+    get:
+      description: Endpoint for service(s) listing
+      responses:
+        200:
+          description: Returns a list of services
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/service.yaml#/components/schemas/ServiceListSuccessResponse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/service.yaml#/components/schemas/ServiceListErrorResponse'
+      tags:
+        - services
+    post:
+      description: Endpoint for service creation
+      requestBody:
+        description: Service object that needs to be added to the database
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './openapi_objects/service.yaml#/components/schemas/ServiceCreate'
+      responses:
+        200:
+          description: Service was created successfully
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - services
+  /services/{id}:
+    get:
+      description: Endpoint for service listing
+      parameters:
+        - name: id
+          in: path
+          description: ID of the service to list
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Returns a service
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/service.yaml#/components/schemas/Service'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - services
+    put:
+      description: Endpoint for service update
+      parameters:
+        - name: id
+          in: path
+          description: ID of the service to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Service object that needs to be updated in the database
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './openapi_objects/service.yaml#/components/schemas/ServiceUpdate'
+      responses:
+        200:
+          description: Service was updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - services
+    delete:
+      description: Endpoint for service deletion
+      parameters:
+        - name: id
+          in: path
+          description: ID of the service to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Service was deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - services
+  /dynamic_prices:
+    post:
+      description: Endpoint for dynamic_price creation
+      requestBody:
+        description: Dynamic_price object that needs to be added to the database
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './openapi_objects/dynamic_price.yaml#/components/schemas/Dynamic_priceCreate'
+      responses:
+        200:
+          description: Dynamic_price was created successfully
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - dynamic_prices
+  /dynamic_prices/{id}:
+    get:
+      description: Endpoint for dynamic_price listing for a service
+      parameters:
+        - name: id
+          in: path
+          description: ID of the service
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Returns dynamic_prices
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/dynamic_price.yaml#/components/schemas/Dynamic_priceListSuccessResponse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/dynamic_price.yaml#/components/schemas/Dynamic_priceListErrorResponse'
+      tags:
+        - dynamic_prices
+    put:
+      description: Endpoint for dynamic_price update
+      parameters:
+        - name: id
+          in: path
+          description: ID of the dynamic_price to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Dynamic_price object that needs to be updated in the database
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './openapi_objects/dynamic_price.yaml#/components/schemas/Dynamic_priceUpdate'
+      responses:
+        200:
+          description: Dynamic_price was updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - dynamic_prices
+    delete:
+      description: Endpoint for dynamic_price deletion
+      parameters:
+        - name: id
+          in: path
+          description: ID of the dynamic_price to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Dynamic_price was deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - dynamic_prices
+  /passes:
+    get:
+      description: Endpoint for pass(es) listing
+      responses:
+        200:
+          description: Returns a list of passes
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/pass.yaml#/components/schemas/PassListSuccessResponse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/pass.yaml#/components/schemas/PassListErrorResponse'
+      tags:
+        - passes
+    post:
+      description: Endpoint for pass creation
+      requestBody:
+        description: Pass object that needs to be added to the database
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './openapi_objects/pass.yaml#/components/schemas/PassCreate'
+      responses:
+        200:
+          description: Pass was created successfully
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - passes
+  /passes/{id}:
+    get:
+      description: Endpoint for pass listing
+      parameters:
+        - name: id
+          in: path
+          description: ID of the pass to list
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Returns a pass
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/pass.yaml#/components/schemas/Pass'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - passes
+    put:
+      description: Endpoint for pass update
+      parameters:
+        - name: id
+          in: path
+          description: ID of the pass to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Pass object that needs to be updated in the database
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './openapi_objects/pass.yaml#/components/schemas/PassUpdate'
+      responses:
+        200:
+          description: Pass was updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - passes
+    delete:
+      description: Endpoint for pass deletion
+      parameters:
+        - name: id
+          in: path
+          description: ID of the pass to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Pass was deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - passes
+  /passes_in_use:
+    get:
+      description: Endpoint for pass(es)_in_use listing
+      responses:
+        200:
+          description: Returns a list of passes_in_use
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/pass_in_use.yaml#/components/schemas/PassInUseListSuccessResponse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/pass_in_use.yaml#/components/schemas/PassInUseListErrorResponse'
+      tags:
+        - passes_in_use
+    post:
+      description: Endpoint for pass_in_use creation
+      requestBody:
+        description: PassInUse object that needs to be added to the database
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './openapi_objects/pass_in_use.yaml#/components/schemas/PassInUseCreate'
+      responses:
+        200:
+          description: PassInUse was created successfully
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - passes_in_use
+  /passes_in_use/{id}:
+    get:
+      description: Endpoint for pass_in_use listing
+      parameters:
+        - name: id
+          in: path
+          description: ID of the pass_in_use to list
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Returns a pass_in_use
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/pass_in_use.yaml#/components/schemas/PassInUse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - passes_in_use
+    put:
+      description: Endpoint for pass_in_use update
+      parameters:
+        - name: id
+          in: path
+          description: ID of the pass_in_use to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: PassInUse object that needs to be updated in the database
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './openapi_objects/pass_in_use.yaml#/components/schemas/PassInUseUpdate'
+      responses:
+        200:
+          description: PassInUse was updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - passes_in_use
+    patch:
+      description: Endpoint for partial pass_in_use update
+      parameters:
+        - name: id
+          in: path
+          description: ID of the pass_in_use to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Attributes of pass_in_use that needs to be updated in the database
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './openapi_objects/pass_in_use.yaml#/components/schemas/PassInUseUpdate'
+      responses:
+        200:
+          description: PassInUse was updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+        default:
+          description: PassInUse could not be updated
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - passes_in_use
+    delete:
+      description: Endpoint for pass_in_use deletion
+      parameters:
+        - name: id
+          in: path
+          description: ID of the pass_in_use to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: PassInUse was deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - passes_in_use
+  /passes_in_use/{id}/validity:
+    get:
+      description: Endpoint for checking validity pass_in_use
+        Checks if request date is between valid_from and valid_to
+        Checks if occasions is equal to pass.occasion_limit
+      parameters:
+        - name: id
+          in: path
+          description: ID of the pass_in_use to check for validity
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Returns a boolean, true if valid, false if not
+          content:
+            application/json:
+              schema:
+                type: boolean
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - passes_in_use
+  /incomes:
+    get:
+      description: Endpoint for income(s) listing
+      responses:
+        200:
+          description: Returns a list of incomes
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/income.yaml#/components/schemas/IncomeListSuccessResponse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/income.yaml#/components/schemas/IncomeListErrorResponse'
+      tags:
+        - incomes
+    post:
+      description: Endpoint for income creation. 
+        In case of pass_in_use_id, validity is also checked and updated.
+        In case of service_id, amount is calculated based on dynamic_price.
+      requestBody:
+        description: Income object that needs to be added to the database
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './openapi_objects/income.yaml#/components/schemas/IncomeCreate'
+      responses:
+        200:
+          description: Income was created successfully
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - incomes
+  /incomes/{id}:
+    get:
+      description: Endpoint for income listing
+      parameters:
+        - name: id
+          in: path
+          description: ID of the income to list
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Returns a income
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/income.yaml#/components/schemas/Income'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/income.yaml#/components/schemas/IncomeListErrorResponse'
+      tags:
+        - incomes
+    put:
+      description: Endpoint for income update
+      parameters:
+        - name: id
+          in: path
+          description: ID of the income to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Income object that needs to be updated in the database
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './openapi_objects/income.yaml#/components/schemas/IncomeUpdate'
+      responses:
+        200:
+          description: Income was updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - incomes
+    delete:
+      description: Endpoint for income deletion
+      parameters:
+        - name: id
+          in: path
+          description: ID of the income to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Income was deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - incomes
+
+tags:
+  - name: login
+    description: Login related endpoints
+  - name: users
+    description: User related endpoints
+  - name: services
+    description: Service related endpoints
+  - name: dynamic_prices
+    description: Dynamic_price related endpoints
+  - name: passes
+    description: Pass related endpoints
+  - name: passes_in_use
+    description: Active pass related endpoints
+  - name: incomes
+    description: Income related endpoints

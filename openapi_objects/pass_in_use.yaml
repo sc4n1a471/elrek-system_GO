@@ -1,0 +1,89 @@
+components:
+  schemas:
+    PassInUse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        owner_id:
+          type: string
+          format: uuid
+        occasions:
+          type: integer
+        comment:
+          type: string
+        active:
+          type: boolean
+        pass_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        valid_from:
+          type: string
+          format: date-time
+        valid_until:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+    PassInUseList:
+      type: array
+      items:
+        $ref: '#/components/schemas/PassInUse'
+    PassInUseCreate:
+      type: object
+      properties:
+        owner_id:
+          type: string
+          format: uuid
+        comment:
+          type: string
+        pass_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        valid_from:
+          type: string
+          format: date-time
+        valid_until:
+          type: string
+          format: date-time
+      required:
+        - owner_id
+        - pass_id
+        - user_id
+        - valid_from
+        - valid_until
+    PassInUseUpdate:
+      type: object
+      properties:
+        comment:
+          type: string
+        occasions:
+          type: integer
+        valid_from:
+          type: string
+          format: date-time
+        valid_until:
+          type: string
+          format: date-time
+    PassInUseListSuccessResponse:
+      type: object
+      properties:
+        passes_in_use:
+          $ref: '#/components/schemas/PassInUseList'
+        message:
+          type: string
+    PassInUseListErrorResponse:
+      type: object
+      properties:
+        passes_in_use:
+          type: array
+        message:
+          type: string

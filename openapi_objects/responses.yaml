@@ -1,0 +1,7 @@
+components:
+  schemas:
+    MessageOnlyResponse:
+      type: object
+      properties:
+        message:
+          type: string

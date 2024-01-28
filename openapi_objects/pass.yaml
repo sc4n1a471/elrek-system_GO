@@ -1,0 +1,95 @@
+components:
+  schemas:
+    Pass:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        owner_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        price:
+          type: number
+        occasion_limit:
+          type: integer
+        comment:
+          type: string
+        prev_pass_id:
+          type: string
+          format: uuid
+        active:
+          type: boolean
+        duration:
+          type: string
+        service_id:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+    PassList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Pass'
+    PassCreate:
+      type: object
+      properties:
+        owner_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        price:
+          type: number
+        occasion_limit:
+          type: integer
+        comment:
+          type: string
+        duration:
+          type: string
+        service_id:
+          type: string
+          format: uuid
+      required:
+        - owner_id
+        - name
+        - price
+        - service_id
+    PassUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        price:
+          type: number
+        occasion_limit:
+          type: integer
+        comment:
+          type: string
+        duration:
+          type: string
+        service_id:
+          type: string
+          format: uuid
+    PassListSuccessResponse:
+      type: object
+      properties:
+        passes:
+          $ref: '#/components/schemas/PassList'
+        message:
+          type: string
+    PassListErrorResponse:
+      type: object
+      properties:
+        passes:
+          type: array
+        message:
+          type: string
+    PassErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string

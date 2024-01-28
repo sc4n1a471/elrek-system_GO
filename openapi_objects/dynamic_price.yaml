@@ -1,0 +1,66 @@
+components:
+  schemas:
+    Dynamic_price:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        owner_id:
+          type: string
+          format: uuid
+        attendees:
+          type: string
+        price:
+          type: number
+        active:
+          type: boolean
+        service_id:
+          type: string
+          format: uuid
+    Dynamic_priceList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Dynamic_price'
+    Dynamic_priceCreate:
+      type: object
+      properties:
+        owner_id:
+          type: string
+          format: uuid
+        attendees:
+          type: string
+        price:
+          type: number
+        service_id:
+          type: string
+        format: uuid
+      required:
+        - owner_id
+        - attendees
+        - price
+        - service_id
+    Dynamic_priceUpdate:
+      type: object
+      properties:
+        attendees:
+          type: string
+        price:
+          type: number
+        service_id:
+          type: string
+          format: uuid
+    Dynamic_priceListSuccessResponse:
+      type: object
+      properties:
+        dynamic_prices:
+          $ref: '#/components/schemas/Dynamic_priceList'
+        message:
+          type: string
+    Dynamic_priceListErrorResponse:
+      type: object
+      properties:
+        dynamic_prices:
+          type: array
+        message:
+          type: string

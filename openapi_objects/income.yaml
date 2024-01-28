@@ -1,0 +1,98 @@
+components:
+  schemas:
+    Income:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        owner_id:
+          type: string
+          format: uuid
+        service_id:
+          type: string
+          format: uuid
+        sum_id:
+          type: string
+          format: uuid
+        pass_in_use_id:
+          type: string
+          format: uuid
+        amount:
+          type: number
+        user_id:
+          type: string
+          format: uuid
+        comment:
+          type: string
+        active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    IncomeList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Income'
+    IncomeCreate:
+      type: object
+      properties:
+        owner_id:
+          type: string
+          format: uuid
+        service_id:
+          type: string
+          format: uuid
+        sum_id:
+          type: string
+          format: uuid
+        pass_in_use_id:
+          type: string
+          format: uuid
+        amount:
+          type: number
+        user_id:
+          type: string
+          format: uuid
+        comment:
+          type: string
+      required:
+        - owner_id
+        - user_id
+        - amount
+    IncomeUpdate:
+      type: object
+      properties:
+        service_id:
+          type: string
+          format: uuid
+        sum_id:
+          type: string
+          format: uuid
+        pass_in_use_id:
+          type: string
+          format: uuid
+        amount:
+          type: number
+        user_id:
+          type: string
+          format: uuid
+        comment:
+          type: string
+    IncomeListSuccessResponse:
+      type: object
+      properties:
+        incomes:
+          $ref: '#/components/schemas/IncomeList'
+        message:
+          type: string
+    IncomeListErrorResponse:
+      type: object
+      properties:
+        incomes:
+          type: array
+        message:
+          type: string

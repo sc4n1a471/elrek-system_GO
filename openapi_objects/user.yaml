@@ -1,0 +1,97 @@
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        owner_id:
+          type: string
+          format: email
+        name:
+          type: string
+        password:
+          type: string
+          format: password
+        is_admin:
+          type: boolean
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+#      required:
+#        - name
+#        - email
+#        - password
+    UserList:
+      type: array
+      items:
+        $ref: '#/components/schemas/User'
+    UserCreate:
+      type: object
+      properties:
+        owner_id:
+          type: string
+          format: email
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+      required:
+        - owner_id
+        - name
+        - email
+        - password
+    UserUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+      required:
+        - password
+    UserLogin:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+      required:
+        - email
+        - password
+    UserListSuccessResponse:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+        message:
+          type: string
+    UserListErrorResponse:
+      type: object
+      properties:
+        users:
+          type: array
+        message:
+          type: string
