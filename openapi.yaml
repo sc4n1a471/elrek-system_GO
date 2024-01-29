@@ -15,7 +15,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './openapi_objects/user.yaml#/components/schemas/UserLogin'
+              $ref: './models/user.yaml#/components/schemas/UserLogin'
       responses:
         200:
           description: User was logged in successfully
@@ -30,13 +30,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
         default:
           description: Unexpected error, error is returned in message
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - login
   /users:
@@ -48,13 +48,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/user.yaml#/components/schemas/UserListSuccessResponse'
+                $ref: './models/user.yaml#/components/schemas/UserListSuccessResponse'
         default:
           description: Unexpected error, error is returned in message
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/user.yaml#/components/schemas/UserListErrorResponse'
+                $ref: './models/user.yaml#/components/schemas/UserListErrorResponse'
       tags:
         - users
     post:
@@ -65,20 +65,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './openapi_objects/user.yaml#/components/schemas/UserCreate'
+              $ref: './models/user.yaml#/components/schemas/UserCreate'
       responses:
         200:
           description: User was created successfully
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
         default:
           description: Unexpected error, error is returned in message
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - users
   /users/{id}:
@@ -97,13 +97,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/user.yaml#/components/schemas/User'
+                $ref: './models/user.yaml#/components/schemas/User'
         default:
           description: Unexpected error, error is returned in message
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/user.yaml#/components/schemas/UserListErrorResponse'
+                $ref: './models/user.yaml#/components/schemas/UserListErrorResponse'
       tags:
         - users
     put:
@@ -121,20 +121,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './openapi_objects/user.yaml#/components/schemas/UserUpdate'
+              $ref: './models/user.yaml#/components/schemas/UserUpdate'
       responses:
         200:
           description: User was updated successfully
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
         default:
           description: Unexpected error, error is returned in message
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - users
     delete:
@@ -152,13 +152,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
         default:
           description: Unexpected error, error is returned in message
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - users
   /services:
@@ -170,13 +170,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/service.yaml#/components/schemas/ServiceListSuccessResponse'
+                $ref: './models/service.yaml#/components/schemas/ServiceListSuccessResponse'
         default:
           description: Unexpected error, error is returned in message
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/service.yaml#/components/schemas/ServiceListErrorResponse'
+                $ref: './models/service.yaml#/components/schemas/ServiceListErrorResponse'
       tags:
         - services
     post:
@@ -187,20 +187,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './openapi_objects/service.yaml#/components/schemas/ServiceCreate'
+              $ref: './models/service.yaml#/components/schemas/ServiceCreate'
       responses:
         200:
           description: Service was created successfully
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
         default:
           description: Unexpected error, error is returned in message
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - services
   /services/{id}:
@@ -219,13 +219,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/service.yaml#/components/schemas/Service'
+                $ref: './models/service.yaml#/components/schemas/Service'
         default:
           description: Unexpected error, error is returned in message
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - services
     put:
@@ -243,20 +243,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './openapi_objects/service.yaml#/components/schemas/ServiceUpdate'
+              $ref: './models/service.yaml#/components/schemas/ServiceUpdate'
       responses:
         200:
           description: Service was updated successfully
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
         default:
           description: Unexpected error, error is returned in message
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - services
     delete:
@@ -274,13 +274,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
         default:
           description: Unexpected error, error is returned in message
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - services
   /dynamic_prices:
@@ -292,20 +292,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './openapi_objects/dynamic_price.yaml#/components/schemas/Dynamic_priceCreate'
+              $ref: './models/dynamic_price.yaml#/components/schemas/Dynamic_priceCreate'
       responses:
         200:
           description: Dynamic_price was created successfully
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
         default:
           description: Unexpected error, error is returned in message
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - dynamic_prices
   /dynamic_prices/{id}:
@@ -324,13 +324,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/dynamic_price.yaml#/components/schemas/Dynamic_priceListSuccessResponse'
+                $ref: './models/dynamic_price.yaml#/components/schemas/Dynamic_priceListSuccessResponse'
         default:
           description: Unexpected error, error is returned in message
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/dynamic_price.yaml#/components/schemas/Dynamic_priceListErrorResponse'
+                $ref: './models/dynamic_price.yaml#/components/schemas/Dynamic_priceListErrorResponse'
       tags:
         - dynamic_prices
     put:
@@ -348,20 +348,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './openapi_objects/dynamic_price.yaml#/components/schemas/Dynamic_priceUpdate'
+              $ref: './models/dynamic_price.yaml#/components/schemas/Dynamic_priceUpdate'
       responses:
         200:
           description: Dynamic_price was updated successfully
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
         default:
           description: Unexpected error, error is returned in message
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - dynamic_prices
     delete:
@@ -379,13 +379,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
         default:
           description: Unexpected error, error is returned in message
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - dynamic_prices
   /passes:
@@ -397,13 +397,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/pass.yaml#/components/schemas/PassListSuccessResponse'
+                $ref: './models/pass.yaml#/components/schemas/PassListSuccessResponse'
         default:
           description: Unexpected error, error is returned in message
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/pass.yaml#/components/schemas/PassListErrorResponse'
+                $ref: './models/pass.yaml#/components/schemas/PassListErrorResponse'
       tags:
         - passes
     post:
@@ -414,20 +414,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './openapi_objects/pass.yaml#/components/schemas/PassCreate'
+              $ref: './models/pass.yaml#/components/schemas/PassCreate'
       responses:
         200:
           description: Pass was created successfully
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
         default:
           description: Unexpected error, error is returned in message
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - passes
   /passes/{id}:
@@ -446,13 +446,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/pass.yaml#/components/schemas/Pass'
+                $ref: './models/pass.yaml#/components/schemas/Pass'
         default:
           description: Unexpected error, error is returned in message
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - passes
     put:
@@ -470,20 +470,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './openapi_objects/pass.yaml#/components/schemas/PassUpdate'
+              $ref: './models/pass.yaml#/components/schemas/PassUpdate'
       responses:
         200:
           description: Pass was updated successfully
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
         default:
           description: Unexpected error, error is returned in message
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - passes
     delete:
@@ -501,13 +501,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
         default:
           description: Unexpected error, error is returned in message
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - passes
   /passes_in_use:
@@ -519,13 +519,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/pass_in_use.yaml#/components/schemas/PassInUseListSuccessResponse'
+                $ref: './models/pass_in_use.yaml#/components/schemas/PassInUseListSuccessResponse'
         default:
           description: Unexpected error, error is returned in message
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/pass_in_use.yaml#/components/schemas/PassInUseListErrorResponse'
+                $ref: './models/pass_in_use.yaml#/components/schemas/PassInUseListErrorResponse'
       tags:
         - passes_in_use
     post:
@@ -536,20 +536,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './openapi_objects/pass_in_use.yaml#/components/schemas/PassInUseCreate'
+              $ref: './models/pass_in_use.yaml#/components/schemas/PassInUseCreate'
       responses:
         200:
           description: PassInUse was created successfully
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
         default:
           description: Unexpected error, error is returned in message
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - passes_in_use
   /passes_in_use/{id}:
@@ -568,13 +568,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/pass_in_use.yaml#/components/schemas/PassInUse'
+                $ref: './models/pass_in_use.yaml#/components/schemas/PassInUse'
         default:
           description: Unexpected error, error is returned in message
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - passes_in_use
     put:
@@ -592,20 +592,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './openapi_objects/pass_in_use.yaml#/components/schemas/PassInUseUpdate'
+              $ref: './models/pass_in_use.yaml#/components/schemas/PassInUseUpdate'
       responses:
         200:
           description: PassInUse was updated successfully
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
         default:
           description: Unexpected error, error is returned in message
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - passes_in_use
     patch:
@@ -623,20 +623,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './openapi_objects/pass_in_use.yaml#/components/schemas/PassInUseUpdate'
+              $ref: './models/pass_in_use.yaml#/components/schemas/PassInUseUpdate'
       responses:
         200:
           description: PassInUse was updated successfully
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
         default:
           description: PassInUse could not be updated
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - passes_in_use
     delete:
@@ -654,13 +654,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
         default:
           description: Unexpected error, error is returned in message
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - passes_in_use
   /passes_in_use/{id}/validity:
@@ -687,7 +687,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - passes_in_use
   /incomes:
@@ -699,13 +699,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/income.yaml#/components/schemas/IncomeListSuccessResponse'
+                $ref: './models/income.yaml#/components/schemas/IncomeListSuccessResponse'
         default:
           description: Unexpected error, error is returned in message
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/income.yaml#/components/schemas/IncomeListErrorResponse'
+                $ref: './models/income.yaml#/components/schemas/IncomeListErrorResponse'
       tags:
         - incomes
     post:
@@ -718,20 +718,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './openapi_objects/income.yaml#/components/schemas/IncomeCreate'
+              $ref: './models/income.yaml#/components/schemas/IncomeCreate'
       responses:
         200:
           description: Income was created successfully
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
         default:
           description: Unexpected error, error is returned in message
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - incomes
   /incomes/{id}:
@@ -750,13 +750,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/income.yaml#/components/schemas/Income'
+                $ref: './models/income.yaml#/components/schemas/Income'
         default:
           description: Unexpected error, error is returned in message
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/income.yaml#/components/schemas/IncomeListErrorResponse'
+                $ref: './models/income.yaml#/components/schemas/IncomeListErrorResponse'
       tags:
         - incomes
     put:
@@ -774,20 +774,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './openapi_objects/income.yaml#/components/schemas/IncomeUpdate'
+              $ref: './models/income.yaml#/components/schemas/IncomeUpdate'
       responses:
         200:
           description: Income was updated successfully
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
         default:
           description: Unexpected error, error is returned in message
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - incomes
     delete:
@@ -805,13 +805,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
         default:
           description: Unexpected error, error is returned in message
           content:
             application/json:
               schema:
-                $ref: './openapi_objects/responses.yaml#/components/schemas/MessageOnlyResponse'
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - incomes
 

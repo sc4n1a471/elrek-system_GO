@@ -10,7 +10,7 @@ components:
           type: string
           format: uuid
         attendees:
-          type: string
+          type: number
         price:
           type: number
         active:
@@ -29,12 +29,12 @@ components:
           type: string
           format: uuid
         attendees:
-          type: string
+          type: number
         price:
           type: number
         service_id:
           type: string
-        format: uuid
+          format: uuid
       required:
         - owner_id
         - attendees
@@ -44,7 +44,7 @@ components:
       type: object
       properties:
         attendees:
-          type: string
+          type: number
         price:
           type: number
         service_id:
