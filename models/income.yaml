@@ -40,9 +40,6 @@ components:
     IncomeCreate:
       type: object
       properties:
-        owner_id:
-          type: string
-          format: uuid
         service_id:
           type: string
           format: uuid
@@ -60,7 +57,6 @@ components:
         comment:
           type: string
       required:
-        - owner_id
         - user_id
         - amount
     IncomeUpdate:
@@ -81,18 +77,4 @@ components:
           type: string
           format: uuid
         comment:
-          type: string
-    IncomeListSuccessResponse:
-      type: object
-      properties:
-        incomes:
-          $ref: '#/components/schemas/IncomeList'
-        message:
-          type: string
-    IncomeListErrorResponse:
-      type: object
-      properties:
-        incomes:
-          type: array
-        message:
           type: string

@@ -32,18 +32,6 @@ type PassCreate struct {
 // PassList defines model for PassList.
 type PassList = []Pass
 
-// PassListErrorResponse defines model for PassListErrorResponse.
-type PassListErrorResponse struct {
-	Message *string        `json:"message,omitempty"`
-	Passes  *[]interface{} `json:"passes,omitempty"`
-}
-
-// PassListSuccessResponse defines model for PassListSuccessResponse.
-type PassListSuccessResponse struct {
-	Message *string   `json:"message,omitempty"`
-	Passes  *PassList `json:"passes,omitempty"`
-}
-
 // PassUpdate defines model for PassUpdate.
 type PassUpdate struct {
 	Comment       *string            `json:"comment,omitempty"`

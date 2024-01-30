@@ -27,20 +27,17 @@ components:
         updated_at:
           type: string
           format: date-time
-#      required:
-#        - name
-#        - email
-#        - password
+    #      required:
+    #        - name
+    #        - email
+    #        - password
     UserList:
       type: array
       items:
-        $ref: '#/components/schemas/User'
+        $ref: '#/components/schemas/UserResponse'
     UserCreate:
       type: object
       properties:
-        owner_id:
-          type: string
-          format: email
         name:
           type: string
         email:
@@ -49,8 +46,9 @@ components:
         password:
           type: string
           format: password
+        is_admin:
+          type: boolean
       required:
-        - owner_id
         - name
         - email
         - password
@@ -65,8 +63,8 @@ components:
         password:
           type: string
           format: password
-      required:
-        - password
+        is_admin:
+          type: boolean
     UserLogin:
       type: object
       properties:
@@ -79,19 +77,27 @@ components:
       required:
         - email
         - password
-    UserListSuccessResponse:
+    UserLoginResponse:
       type: object
       properties:
-        users:
-          type: array
-          items:
-            $ref: '#/components/schemas/User'
-        message:
+        email:
           type: string
-    UserListErrorResponse:
+        id:
+          type: uuid
+        name:
+          type: integer
+        token:
+          type: string
+    UserResponse:
       type: object
       properties:
-        users:
-          type: array
-        message:
+        email:
           type: string
+        id:
+          type: uuid
+        name:
+          type: integer
+        is_admin:
+          type: boolean
+        is_active:
+          type: boolean

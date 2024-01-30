@@ -37,9 +37,6 @@ components:
     PassCreate:
       type: object
       properties:
-        owner_id:
-          type: string
-          format: uuid
         name:
           type: string
         price:
@@ -54,7 +51,6 @@ components:
           type: string
           format: uuid
       required:
-        - owner_id
         - name
         - price
         - service_id
@@ -74,22 +70,3 @@ components:
         service_id:
           type: string
           format: uuid
-    PassListSuccessResponse:
-      type: object
-      properties:
-        passes:
-          $ref: '#/components/schemas/PassList'
-        message:
-          type: string
-    PassListErrorResponse:
-      type: object
-      properties:
-        passes:
-          type: array
-        message:
-          type: string
-    PassErrorResponse:
-      type: object
-      properties:
-        message:
-          type: string

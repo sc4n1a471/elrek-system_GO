@@ -17,25 +17,12 @@ type Service struct {
 
 // ServiceCreate defines model for ServiceCreate.
 type ServiceCreate struct {
-	Name    string            `json:"name"`
-	OwnerId openapitypes.UUID `json:"owner_id"`
-	Price   float32           `json:"price"`
+	Name  string  `json:"name"`
+	Price float32 `json:"price"`
 }
 
 // ServiceList defines model for ServiceList.
 type ServiceList = []Service
-
-// ServiceListErrorResponse defines model for ServiceListErrorResponse.
-type ServiceListErrorResponse struct {
-	Message  *string        `json:"message,omitempty"`
-	Services *[]interface{} `json:"services,omitempty"`
-}
-
-// ServiceListSuccessResponse defines model for ServiceListSuccessResponse.
-type ServiceListSuccessResponse struct {
-	Message  *string      `json:"message,omitempty"`
-	Services *ServiceList `json:"services,omitempty"`
-}
 
 // ServiceUpdate defines model for ServiceUpdate.
 type ServiceUpdate struct {

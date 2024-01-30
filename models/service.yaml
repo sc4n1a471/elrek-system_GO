@@ -38,9 +38,6 @@ components:
     ServiceCreate:
       type: object
       properties:
-        owner_id:
-          type: string
-          format: uuid
         name:
           type: string
         price:
@@ -48,7 +45,6 @@ components:
         #location:
         #  type: string
       required:
-        - owner_id
         - name
         - price
     ServiceUpdate:
@@ -60,17 +56,3 @@ components:
           type: number
         #location:
         #  type: string
-    ServiceListSuccessResponse:
-      type: object
-      properties:
-        services:
-          $ref: '#/components/schemas/ServiceList'
-        message:
-          type: string
-    ServiceListErrorResponse:
-      type: object
-      properties:
-        services:
-          type: array
-        message:
-          type: string

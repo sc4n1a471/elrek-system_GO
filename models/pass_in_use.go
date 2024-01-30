@@ -30,18 +30,6 @@ type PassInUseCreate struct {
 // PassInUseList defines model for PassInUseList.
 type PassInUseList = []PassInUse
 
-// PassInUseListErrorResponse defines model for PassInUseListErrorResponse.
-type PassInUseListErrorResponse struct {
-	Message     *string        `json:"message,omitempty"`
-	PassesInUse *[]interface{} `json:"passes_in_use,omitempty"`
-}
-
-// PassInUseListSuccessResponse defines model for PassInUseListSuccessResponse.
-type PassInUseListSuccessResponse struct {
-	Message     *string        `json:"message,omitempty"`
-	PassesInUse *PassInUseList `json:"passes_in_use,omitempty"`
-}
-
 // PassInUseUpdate defines model for PassInUseUpdate.
 type PassInUseUpdate struct {
 	Comment    *string    `json:"comment,omitempty"`

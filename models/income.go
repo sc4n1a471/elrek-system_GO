@@ -32,18 +32,6 @@ type IncomeCreate struct {
 // IncomeList defines model for IncomeList.
 type IncomeList = []Income
 
-// IncomeListErrorResponse defines model for IncomeListErrorResponse.
-type IncomeListErrorResponse struct {
-	Incomes *[]interface{} `json:"incomes,omitempty"`
-	Message *string        `json:"message,omitempty"`
-}
-
-// IncomeListSuccessResponse defines model for IncomeListSuccessResponse.
-type IncomeListSuccessResponse struct {
-	Incomes *IncomeList `json:"incomes,omitempty"`
-	Message *string     `json:"message,omitempty"`
-}
-
 // IncomeUpdate defines model for IncomeUpdate.
 type IncomeUpdate struct {
 	Amount      *float32           `json:"amount,omitempty"`

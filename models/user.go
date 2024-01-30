@@ -9,33 +9,38 @@ import openapitypes "github.com/oapi-codegen/runtime/types"
 type User struct {
 	CreatedAt *time.Time          `json:"created_at,omitempty"`
 	Email     *openapitypes.Email `json:"email,omitempty"`
-	Id        *openapitypes.UUID  `json:"id,omitempty"`
-	IsActive  *bool               `json:"is_active,omitempty"`
-	IsAdmin   *bool               `json:"is_admin,omitempty"`
+	Id        *openapitypes.UUID  `json:"id,omitempty,primaryKey"`
+	IsActive  bool                `json:"is_active,omitempty,default:true"`
+	IsAdmin   bool                `json:"is_admin,omitempty,default:false"`
 	Name      *string             `json:"name,omitempty"`
-	OwnerId   *openapitypes.Email `json:"owner_id,omitempty"`
+	OwnerId   *openapitypes.UUID  `json:"owner_id,omitempty"`
 	Password  *string             `json:"password,omitempty"`
 	UpdatedAt *time.Time          `json:"updated_at,omitempty"`
+}
+
+// UserLoginResponse defines model for UserLoginResponse.
+type UserLoginResponse struct {
+	Email *openapitypes.Email `json:"email,omitempty"`
+	Id    *openapitypes.UUID  `json:"id,omitempty"`
+	Name  *string             `json:"name,omitempty"`
+	Token *string             `json:"token,omitempty"`
+}
+
+// UserResponse defines model for UserResponse.
+type UserResponse struct {
+	Email    *openapitypes.Email `json:"email,omitempty"`
+	Id       *openapitypes.UUID  `json:"id,omitempty"`
+	IsActive bool                `json:"is_active"`
+	IsAdmin  bool                `json:"is_admin"`
+	Name     *string             `json:"name,omitempty"`
 }
 
 // UserCreate defines model for UserCreate.
 type UserCreate struct {
 	Email    openapitypes.Email `json:"email"`
 	Name     string             `json:"name"`
-	OwnerId  openapitypes.Email `json:"owner_id"`
 	Password string             `json:"password"`
-}
-
-// UserListErrorResponse defines model for UserListErrorResponse.
-type UserListErrorResponse struct {
-	Message *string        `json:"message,omitempty"`
-	Users   *[]interface{} `json:"users,omitempty"`
-}
-
-// UserListSuccessResponse defines model for UserListSuccessResponse.
-type UserListSuccessResponse struct {
-	Message *string `json:"message,omitempty"`
-	Users   *[]User `json:"users,omitempty"`
+	IsAdmin  bool               `json:"is_admin,omitempty,default:false"`
 }
 
 // UserLogin defines model for UserLogin.
@@ -49,4 +54,5 @@ type UserUpdate struct {
 	Email    *openapitypes.Email `json:"email,omitempty"`
 	Name     *string             `json:"name,omitempty"`
 	Password string              `json:"password"`
+	IsAdmin  *bool               `json:"is_admin,omitempty,default:false"`
 }
