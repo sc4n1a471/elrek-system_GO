@@ -5,7 +5,37 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	openapitypes "github.com/oapi-codegen/runtime/types"
+	"golang.org/x/crypto/bcrypt"
 )
+
+func Login(ctx *gin.Context) {
+	var userLogin models.UserLogin
+	if err := ctx.BindJSON(&userLogin); err != nil {
+		SendMessageOnly("Parse error: "+err.Error(), ctx, 400)
+		return
+	}
+
+	var user models.User
+	result := DB.First(&user, "email = ?", userLogin.Email)
+	if result.Error != nil {
+		SendMessageOnly("Could not get user: "+result.Error.Error(), ctx, 500)
+		return
+	}
+
+	if err := bcrypt.CompareHashAndPassword(user.Password, []byte(userLogin.Password)); err != nil {
+		// If the email is present in the DB then compare the Passwords and if incorrect password then return error.
+		SendMessageOnly("Wrong password", ctx, 401)
+		return
+	}
+
+	var userLoginResponse models.UserLoginResponse
+	userLoginResponse.Email = user.Email
+	userLoginResponse.Id = user.Id
+	userLoginResponse.Name = user.Name
+	userLoginResponse.Token = nil // TODO: generate token
+
+	ctx.JSON(200, userLoginResponse)
+}
 
 func GetUsers(ctx *gin.Context) {
 	var queryParameters map[string][]string = ctx.Request.URL.Query()
@@ -66,13 +96,16 @@ func CreateUser(ctx *gin.Context) {
 		return
 	}
 
+	password, _ := bcrypt.GenerateFromPassword([]byte(userCreate.Password), 14)
+	//GenerateFromPassword returns the bcrypt hash of the password at the given cost i.e. (14 in our case).
+
 	var user models.User
 	generatedUUID := openapitypes.UUID(uuid.New())
 	user.Id = &generatedUUID
 	user.Email = &userCreate.Email
 	user.Name = &userCreate.Name
 	user.OwnerId = &generatedUUID // TODO: change this to the actual owner id
-	user.Password = &userCreate.Password
+	user.Password = password
 	user.IsAdmin = userCreate.IsAdmin
 	user.IsActive = true
 
@@ -120,7 +153,8 @@ func UpdateUser(ctx *gin.Context) {
 	}
 
 	if userUpdate.Password != "" {
-		user.Password = &userUpdate.Password
+		password, _ := bcrypt.GenerateFromPassword([]byte(userUpdate.Password), 14)
+		user.Password = password
 	}
 
 	if userUpdate.IsAdmin != nil {

@@ -15,6 +15,11 @@ func Api() {
 	}
 
 	router := gin.Default()
+
+	// AUTH
+	router.POST("/login", controllers.Login)
+
+	// USERS
 	router.GET("/users", controllers.GetUsers)
 	router.GET("/users/:id", controllers.GetUser)
 	router.POST("/users", controllers.CreateUser)

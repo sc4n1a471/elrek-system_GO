@@ -14,7 +14,7 @@ type User struct {
 	IsAdmin   bool                `json:"is_admin,omitempty,default:false"`
 	Name      *string             `json:"name,omitempty"`
 	OwnerId   *openapitypes.UUID  `json:"owner_id,omitempty"`
-	Password  *string             `json:"password,omitempty"`
+	Password  []byte              `json:"-"`
 	UpdatedAt *time.Time          `json:"updated_at,omitempty"`
 }
 
