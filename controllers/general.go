@@ -41,6 +41,7 @@ func SetupDB() error {
 		fmt.Print(err.Error())
 		return err
 	}
+	fmt.Println("Successfully connected to database!")
 
 	return nil
 }

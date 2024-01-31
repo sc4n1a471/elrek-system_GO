@@ -18,6 +18,7 @@ func Api() {
 
 	// AUTH
 	router.POST("/login", controllers.Login)
+	router.POST("/logout", controllers.Logout)
 
 	// USERS
 	router.GET("/users", controllers.GetUsers)

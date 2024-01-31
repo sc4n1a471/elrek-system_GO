@@ -3,10 +3,14 @@ package controllers
 import (
 	"elrek-system_GO/models"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	openapitypes "github.com/oapi-codegen/runtime/types"
 	"golang.org/x/crypto/bcrypt"
+	"time"
 )
+
+var SecretKey = "123456789ABCDEF"
 
 func Login(ctx *gin.Context) {
 	var userLogin models.UserLogin
@@ -28,16 +32,83 @@ func Login(ctx *gin.Context) {
 		return
 	}
 
+	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
+		Issuer:    user.Id.String(),                      //issuer contains the ID of the user.
+		ExpiresAt: time.Now().Add(time.Hour * 24).Unix(), //Adds time to the token i.e. 24 hours.
+	})
+
+	token, err := claims.SignedString([]byte(SecretKey))
+
+	if err != nil {
+		SendMessageOnly("Could not login: "+err.Error(), ctx, 500)
+		return
+	}
+
+	_, err = ctx.Cookie("jwt")
+	if err != nil {
+		//cookie = "he"
+		ctx.SetCookie("jwt", token, 3600, "/", "localhost", false, true)
+	}
+	ctx.SetCookie("jwt", token, 3600, "/", "localhost", false, true)
+
 	var userLoginResponse models.UserLoginResponse
 	userLoginResponse.Email = user.Email
 	userLoginResponse.Id = user.Id
 	userLoginResponse.Name = user.Name
-	userLoginResponse.Token = nil // TODO: generate token
 
 	ctx.JSON(200, userLoginResponse)
 }
 
+// This function checks if the user is authenticated or not. If yes, returns the following information
+//  1. bool: true if authenticated else false
+//  2. string: the user ID
+//  3. bool: true if the user is admin else false
+func checkAuth(ctx *gin.Context, onlyAdmin bool) string {
+	cookie, err := ctx.Cookie("jwt")
+
+	token, err := jwt.ParseWithClaims(cookie, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(SecretKey), nil //using the SecretKey which was generated in th Login function
+	})
+
+	if err != nil {
+		SendMessageOnly("Not logged in", ctx, 401)
+		return ""
+	}
+
+	claims := token.Claims.(*jwt.StandardClaims)
+
+	var user models.User
+	result := DB.First(&user, "id = ?", claims.Issuer)
+	if result.Error != nil {
+		SendMessageOnly("Could not get user in checking authentication: "+result.Error.Error(), ctx, 500)
+		return ""
+	}
+
+	if onlyAdmin && !user.IsAdmin {
+		SendMessageOnly("Access denied", ctx, 403)
+		return ""
+	}
+
+	return claims.Issuer
+}
+
+func Logout(ctx *gin.Context) {
+	_, err := ctx.Cookie("jwt")
+	if err != nil {
+		SendMessageOnly("Not logged in", ctx, 401)
+		return
+	}
+
+	ctx.SetCookie("jwt", "", -1, "/", "localhost", false, true)
+	SendMessageOnly("Logged out successfully", ctx, 200)
+}
+
 func GetUsers(ctx *gin.Context) {
+	userId := checkAuth(ctx, true)
+	if userId == "" {
+		return
+	}
+
 	var queryParameters map[string][]string = ctx.Request.URL.Query()
 	var isActive bool = true
 	if len(queryParameters) != 0 {
@@ -45,7 +116,7 @@ func GetUsers(ctx *gin.Context) {
 	}
 
 	var users []models.User
-	result := DB.Where("is_active = ?", isActive).Find(&users)
+	result := DB.Where("is_active = ? and owner_id = ?", isActive, userId).Find(&users)
 	if result.Error != nil {
 		SendMessageOnly("Could not get users: "+result.Error.Error(), ctx, 500)
 		return
@@ -71,12 +142,31 @@ func GetUsers(ctx *gin.Context) {
 }
 
 func GetUser(ctx *gin.Context) {
+	userId := checkAuth(ctx, false)
+	if userId == "" {
+		return
+	}
+
 	var user models.User
 	id := ctx.Param("id")
-	result := DB.First(&user, "id = ?", id)
-	if result.Error != nil {
-		SendMessageOnly("Could not get user: "+result.Error.Error(), ctx, 500)
-		return
+
+	if userId != id {
+		userId = checkAuth(ctx, true)
+		if userId == "" {
+			return
+		}
+
+		result := DB.Where("owner_id = ?", userId).First(&user, "id = ?", id)
+		if result.Error != nil {
+			SendMessageOnly("Could not get user: "+result.Error.Error(), ctx, 500)
+			return
+		}
+	} else {
+		result := DB.First(&user, "id = ?", id)
+		if result.Error != nil {
+			SendMessageOnly("Could not get user: "+result.Error.Error(), ctx, 500)
+			return
+		}
 	}
 
 	var userResponse models.UserResponse
@@ -90,6 +180,11 @@ func GetUser(ctx *gin.Context) {
 }
 
 func CreateUser(ctx *gin.Context) {
+	userId := checkAuth(ctx, true)
+	if userId == "" {
+		return
+	}
+
 	var userCreate models.UserCreate
 	if err := ctx.BindJSON(&userCreate); err != nil {
 		SendMessageOnly("Parse error: "+err.Error(), ctx, 400)
@@ -100,11 +195,10 @@ func CreateUser(ctx *gin.Context) {
 	//GenerateFromPassword returns the bcrypt hash of the password at the given cost i.e. (14 in our case).
 
 	var user models.User
-	generatedUUID := openapitypes.UUID(uuid.New())
-	user.Id = &generatedUUID
-	user.Email = &userCreate.Email
+	user.Id = openapitypes.UUID(uuid.New())
+	user.Email = userCreate.Email
 	user.Name = &userCreate.Name
-	user.OwnerId = &generatedUUID // TODO: change this to the actual owner id
+	user.OwnerId = openapitypes.UUID(uuid.MustParse(userId))
 	user.Password = password
 	user.IsAdmin = userCreate.IsAdmin
 	user.IsActive = true
@@ -112,7 +206,7 @@ func CreateUser(ctx *gin.Context) {
 	tx := DB.Begin()
 
 	result := tx.Where("email = ?", user.Email).First(&user)
-	if result.Error == nil {
+	if result.RowsAffected != 0 {
 		tx.Rollback()
 		SendMessageOnly("User with this email already exists", ctx, 400)
 		return
@@ -130,6 +224,11 @@ func CreateUser(ctx *gin.Context) {
 }
 
 func UpdateUser(ctx *gin.Context) {
+	userId := checkAuth(ctx, false)
+	if userId == "" {
+		return
+	}
+
 	var userUpdate models.UserUpdate
 	if err := ctx.BindJSON(&userUpdate); err != nil {
 		SendMessageOnly("Parse error: "+err.Error(), ctx, 400)
@@ -138,15 +237,22 @@ func UpdateUser(ctx *gin.Context) {
 
 	var user models.User
 	id := ctx.Param("id")
+	if userId != id {
+		userId = checkAuth(ctx, true)
+		if userId == "" {
+			return
+		}
+	}
+
 	result := DB.First(&user, "id = ?", id)
 	if result.Error != nil {
 		SendMessageOnly("Could not get existing user: "+result.Error.Error(), ctx, 500)
 		return
 	}
 
-	if userUpdate.Email != nil {
-		user.Email = userUpdate.Email
-	}
+	//if userUpdate.Email != nil {
+	//	user.Email = userUpdate.Email
+	//}
 
 	if userUpdate.Name != nil {
 		user.Name = userUpdate.Name
@@ -158,6 +264,10 @@ func UpdateUser(ctx *gin.Context) {
 	}
 
 	if userUpdate.IsAdmin != nil {
+		userId = checkAuth(ctx, true)
+		if userId == "" {
+			return
+		}
 		user.IsAdmin = *userUpdate.IsAdmin
 	}
 
@@ -171,9 +281,14 @@ func UpdateUser(ctx *gin.Context) {
 }
 
 func DeleteUser(ctx *gin.Context) {
+	userId := checkAuth(ctx, true)
+	if userId == "" {
+		return
+	}
+
 	var user models.User
 	id := ctx.Param("id")
-	result := DB.First(&user, "id = ?", id)
+	result := DB.First(&user, "id = ? and owner_id = ?", id, userId)
 	if result.Error != nil {
 		SendMessageOnly("Could not get existing user: "+result.Error.Error(), ctx, 500)
 		return

@@ -86,8 +86,8 @@ components:
           type: uuid
         name:
           type: integer
-        token:
-          type: string
+        is_admin:
+          type: boolean
     UserResponse:
       type: object
       properties:
