@@ -42,8 +42,14 @@ components:
           type: string
         price:
           type: number
+        comment:
+          type: string
         #location:
         #  type: string
+        dynamic_prices:
+          type: array
+          items:
+            $ref: './dynamic_price.yaml#/components/schemas/Dynamic_priceCreateUpdate'
       required:
         - name
         - price
@@ -56,3 +62,9 @@ components:
           type: number
         #location:
         #  type: string
+        comment:
+          type: string
+        dynamic_prices:
+            type: array
+            items:
+              $ref: './dynamic_price.yaml#/components/schemas/Dynamic_priceCreateUpdate'

@@ -317,12 +317,12 @@ paths:
     post:
       description: Endpoint for dynamic_price creation
       requestBody:
-        description: Dynamic_price object that needs to be added to the database
+        description: Array of dynamic_price object that needs to be added to the database
         required: true
         content:
           application/json:
             schema:
-              $ref: './models/dynamic_price.yaml#/components/schemas/Dynamic_priceCreate'
+              $ref: './models/dynamic_price.yaml#/components/schemas/Dynamic_priceCreateUpdate'
       responses:
         200:
           description: Dynamic_price was created successfully
@@ -364,7 +364,11 @@ paths:
       tags:
         - dynamic_prices
     put:
-      description: Endpoint for dynamic_price update
+      description: Not endpoint for dynamic_price update
+        Should only be called when updating service
+        Receives an array of dynamic_price objects
+        Makes inactive all dynamic_prices for the service that is changed
+        Creates new dynamic_prices for the service
       parameters:
         - name: id
           in: path
@@ -373,12 +377,12 @@ paths:
           schema:
             type: string
       requestBody:
-        description: Dynamic_price object that needs to be updated in the database
+        description: Array of dynamic_price object that needs to be updated in the database
         required: true
         content:
           application/json:
             schema:
-              $ref: './models/dynamic_price.yaml#/components/schemas/Dynamic_priceUpdate'
+              $ref: './models/dynamic_price.yaml#/components/schemas/Dynamic_price'
       responses:
         200:
           description: Dynamic_price was updated successfully
@@ -395,7 +399,8 @@ paths:
       tags:
         - dynamic_prices
     delete:
-      description: Endpoint for dynamic_price deletion
+      description: Not endpoint for dynamic_price deletion
+        Makes dynamic_price inactive
       parameters:
         - name: id
           in: path

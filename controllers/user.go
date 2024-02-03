@@ -63,7 +63,7 @@ func Login(ctx *gin.Context) {
 //  1. bool: true if authenticated else false
 //  2. string: the user ID
 //  3. bool: true if the user is admin else false
-func checkAuth(ctx *gin.Context, onlyAdmin bool) string {
+func CheckAuth(ctx *gin.Context, onlyAdmin bool) (string, bool) {
 	cookie, err := ctx.Cookie("jwt")
 
 	token, err := jwt.ParseWithClaims(cookie, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
@@ -72,7 +72,7 @@ func checkAuth(ctx *gin.Context, onlyAdmin bool) string {
 
 	if err != nil {
 		SendMessageOnly("Not logged in", ctx, 401)
-		return ""
+		return "", false
 	}
 
 	claims := token.Claims.(*jwt.StandardClaims)
@@ -81,15 +81,15 @@ func checkAuth(ctx *gin.Context, onlyAdmin bool) string {
 	result := DB.First(&user, "id = ?", claims.Issuer)
 	if result.Error != nil {
 		SendMessageOnly("Could not get user in checking authentication: "+result.Error.Error(), ctx, 500)
-		return ""
+		return "", false
 	}
 
 	if onlyAdmin && !user.IsAdmin {
 		SendMessageOnly("Access denied", ctx, 403)
-		return ""
+		return "", false
 	}
 
-	return claims.Issuer
+	return claims.Issuer, user.IsAdmin
 }
 
 func Logout(ctx *gin.Context) {
@@ -104,7 +104,7 @@ func Logout(ctx *gin.Context) {
 }
 
 func GetUsers(ctx *gin.Context) {
-	userId := checkAuth(ctx, true)
+	userId, _ := CheckAuth(ctx, true)
 	if userId == "" {
 		return
 	}
@@ -142,7 +142,7 @@ func GetUsers(ctx *gin.Context) {
 }
 
 func GetUser(ctx *gin.Context) {
-	userId := checkAuth(ctx, false)
+	userId, _ := CheckAuth(ctx, false)
 	if userId == "" {
 		return
 	}
@@ -151,7 +151,7 @@ func GetUser(ctx *gin.Context) {
 	id := ctx.Param("id")
 
 	if userId != id {
-		userId = checkAuth(ctx, true)
+		userId, _ = CheckAuth(ctx, true)
 		if userId == "" {
 			return
 		}
@@ -180,7 +180,7 @@ func GetUser(ctx *gin.Context) {
 }
 
 func CreateUser(ctx *gin.Context) {
-	userId := checkAuth(ctx, true)
+	userId, _ := CheckAuth(ctx, true)
 	if userId == "" {
 		return
 	}
@@ -224,7 +224,7 @@ func CreateUser(ctx *gin.Context) {
 }
 
 func UpdateUser(ctx *gin.Context) {
-	userId := checkAuth(ctx, false)
+	userId, _ := CheckAuth(ctx, false)
 	if userId == "" {
 		return
 	}
@@ -238,7 +238,7 @@ func UpdateUser(ctx *gin.Context) {
 	var user models.User
 	id := ctx.Param("id")
 	if userId != id {
-		userId = checkAuth(ctx, true)
+		userId, _ = CheckAuth(ctx, true)
 		if userId == "" {
 			return
 		}
@@ -264,7 +264,7 @@ func UpdateUser(ctx *gin.Context) {
 	}
 
 	if userUpdate.IsAdmin != nil {
-		userId = checkAuth(ctx, true)
+		userId, _ = CheckAuth(ctx, true)
 		if userId == "" {
 			return
 		}
@@ -281,7 +281,7 @@ func UpdateUser(ctx *gin.Context) {
 }
 
 func DeleteUser(ctx *gin.Context) {
-	userId := checkAuth(ctx, true)
+	userId, _ := CheckAuth(ctx, true)
 	if userId == "" {
 		return
 	}

@@ -22,34 +22,22 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/Dynamic_price'
-    Dynamic_priceCreate:
-      type: object
-      properties:
-        owner_id:
-          type: string
-          format: uuid
-        attendees:
-          type: number
-        price:
-          type: number
-        service_id:
-          type: string
-          format: uuid
-      required:
-        - owner_id
-        - attendees
-        - price
-        - service_id
-    Dynamic_priceUpdate:
-      type: object
-      properties:
-        attendees:
-          type: number
-        price:
-          type: number
-        service_id:
-          type: string
-          format: uuid
+    Dynamic_priceCreateUpdate:
+      type: array
+      items:
+        type: object
+        properties:
+          owner_id:
+            type: string
+            format: uuid
+          attendees:
+            type: number
+          price:
+            type: number
+        required:
+          - owner_id
+          - attendees
+          - price
     Dynamic_priceListSuccessResponse:
       type: object
       properties:

@@ -13,6 +13,11 @@ import (
 var DB *gorm.DB
 var Error error
 
+type ActionResponse struct {
+	Success bool
+	Message string
+}
+
 func SetupDB() error {
 	dsn := os.Getenv("DB_USERNAME") +
 		":" +
