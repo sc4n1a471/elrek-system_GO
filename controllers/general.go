@@ -19,6 +19,7 @@ type ActionResponse struct {
 }
 
 func SetupDB() error {
+	fmt.Println("Connecting to database...")
 	dsn := os.Getenv("DB_USERNAME") +
 		":" +
 		os.Getenv("DB_PASSWORD") +
@@ -53,7 +54,7 @@ func SetupDB() error {
 
 func SendMessageOnly(message string, ctx *gin.Context, statusCode int) {
 	ctx.IndentedJSON(statusCode, models.MessageOnlyResponse{
-		Message: &message,
+		Message: message,
 	})
 }
 

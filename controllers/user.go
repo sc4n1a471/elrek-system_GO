@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"elrek-system_GO/models"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
@@ -19,7 +20,7 @@ func Login(ctx *gin.Context) {
 		return
 	}
 
-	var user models.User
+	var user *models.User
 	result := DB.First(&user, "email = ?", userLogin.Email)
 	if result.Error != nil {
 		SendMessageOnly("Could not get user: "+result.Error.Error(), ctx, 500)
@@ -55,6 +56,7 @@ func Login(ctx *gin.Context) {
 	userLoginResponse.Email = user.Email
 	userLoginResponse.Id = user.Id
 	userLoginResponse.Name = user.Name
+	userLoginResponse.IsAdmin = user.IsAdmin
 
 	ctx.JSON(200, userLoginResponse)
 }
@@ -191,13 +193,20 @@ func CreateUser(ctx *gin.Context) {
 		return
 	}
 
+	// Check if user is already present in the DB
+	checkResult := DB.First(&models.User{}, "email = ?", userCreate.Email)
+	if checkResult.RowsAffected != 0 {
+		SendMessageOnly("User with this email already exists", ctx, 400)
+		return
+	}
+
 	password, _ := bcrypt.GenerateFromPassword([]byte(userCreate.Password), 14)
 	//GenerateFromPassword returns the bcrypt hash of the password at the given cost i.e. (14 in our case).
 
 	var user models.User
 	user.Id = openapitypes.UUID(uuid.New())
 	user.Email = userCreate.Email
-	user.Name = &userCreate.Name
+	user.Name = userCreate.Name
 	user.OwnerId = openapitypes.UUID(uuid.MustParse(userId))
 	user.Password = password
 	user.IsAdmin = userCreate.IsAdmin
@@ -220,7 +229,7 @@ func CreateUser(ctx *gin.Context) {
 	}
 
 	tx.Commit()
-	SendMessageOnly("User was created successfully", ctx, 200)
+	SendMessageOnly("User was created successfully", ctx, 201)
 }
 
 func UpdateUser(ctx *gin.Context) {
@@ -255,7 +264,7 @@ func UpdateUser(ctx *gin.Context) {
 	//}
 
 	if userUpdate.Name != nil {
-		user.Name = userUpdate.Name
+		user.Name = *userUpdate.Name
 	}
 
 	if userUpdate.Password != "" {
@@ -264,8 +273,10 @@ func UpdateUser(ctx *gin.Context) {
 	}
 
 	if userUpdate.IsAdmin != nil {
-		userId, _ = CheckAuth(ctx, true)
-		if userId == "" {
+		fmt.Println("isAdmin update")
+		userIdAdmin, _ := CheckAuth(ctx, true)
+		fmt.Println(userIdAdmin == "")
+		if userIdAdmin == "" {
 			return
 		}
 		user.IsAdmin = *userUpdate.IsAdmin
@@ -303,4 +314,27 @@ func DeleteUser(ctx *gin.Context) {
 	}
 
 	SendMessageOnly("User was deleted successfully", ctx, 200)
+}
+
+func DeleteUserPermanently(ctx *gin.Context) {
+	userId, _ := CheckAuth(ctx, true)
+	if userId == "" {
+		return
+	}
+
+	var user models.User
+	id := ctx.Param("id")
+	result := DB.First(&user, "id = ? and owner_id = ?", id, userId)
+	if result.Error != nil {
+		SendMessageOnly("Could not get existing user: "+result.Error.Error(), ctx, 500)
+		return
+	}
+
+	result = DB.Delete(&user)
+	if result.Error != nil {
+		SendMessageOnly("Could not delete user: "+result.Error.Error(), ctx, 500)
+		return
+	}
+
+	SendMessageOnly("User was permanently deleted successfully", ctx, 200)
 }

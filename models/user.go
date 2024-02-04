@@ -7,15 +7,15 @@ import openapitypes "github.com/oapi-codegen/runtime/types"
 
 // User defines model for User.
 type User struct {
-	CreatedAt *time.Time         `json:"created_at,omitempty"`
+	CreatedAt time.Time          `json:"created_at,omitempty"`
 	Email     openapitypes.Email `gorm:"unique"`
 	Id        openapitypes.UUID  `gorm:"primaryKey"`
 	IsActive  bool               `gorm:"default:true"`
 	IsAdmin   bool               `gorm:"default:false"`
-	Name      *string            `json:"name,omitempty"`
+	Name      string             `json:"name,omitempty"`
 	OwnerId   openapitypes.UUID  `json:"owner_id,omitempty"`
 	Password  []byte             `json:"-"`
-	UpdatedAt *time.Time         `json:"updated_at,omitempty"`
+	UpdatedAt time.Time          `json:"updated_at,omitempty"`
 }
 
 // UserResponse defines model for UserResponse.
@@ -24,7 +24,7 @@ type UserResponse struct {
 	Id       openapitypes.UUID  `json:"id,omitempty"`
 	IsActive bool               `json:"is_active"`
 	IsAdmin  bool               `json:"is_admin"`
-	Name     *string            `json:"name,omitempty"`
+	Name     string             `json:"name,omitempty"`
 }
 
 // UserCreate defines model for UserCreate.
@@ -45,7 +45,7 @@ type UserLogin struct {
 type UserLoginResponse struct {
 	Email   openapitypes.Email `json:"email,omitempty"`
 	Id      openapitypes.UUID  `json:"id,omitempty"`
-	Name    *string            `json:"name,omitempty"`
+	Name    string             `json:"name,omitempty"`
 	IsAdmin bool               `json:"is_admin"`
 }
 

@@ -56,7 +56,7 @@ func CreateServiceWrapper(ctx *gin.Context) {
 		return
 	}
 	tx.Commit()
-	SendMessageOnly("Service was created successfully", ctx, 200)
+	SendMessageOnly("Service was created successfully", ctx, 201)
 }
 
 func createService(ctx *gin.Context, tx *gorm.DB, userId string, prevServiceId string) ActionResponse {

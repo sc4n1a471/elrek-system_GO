@@ -191,6 +191,33 @@ paths:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - users
+  /users/permanently/{id}:
+    delete:
+      description: Endpoint for user permanent deletion
+        This deletes the user, not just makes it inactive
+        Should only be called from tests to delete test user
+      parameters:
+        - name: id
+          in: path
+          description: ID of the user to permanently delete
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: User was permanently deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - users
   /services:
     get:
       description: Endpoint for service(s) listing
