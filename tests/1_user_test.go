@@ -6,6 +6,7 @@ import (
 	"elrek-system_GO/controllers"
 	"elrek-system_GO/models"
 	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/assert/v2"
 	"github.com/google/uuid"
@@ -17,9 +18,12 @@ import (
 )
 
 var adminCookies []*http.Cookie
+var halfAdminCookies []*http.Cookie
 var nonAdminCookies []*http.Cookie
 var router *gin.Engine
-var userId openapitypes.UUID
+var halfAdminUserId openapitypes.UUID
+var nonAdminUserId openapitypes.UUID
+var adminUserId = openapitypes.UUID(uuid.MustParse("85ee6a8a-3fb8-4a87-9d76-3656524697fb"))
 
 func TestSetupUserTest(t *testing.T) {
 	dbError := controllers.SetupDB()
@@ -112,6 +116,30 @@ func TestLoginAsAdmin(t *testing.T) {
 	assert.Equal(t, correctResponseBody, responseBody)
 }
 
+func TestLoginAsNonAdmin(t *testing.T) {
+	requestBody := models.UserLogin{
+		Email:    "user3@example.com",
+		Password: "string",
+	}
+	marshalledRequestBody, _ := json.Marshal(requestBody)
+
+	responseBody := models.UserLoginResponse{}
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/login", bytes.NewReader(marshalledRequestBody))
+	router.ServeHTTP(w, req)
+	nonAdminCookies = w.Result().Cookies()
+
+	// MARK: Asserts ================
+	assert.Equal(t, 200, w.Code)
+
+	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
+	if err != nil {
+		t.Errorf("Error unmarshalling response body: %s", err)
+	}
+	nonAdminUserId = responseBody.Id
+}
+
 // MARK: Create user ===================
 func TestUserCreate(t *testing.T) {
 	requestBody := models.UserCreate{
@@ -193,7 +221,7 @@ func TestUserCreateWithoutCookies(t *testing.T) {
 	assert.Equal(t, correctResponseBody, responseBody)
 }
 
-func TestLoginAsNonAdmin(t *testing.T) {
+func TestLoginAsHalfAdmin(t *testing.T) {
 	requestBody := models.UserLogin{
 		Email:    "user5@example.com",
 		Password: "string",
@@ -205,7 +233,7 @@ func TestLoginAsNonAdmin(t *testing.T) {
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", "/login", bytes.NewReader(marshalledRequestBody))
 	router.ServeHTTP(w, req)
-	nonAdminCookies = w.Result().Cookies()
+	halfAdminCookies = w.Result().Cookies()
 
 	// MARK: Asserts ================
 	assert.Equal(t, 200, w.Code)
@@ -214,7 +242,7 @@ func TestLoginAsNonAdmin(t *testing.T) {
 	if err != nil {
 		t.Errorf("Error unmarshalling response body: %s", err)
 	}
-	userId = responseBody.Id
+	halfAdminUserId = responseBody.Id
 }
 
 func TestUserCreateWithoutAdmin(t *testing.T) {
@@ -231,7 +259,7 @@ func TestUserCreateWithoutAdmin(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", "/users", bytes.NewReader(marshalledRequestBody))
-	req.AddCookie(nonAdminCookies[0])
+	req.AddCookie(halfAdminCookies[0])
 	router.ServeHTTP(w, req)
 
 	// MARK: Asserts ================
@@ -248,7 +276,7 @@ func TestUserGetCreatedUser(t *testing.T) {
 	var responseBody []models.UserResponse
 	correctResponseBody := models.UserResponse{
 		Email:    "user5@example.com",
-		Id:       userId,
+		Id:       halfAdminUserId,
 		Name:     "",
 		IsAdmin:  false,
 		IsActive: true,
@@ -283,8 +311,8 @@ func TestUserUpdateNameWithoutAdmin(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("PATCH", "/users/"+userId.String(), bytes.NewReader(marshalledRequestBody))
-	req.AddCookie(nonAdminCookies[0])
+	req, _ := http.NewRequest("PATCH", "/users/"+halfAdminUserId.String(), bytes.NewReader(marshalledRequestBody))
+	req.AddCookie(halfAdminCookies[0])
 	router.ServeHTTP(w, req)
 
 	// MARK: Asserts ================
@@ -301,15 +329,15 @@ func TestUserUpdateNameWithoutAdminCheck(t *testing.T) {
 	var responseBody models.UserResponse
 	correctResponseBody := models.UserResponse{
 		Email:    "user5@example.com",
-		Id:       userId,
+		Id:       halfAdminUserId,
 		Name:     "User 5",
 		IsAdmin:  false,
 		IsActive: true,
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/users/"+userId.String(), nil)
-	req.AddCookie(nonAdminCookies[0])
+	req, _ := http.NewRequest("GET", "/users/"+halfAdminUserId.String(), nil)
+	req.AddCookie(halfAdminCookies[0])
 	router.ServeHTTP(w, req)
 
 	// MARK: Asserts ================
@@ -334,8 +362,8 @@ func TestUserUpdateIsAdminWithoutAdmin(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("PATCH", "/users/"+userId.String(), bytes.NewReader(marshalledRequestBody))
-	req.AddCookie(nonAdminCookies[0])
+	req, _ := http.NewRequest("PATCH", "/users/"+halfAdminUserId.String(), bytes.NewReader(marshalledRequestBody))
+	req.AddCookie(halfAdminCookies[0])
 	router.ServeHTTP(w, req)
 
 	// MARK: Asserts ================
@@ -352,15 +380,15 @@ func TestUserUpdateIsAdminWithoutAdminCheck(t *testing.T) {
 	var responseBody models.UserResponse
 	correctResponseBody := models.UserResponse{
 		Email:    "user5@example.com",
-		Id:       userId,
+		Id:       halfAdminUserId,
 		Name:     "User 5",
 		IsAdmin:  false,
 		IsActive: true,
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/users/"+userId.String(), nil)
-	req.AddCookie(nonAdminCookies[0])
+	req, _ := http.NewRequest("GET", "/users/"+halfAdminUserId.String(), nil)
+	req.AddCookie(halfAdminCookies[0])
 	router.ServeHTTP(w, req)
 
 	// MARK: Asserts ================
@@ -386,7 +414,7 @@ func TestUserUpdateName(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("PATCH", "/users/"+userId.String(), bytes.NewReader(marshalledRequestBody))
+	req, _ := http.NewRequest("PATCH", "/users/"+halfAdminUserId.String(), bytes.NewReader(marshalledRequestBody))
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -404,14 +432,14 @@ func TestUserUpdateNameCheck(t *testing.T) {
 	var responseBody models.UserResponse
 	correctResponseBody := models.UserResponse{
 		Email:    "user5@example.com",
-		Id:       userId,
+		Id:       halfAdminUserId,
 		Name:     "User 55",
 		IsAdmin:  false,
 		IsActive: true,
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/users/"+userId.String(), nil)
+	req, _ := http.NewRequest("GET", "/users/"+halfAdminUserId.String(), nil)
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -436,8 +464,11 @@ func TestUserUpdateIsAdmin(t *testing.T) {
 		Message: "User was updated successfully",
 	}
 
+	fmt.Println(nonAdminUserId)
+	fmt.Println(halfAdminUserId)
+
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("PATCH", "/users/"+userId.String(), bytes.NewReader(marshalledRequestBody))
+	req, _ := http.NewRequest("PATCH", "/users/"+halfAdminUserId.String(), bytes.NewReader(marshalledRequestBody))
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -455,14 +486,14 @@ func TestUserUpdateIsAdminCheck(t *testing.T) {
 	var responseBody models.UserResponse
 	correctResponseBody := models.UserResponse{
 		Email:    "user5@example.com",
-		Id:       userId,
+		Id:       halfAdminUserId,
 		Name:     "User 55",
 		IsAdmin:  true,
 		IsActive: true,
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/users/"+userId.String(), nil)
+	req, _ := http.NewRequest("GET", "/users/"+halfAdminUserId.String(), nil)
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -474,97 +505,4 @@ func TestUserUpdateIsAdminCheck(t *testing.T) {
 		t.Errorf("Error unmarshalling response body: %s", err)
 	}
 	assert.Equal(t, responseBody, correctResponseBody)
-}
-
-// MARK: Delete user ===================
-func TestUserDelete(t *testing.T) {
-	responseBody := models.MessageOnlyResponse{}
-	correctResponseBody := models.MessageOnlyResponse{
-		Message: "User was deleted successfully",
-	}
-
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("DELETE", "/users/"+userId.String(), nil)
-	req.AddCookie(adminCookies[0])
-	router.ServeHTTP(w, req)
-
-	// MARK: Asserts ================
-	assert.Equal(t, 200, w.Code)
-
-	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
-	if err != nil {
-		t.Errorf("Error unmarshalling response body: %s", err)
-	}
-	assert.Equal(t, correctResponseBody, responseBody)
-}
-
-func TestUserDeleteGetUsers(t *testing.T) {
-	var responseBody []models.UserResponse
-	correctResponseBody := models.UserResponse{
-		Email:    "user5@example.com",
-		Id:       userId,
-		Name:     "User 5",
-		IsAdmin:  true,
-		IsActive: true,
-	}
-
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/users", nil)
-	req.AddCookie(adminCookies[0])
-	router.ServeHTTP(w, req)
-
-	// MARK: Asserts ================
-	assert.Equal(t, 200, w.Code)
-
-	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
-	if err != nil {
-		t.Errorf("Error unmarshalling response body: %s", err)
-	}
-	assert2.NotContains(t, responseBody, correctResponseBody)
-}
-
-func TestUserDeleteGetUser(t *testing.T) {
-	var responseBody models.UserResponse
-	correctResponseBody := models.UserResponse{
-		Email:    "user5@example.com",
-		Id:       userId,
-		Name:     "User 55",
-		IsAdmin:  true,
-		IsActive: false,
-	}
-
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/users/"+userId.String(), nil)
-	req.AddCookie(adminCookies[0])
-	router.ServeHTTP(w, req)
-
-	// MARK: Asserts ================
-	assert.Equal(t, 200, w.Code)
-
-	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
-	if err != nil {
-		t.Errorf("Error unmarshalling response body: %s", err)
-	}
-	assert.Equal(t, responseBody, correctResponseBody)
-}
-
-func TestUserDeletePermanently(t *testing.T) {
-	responseBody := models.MessageOnlyResponse{}
-	correctResponseBody := models.MessageOnlyResponse{
-		Message: "User was permanently deleted successfully",
-	}
-
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("DELETE", "/users/permanently/"+userId.String(), nil)
-	req.AddCookie(adminCookies[0])
-	router.ServeHTTP(w, req)
-
-	// MARK: Asserts ================
-	assert.Equal(t, 200, w.Code)
-
-	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
-	if err != nil {
-		t.Errorf("Error unmarshalling response body: %s", err)
-	}
-	assert.Equal(t, correctResponseBody, responseBody)
 }

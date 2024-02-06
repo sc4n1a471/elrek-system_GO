@@ -276,7 +276,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './models/service.yaml#/components/schemas/Service'
+                $ref: './models/service.yaml#/components/schemas/ServiceWDP'
         default:
           description: Unexpected error, error is returned in message
           content:
@@ -285,7 +285,7 @@ paths:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - services
-    put:
+    patch:
       description: Endpoint for service update
       parameters:
         - name: id

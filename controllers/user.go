@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"elrek-system_GO/models"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
@@ -273,9 +272,7 @@ func UpdateUser(ctx *gin.Context) {
 	}
 
 	if userUpdate.IsAdmin != nil {
-		fmt.Println("isAdmin update")
 		userIdAdmin, _ := CheckAuth(ctx, true)
-		fmt.Println(userIdAdmin == "")
 		if userIdAdmin == "" {
 			return
 		}

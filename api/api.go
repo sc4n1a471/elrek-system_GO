@@ -55,7 +55,7 @@ func SetupRouter() *gin.Engine {
 	router.DELETE("/services/:id", controllers.DeleteServiceWrapper)
 
 	// DYNAMIC PRICES
-	router.GET("/dynamic_prices/:id", controllers.GetDynamicPrices)
+	router.GET("/dynamic_prices/:id", controllers.GetDynamicPricesWrapper)
 	//router.POST("/dynamic_prices", controllers.CreateDynamicPricesWrapperEndpoint)
 	//router.PATCH("/dynamic_prices/:id", controllers.UpdateDynamicPrices)
 	//router.DELETE("/dynamic_prices/:id", controllers.DeleteDynamicPrices)

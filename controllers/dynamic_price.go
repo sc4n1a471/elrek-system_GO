@@ -2,28 +2,36 @@ package controllers
 
 import (
 	"elrek-system_GO/models"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	openapitypes "github.com/oapi-codegen/runtime/types"
 	"gorm.io/gorm"
 )
 
-func GetDynamicPrices(ctx *gin.Context) {
+func GetDynamicPricesWrapper(ctx *gin.Context) {
 	userId, _ := CheckAuth(ctx, false)
 	if userId == "" {
 		return
 	}
 
-	var dynamicPrices []models.DynamicPrice
-	id := ctx.Param("id")
-
-	result := DB.Find(&dynamicPrices, "id = ?", id)
-	if result.Error != nil {
-		SendMessageOnly("Could not get dynamic prices: "+result.Error.Error(), ctx, 500)
+	serviceId := openapitypes.UUID(uuid.MustParse(ctx.Param("id")))
+	dynamicPrices, actionResponses := GetDynamicPrices(serviceId)
+	if !actionResponses.Success {
+		SendMessageOnly(actionResponses.Message, ctx, 500)
 		return
 	}
-
 	ctx.JSON(200, dynamicPrices)
+}
+
+func GetDynamicPrices(serviceId openapitypes.UUID) ([]models.DynamicPrice, ActionResponse) {
+	var dynamicPrices []models.DynamicPrice
+
+	result := DB.Find(&dynamicPrices, "service_id = ?", serviceId)
+	if result.Error != nil {
+		return nil, ActionResponse{false, "Could not get dynamic prices: " + result.Error.Error()}
+	}
+	return dynamicPrices, ActionResponse{true, "SUCCESS"}
 }
 
 // NOT USED CURRENTLY AS ENDPOINT
@@ -69,10 +77,33 @@ func createDynamicPrices(
 		dynamicPriceFull.Active = true
 		dynamicPriceFull.Id = openapitypes.UUID(uuid.New())
 
-		result := tx.Create(&dynamicPrice)
+		result := tx.Create(&dynamicPriceFull)
 		if result.Error != nil {
 			return ActionResponse{false, "Could not create dynamic price: " + result.Error.Error()}
 		}
+	}
+	return ActionResponse{true, "SUCCESS"}
+}
+
+func createDynamicPricesFromFullData(
+	tx *gorm.DB,
+	existingDynamicPrices []models.DynamicPrice,
+	userId string,
+	serviceId openapitypes.UUID) ActionResponse {
+
+	var strippedDynamicPrices []models.DynamicPriceCreateUpdate
+	for _, dynamicPrice := range existingDynamicPrices {
+		var strippedDynamicPrice models.DynamicPriceCreateUpdate
+		strippedDynamicPrice.OwnerId = openapitypes.UUID(uuid.MustParse(userId))
+		strippedDynamicPrice.Attendees = dynamicPrice.Attendees
+		strippedDynamicPrice.Price = dynamicPrice.Price
+
+		strippedDynamicPrices = append(strippedDynamicPrices, strippedDynamicPrice)
+	}
+
+	dpResult := createDynamicPrices(tx, strippedDynamicPrices, userId, serviceId)
+	if !dpResult.Success {
+		return dpResult
 	}
 	return ActionResponse{true, "SUCCESS"}
 }
@@ -134,6 +165,7 @@ func updateDynamicPrices(
 }
 
 func deleteDynamicPrices(tx *gorm.DB, deletableDynamicPrices []models.DynamicPrice) ActionResponse {
+	fmt.Println("Deleting ", len(deletableDynamicPrices), " dynamic prices")
 	for _, deletableDynamicPrice := range deletableDynamicPrices {
 		deletableDynamicPrice.Active = false
 

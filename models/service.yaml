@@ -31,10 +31,39 @@ components:
     #        - price
     #        - comment
     #        - active
+    ServiceWDP:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        owner_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        price:
+          type: number
+        #        location:
+        #          type: string
+        comment:
+          type: string
+        prev_service_id:
+          type: string
+          format: uuid
+        active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        dynamic_prices:
+          type: array
+          items:
+            $ref: './dynamic_price.yaml#/components/schemas/Dynamic_price'
     ServiceList:
       type: array
       items:
-        $ref: '#/components/schemas/Service'
+        $ref: '#/components/schemas/ServiceWDP'
     ServiceCreate:
       type: object
       properties:
@@ -65,6 +94,6 @@ components:
         comment:
           type: string
         dynamic_prices:
-            type: array
-            items:
-              $ref: './dynamic_price.yaml#/components/schemas/Dynamic_priceCreateUpdate'
+          type: array
+          items:
+            $ref: './dynamic_price.yaml#/components/schemas/Dynamic_priceCreateUpdate'
