@@ -9,77 +9,48 @@ import (
 	"gorm.io/gorm"
 )
 
-func getDPToService(services *[]models.Service) []models.ServiceWDP {
-	var servicesWDP []models.ServiceWDP
-	for _, service := range *services {
-		var serviceWDP models.ServiceWDP
-		serviceWDP.Id = service.Id
-		serviceWDP.Name = service.Name
-		serviceWDP.Price = service.Price
-		serviceWDP.OwnerId = service.OwnerId
-		serviceWDP.Comment = service.Comment
-		serviceWDP.IsActive = service.IsActive
-		serviceWDP.CreatedAt = service.CreatedAt
-		serviceWDP.PrevServiceId = service.PrevServiceId
-
-		dynamicPrices, dpResult := GetDynamicPrices(service.Id)
-		if !dpResult.Success {
-			fmt.Println(dpResult.Message)
-			continue
-		}
-		serviceWDP.DynamicPrices = &dynamicPrices
-
-		servicesWDP = append(servicesWDP, serviceWDP)
-	}
-	return servicesWDP
-}
-
 func GetServices(ctx *gin.Context) {
-	userId, _ := CheckAuth(ctx, true)
-	if userId == "" {
+	userID, _ := CheckAuth(ctx, true)
+	if userID == "" {
 		return
 	}
 
 	var services []models.Service
-	result := DB.Where("owner_id = ? and is_active = true", userId).Find(&services)
+	result := DB.Where("user_id = ? and is_active = true", userID).Preload("DynamicPrices").Find(&services)
 	if result.Error != nil {
 		SendMessageOnly("Could not get services: "+result.Error.Error(), ctx, 500)
 		return
 	}
 
-	servicesWDP := getDPToService(&services)
-
-	ctx.JSON(200, servicesWDP)
+	ctx.JSON(200, services)
 }
 
 func GetService(ctx *gin.Context) {
-	userId, _ := CheckAuth(ctx, false)
-	if userId == "" {
+	userID, _ := CheckAuth(ctx, false)
+	if userID == "" {
 		return
 	}
 
 	var service models.Service
 	id := ctx.Param("id")
 
-	result := DB.First(&service, "id = ?", id)
+	result := DB.Preload("DynamicPrices").First(&service, "id = ?", id)
 	if result.Error != nil {
 		SendMessageOnly("Could not get service: "+result.Error.Error(), ctx, 500)
 		return
 	}
 
-	serviceWDP := getDPToService(&[]models.Service{service})[0]
-
-	ctx.JSON(200, serviceWDP)
+	ctx.JSON(200, service)
 }
 
 func CreateServiceWrapper(ctx *gin.Context) {
-	userId, _ := CheckAuth(ctx, true)
-	if userId == "" {
+	userID, _ := CheckAuth(ctx, true)
+	if userID == "" {
 		return
 	}
 
 	tx := DB.Begin()
-	result := createService(ctx, tx, userId, openapitypes.UUID{})
+	result := createService(ctx, tx, userID, openapitypes.UUID{})
 	if !result.Success {
 		SendMessageOnly(result.Message, ctx, 500)
 		tx.Rollback()
@@ -89,7 +60,7 @@ func CreateServiceWrapper(ctx *gin.Context) {
 	SendMessageOnly("Service was created successfully", ctx, 201)
 }
 
-func createService(ctx *gin.Context, tx *gorm.DB, userId string, prevServiceId openapitypes.UUID) ActionResponse {
+func createService(ctx *gin.Context, tx *gorm.DB, userID string, prevServiceID openapitypes.UUID) ActionResponse {
 	var serviceCreate models.ServiceCreate
 	err := ctx.BindJSON(&serviceCreate)
 	if err != nil {
@@ -97,13 +68,13 @@ func createService(ctx *gin.Context, tx *gorm.DB, userId string, prevServiceId o
 	}
 
 	var service models.Service
-	service.OwnerId = openapitypes.UUID(uuid.MustParse(userId))
-	service.Id = openapitypes.UUID(uuid.New())
+	service.UserID = openapitypes.UUID(uuid.MustParse(userID))
+	service.ID = openapitypes.UUID(uuid.New())
 	service.Name = serviceCreate.Name
 	service.Price = serviceCreate.Price
 	service.Comment = serviceCreate.Comment
 	service.IsActive = true
-	service.PrevServiceId = prevServiceId
+	service.PrevServiceID = prevServiceID
 
 	result := tx.Create(&service)
 	if result.Error != nil {
@@ -111,7 +82,7 @@ func createService(ctx *gin.Context, tx *gorm.DB, userId string, prevServiceId o
 	}
 
 	if serviceCreate.DynamicPriceCreateUpdate != nil {
-		dpResult := createDynamicPrices(tx, *serviceCreate.DynamicPriceCreateUpdate, userId, service.Id)
+		dpResult := createDynamicPrices(tx, *serviceCreate.DynamicPriceCreateUpdate, userID, service.ID)
 		if !dpResult.Success {
 			return dpResult
 		}
@@ -121,8 +92,8 @@ func createService(ctx *gin.Context, tx *gorm.DB, userId string, prevServiceId o
 }
 
 func UpdateService(ctx *gin.Context) {
-	userId, _ := CheckAuth(ctx, true)
-	if userId == "" {
+	userID, _ := CheckAuth(ctx, true)
+	if userID == "" {
 		return
 	}
 
@@ -179,27 +150,27 @@ func UpdateService(ctx *gin.Context) {
 			return
 		}
 
-		service.PrevServiceId = service.Id
-		service.Id = openapitypes.UUID(uuid.New())
+		service.PrevServiceID = service.ID
+		service.ID = openapitypes.UUID(uuid.New())
 
 		result = tx.Create(&service)
 
 		if serviceUpdate.DynamicPrices != nil {
-			dpResult := createDynamicPrices(tx, *serviceUpdate.DynamicPrices, userId, service.Id)
+			dpResult := createDynamicPrices(tx, *serviceUpdate.DynamicPrices, userID, service.ID)
 			if !dpResult.Success {
 				SendMessageOnly(dpResult.Message, ctx, 500)
 				tx.Rollback()
 				return
 			}
 		} else {
-			dynamicPrices, dpResult := GetDynamicPrices(service.PrevServiceId)
+			dynamicPrices, dpResult := GetDynamicPrices(service.PrevServiceID)
 			if !dpResult.Success {
 				SendMessageOnly(dpResult.Message, ctx, 500)
 				tx.Rollback()
 				return
 			}
 
-			dpResult = createDynamicPricesFromFullData(tx, dynamicPrices, userId, service.Id)
+			dpResult = createDynamicPricesFromFullData(tx, dynamicPrices, userID, service.ID)
 			if !dpResult.Success {
 				SendMessageOnly(dpResult.Message, ctx, 500)
 				tx.Rollback()
@@ -219,8 +190,8 @@ func UpdateService(ctx *gin.Context) {
 }
 
 func DeleteServiceWrapper(ctx *gin.Context) {
-	userId, _ := CheckAuth(ctx, true)
-	if userId == "" {
+	userID, _ := CheckAuth(ctx, true)
+	if userID == "" {
 		return
 	}
 
@@ -238,10 +209,10 @@ func DeleteServiceWrapper(ctx *gin.Context) {
 	SendMessageOnly("Service was deleted successfully", ctx, 200)
 }
 
-func DeleteService(tx *gorm.DB, serviceId string) ActionResponse {
+func DeleteService(tx *gorm.DB, serviceID string) ActionResponse {
 	var service models.Service
 
-	result := tx.First(&service, "id = ?", serviceId)
+	result := tx.First(&service, "id = ?", serviceID)
 	if result.Error != nil {
 		return ActionResponse{false, "Could not get existing service: " + result.Error.Error()}
 	}
@@ -259,7 +230,7 @@ func deleteService(tx *gorm.DB, service models.Service) ActionResponse {
 		fmt.Println("Service part deleted")
 	}
 
-	dpResult := deleteDynamicPricesByServiceId(tx, service.Id)
+	dpResult := deleteDynamicPricesByServiceID(tx, service.ID)
 	if !dpResult.Success {
 		return dpResult
 	}

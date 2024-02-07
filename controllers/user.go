@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	openapitypes "github.com/oapi-codegen/runtime/types"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -33,7 +34,7 @@ func Login(ctx *gin.Context) {
 	}
 
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
-		Issuer:    user.Id.String(),                      //issuer contains the ID of the user.
+		Issuer:    user.ID.String(),                      //issuer contains the ID of the user.
 		ExpiresAt: time.Now().Add(time.Hour * 24).Unix(), //Adds time to the token i.e. 24 hours.
 	})
 
@@ -53,7 +54,7 @@ func Login(ctx *gin.Context) {
 
 	var userLoginResponse models.UserLoginResponse
 	userLoginResponse.Email = user.Email
-	userLoginResponse.Id = user.Id
+	userLoginResponse.ID = user.ID
 	userLoginResponse.Name = user.Name
 	userLoginResponse.IsAdmin = user.IsAdmin
 
@@ -105,8 +106,8 @@ func Logout(ctx *gin.Context) {
 }
 
 func GetUsers(ctx *gin.Context) {
-	userId, _ := CheckAuth(ctx, true)
-	if userId == "" {
+	userID, _ := CheckAuth(ctx, true)
+	if userID == "" {
 		return
 	}
 
@@ -117,7 +118,7 @@ func GetUsers(ctx *gin.Context) {
 	}
 
 	var users []models.User
-	result := DB.Where("is_active = ? and owner_id = ?", isActive, userId).Find(&users)
+	result := DB.Where("is_active = ? and owner_id = ?", isActive, userID).Find(&users)
 	if result.Error != nil {
 		SendMessageOnly("Could not get users: "+result.Error.Error(), ctx, 500)
 		return
@@ -132,7 +133,7 @@ func GetUsers(ctx *gin.Context) {
 	for _, user := range users {
 		var userResponse models.UserResponse
 		userResponse.Email = user.Email
-		userResponse.Id = user.Id
+		userResponse.ID = user.ID
 		userResponse.IsActive = user.IsActive
 		userResponse.IsAdmin = user.IsAdmin
 		userResponse.Name = user.Name
@@ -143,21 +144,21 @@ func GetUsers(ctx *gin.Context) {
 }
 
 func GetUser(ctx *gin.Context) {
-	userId, _ := CheckAuth(ctx, false)
-	if userId == "" {
+	userID, _ := CheckAuth(ctx, false)
+	if userID == "" {
 		return
 	}
 
 	var user models.User
 	id := ctx.Param("id")
 
-	if userId != id {
-		userId, _ = CheckAuth(ctx, true)
-		if userId == "" {
+	if userID != id {
+		userID, _ = CheckAuth(ctx, true)
+		if userID == "" {
 			return
 		}
 
-		result := DB.Where("owner_id = ?", userId).First(&user, "id = ?", id)
+		result := DB.Where("owner_id = ?", userID).First(&user, "id = ?", id)
 		if result.Error != nil {
 			SendMessageOnly("Could not get user: "+result.Error.Error(), ctx, 500)
 			return
@@ -172,7 +173,7 @@ func GetUser(ctx *gin.Context) {
 
 	var userResponse models.UserResponse
 	userResponse.Email = user.Email
-	userResponse.Id = user.Id
+	userResponse.ID = user.ID
 	userResponse.IsActive = user.IsActive
 	userResponse.IsAdmin = user.IsAdmin
 	userResponse.Name = user.Name
@@ -180,9 +181,9 @@ func GetUser(ctx *gin.Context) {
 	ctx.JSON(200, userResponse)
 }
 
-func CreateUser(ctx *gin.Context) {
-	userId, _ := CheckAuth(ctx, true)
-	if userId == "" {
+func CreateUserWrapper(ctx *gin.Context) {
+	userID, _ := CheckAuth(ctx, true)
+	if userID == "" {
 		return
 	}
 
@@ -192,48 +193,85 @@ func CreateUser(ctx *gin.Context) {
 		return
 	}
 
-	// Check if user is already present in the DB
-	checkResult := DB.First(&models.User{}, "email = ?", userCreate.Email)
-	if checkResult.RowsAffected != 0 {
-		SendMessageOnly("User with this email already exists", ctx, 400)
+	tx := DB.Begin()
+
+	createResult := createUser(userCreate, userID, tx, false)
+	if !createResult.Success {
+		SendMessageOnly(createResult.Message, ctx, 500)
+		tx.Rollback()
 		return
+	}
+
+	tx.Commit()
+	SendMessageOnly(createResult.Message, ctx, 201)
+}
+
+// CreateAdminUserWrapper Creates an admin account
+// ctx *gin.Context The context of the request
+func CreateAdminUserWrapper(ctx *gin.Context) {
+	userID := openapitypes.UUID{}.String()
+
+	var userCreate models.UserCreate
+	if err := ctx.BindJSON(&userCreate); err != nil {
+		SendMessageOnly("Parse error: "+err.Error(), ctx, 400)
+		return
+	}
+
+	tx := DB.Begin()
+
+	createResult := createUser(userCreate, userID, tx, true)
+	if !createResult.Success {
+		SendMessageOnly(createResult.Message, ctx, 500)
+		tx.Rollback()
+		return
+	}
+
+	tx.Commit()
+	SendMessageOnly(createResult.Message, ctx, 201)
+}
+
+// createUser Creates a user |
+// userCreate models.UserCreate - The user to be created |
+// userID string - The ID of the user |
+// tx *gorm.DB - The transaction |
+// admin bool - If the user is an admin
+func createUser(userCreate models.UserCreate, userID string, tx *gorm.DB, admin bool) ActionResponse {
+	// Check if user is already present in the DB
+	checkResult := tx.First(&models.User{}, "email = ?", userCreate.Email)
+	if checkResult.RowsAffected != 0 {
+		return ActionResponse{false, "User with this email already exists"}
 	}
 
 	password, _ := bcrypt.GenerateFromPassword([]byte(userCreate.Password), 14)
 	//GenerateFromPassword returns the bcrypt hash of the password at the given cost i.e. (14 in our case).
 
 	var user models.User
-	user.Id = openapitypes.UUID(uuid.New())
+	user.ID = openapitypes.UUID(uuid.New())
 	user.Email = userCreate.Email
 	user.Name = userCreate.Name
-	user.OwnerId = openapitypes.UUID(uuid.MustParse(userId))
 	user.Password = password
 	user.IsAdmin = userCreate.IsAdmin
 	user.IsActive = true
-
-	tx := DB.Begin()
-
-	result := tx.Where("email = ?", user.Email).First(&user)
-	if result.RowsAffected != 0 {
-		tx.Rollback()
-		SendMessageOnly("User with this email already exists", ctx, 400)
-		return
+	var ownerID openapitypes.UUID
+	if admin {
+		ownerID = user.ID
+		user.IsAdmin = true
+	} else {
+		ownerID = openapitypes.UUID(uuid.MustParse(userID))
 	}
+	user.OwnerID = ownerID
 
-	result = tx.Create(&user)
+	result := tx.Create(&user)
 	if result.Error != nil {
-		tx.Rollback()
-		SendMessageOnly("Could not create user: "+result.Error.Error(), ctx, 500)
-		return
+		return ActionResponse{false, "Could not create user: " + result.Error.Error()}
 	}
 
-	tx.Commit()
-	SendMessageOnly("User was created successfully", ctx, 201)
+	return ActionResponse{true, "User was created successfully"}
 }
 
 func UpdateUser(ctx *gin.Context) {
-	userId, _ := CheckAuth(ctx, false)
-	if userId == "" {
+	userID, _ := CheckAuth(ctx, false)
+	if userID == "" {
 		return
 	}
 
@@ -245,9 +283,9 @@ func UpdateUser(ctx *gin.Context) {
 
 	var user models.User
 	id := ctx.Param("id")
-	if userId != id {
-		userId, _ = CheckAuth(ctx, true)
-		if userId == "" {
+	if userID != id {
+		userID, _ = CheckAuth(ctx, true)
+		if userID == "" {
 			return
 		}
 	}
@@ -272,8 +310,8 @@ func UpdateUser(ctx *gin.Context) {
 	}
 
 	if userUpdate.IsAdmin != nil {
-		userIdAdmin, _ := CheckAuth(ctx, true)
-		if userIdAdmin == "" {
+		userIDAdmin, _ := CheckAuth(ctx, true)
+		if userIDAdmin == "" {
 			return
 		}
 		user.IsAdmin = *userUpdate.IsAdmin
@@ -289,14 +327,14 @@ func UpdateUser(ctx *gin.Context) {
 }
 
 func DeleteUser(ctx *gin.Context) {
-	userId, _ := CheckAuth(ctx, true)
-	if userId == "" {
+	userID, _ := CheckAuth(ctx, true)
+	if userID == "" {
 		return
 	}
 
 	var user models.User
 	id := ctx.Param("id")
-	result := DB.First(&user, "id = ? and owner_id = ?", id, userId)
+	result := DB.First(&user, "id = ? and owner_id = ?", id, userID)
 	if result.Error != nil {
 		SendMessageOnly("Could not get existing user: "+result.Error.Error(), ctx, 500)
 		return
@@ -314,14 +352,14 @@ func DeleteUser(ctx *gin.Context) {
 }
 
 func DeleteUserPermanently(ctx *gin.Context) {
-	userId, _ := CheckAuth(ctx, true)
-	if userId == "" {
+	userID, _ := CheckAuth(ctx, true)
+	if userID == "" {
 		return
 	}
 
 	var user models.User
 	id := ctx.Param("id")
-	result := DB.First(&user, "id = ? and owner_id = ?", id, userId)
+	result := DB.First(&user, "id = ? and owner_id = ?", id, userID)
 	if result.Error != nil {
 		SendMessageOnly("Could not get existing user: "+result.Error.Error(), ctx, 500)
 		return

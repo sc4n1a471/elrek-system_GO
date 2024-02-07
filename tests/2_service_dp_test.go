@@ -13,13 +13,13 @@ import (
 	"testing"
 )
 
-var serviceId openapitypes.UUID
-var serviceWDPId openapitypes.UUID
+var serviceID openapitypes.UUID
+var serviceWDPID openapitypes.UUID
 var serviceName string
 
 func TestServiceSetup(t *testing.T) {
-	randomId := rand.Intn(1000)
-	serviceName = fmt.Sprint("Service_", randomId)
+	randomID := rand.Intn(1000)
+	serviceName = fmt.Sprint("Service_", randomID)
 	fmt.Println("Service name: ", serviceName)
 }
 
@@ -98,8 +98,8 @@ func TestServiceCreateCheck(t *testing.T) {
 	correctResponseBody := models.Service{
 		IsActive:      true,
 		Name:          serviceName,
-		OwnerId:       adminUserId,
-		PrevServiceId: openapitypes.UUID{},
+		UserID:        adminUserID,
+		PrevServiceID: openapitypes.UUID{},
 		Price:         5000,
 	}
 
@@ -119,14 +119,17 @@ func TestServiceCreateCheck(t *testing.T) {
 		if service.Name == correctResponseBody.Name {
 			if service.Price == correctResponseBody.Price &&
 				service.IsActive &&
-				service.OwnerId == adminUserId &&
-				service.PrevServiceId == correctResponseBody.PrevServiceId {
+				service.UserID == correctResponseBody.UserID &&
+				service.PrevServiceID == correctResponseBody.PrevServiceID {
 
-				serviceId = service.Id
+				serviceID = service.ID
 				assert.Equal(t, correctResponseBody.Name, service.Name)
 				return
 			}
-			fmt.Println(service, correctResponseBody)
+			fmt.Println(service.Price, correctResponseBody.Price)
+			fmt.Println(service.IsActive, correctResponseBody.IsActive)
+			fmt.Println(service.UserID, correctResponseBody.UserID)
+			fmt.Println(service.PrevServiceID, correctResponseBody.PrevServiceID)
 			t.Errorf("Service attributes do not match")
 			return
 		}
@@ -173,11 +176,11 @@ func TestServiceCreateWithDP(t *testing.T) {
 }
 func TestServiceCreateWithDPCheck(t *testing.T) {
 	responseBody := models.ServiceList{}
-	correctResponseBody := models.ServiceWDP{
+	correctResponseBody := models.Service{
 		IsActive:      true,
 		Name:          serviceName + "_DP",
-		OwnerId:       adminUserId,
-		PrevServiceId: openapitypes.UUID{},
+		UserID:        adminUserID,
+		PrevServiceID: openapitypes.UUID{},
 		Price:         5000,
 		DynamicPrices: &[]models.DynamicPrice{
 			{
@@ -211,10 +214,10 @@ func TestServiceCreateWithDPCheck(t *testing.T) {
 		if service.Name == serviceName+"_DP" {
 			if service.Price == correctResponseBody.Price &&
 				service.IsActive &&
-				service.OwnerId == adminUserId &&
-				service.PrevServiceId == correctResponseBody.PrevServiceId {
+				service.UserID == adminUserID &&
+				service.PrevServiceID == correctResponseBody.PrevServiceID {
 
-				serviceWDPId = service.Id
+				serviceWDPID = service.ID
 				assert.Equal(t, correctResponseBody.Name, service.Name)
 			}
 		}
@@ -232,7 +235,7 @@ func TestServiceUpdateName(t *testing.T) {
 	correctResponseBody := models.MessageOnlyResponse{Message: "Service was updated successfully"}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("PATCH", "/services/"+serviceId.String(), bytes.NewBuffer(marshalledRequestBody))
+	req, _ := http.NewRequest("PATCH", "/services/"+serviceID.String(), bytes.NewBuffer(marshalledRequestBody))
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -247,9 +250,9 @@ func TestServiceUpdateName(t *testing.T) {
 func TestServiceUpdateNameCheck(t *testing.T) {
 	responseBody := models.ServiceList{}
 	correctResponseBody := models.Service{
-		Name:    serviceName + "_Updated",
-		OwnerId: adminUserId,
-		Price:   5000,
+		Name:   serviceName + "_Updated",
+		UserID: adminUserID,
+		Price:  5000,
 	}
 
 	w := httptest.NewRecorder()
@@ -268,9 +271,9 @@ func TestServiceUpdateNameCheck(t *testing.T) {
 		if service.Name == correctResponseBody.Name {
 			if service.Price == correctResponseBody.Price &&
 				service.IsActive &&
-				service.OwnerId == adminUserId {
+				service.UserID == adminUserID {
 
-				serviceId = service.Id
+				serviceID = service.ID
 				assert.Equal(t, correctResponseBody.Name, service.Name)
 				return
 			}
@@ -291,7 +294,7 @@ func TestServiceUpdatePrice(t *testing.T) {
 	correctResponseBody := models.MessageOnlyResponse{Message: "Service was updated successfully"}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("PATCH", "/services/"+serviceId.String(), bytes.NewBuffer(marshalledRequestBody))
+	req, _ := http.NewRequest("PATCH", "/services/"+serviceID.String(), bytes.NewBuffer(marshalledRequestBody))
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -306,9 +309,9 @@ func TestServiceUpdatePrice(t *testing.T) {
 func TestServiceUpdatePriceCheck(t *testing.T) {
 	responseBody := models.ServiceList{}
 	correctResponseBody := models.Service{
-		Name:    serviceName + "_Updated",
-		OwnerId: adminUserId,
-		Price:   5001,
+		Name:   serviceName + "_Updated",
+		UserID: adminUserID,
+		Price:  5001,
 	}
 
 	w := httptest.NewRecorder()
@@ -327,9 +330,9 @@ func TestServiceUpdatePriceCheck(t *testing.T) {
 		if service.Name == correctResponseBody.Name {
 			if service.Price == correctResponseBody.Price &&
 				service.IsActive &&
-				service.OwnerId == adminUserId {
+				service.UserID == adminUserID {
 
-				serviceId = service.Id
+				serviceID = service.ID
 				assert.Equal(t, correctResponseBody.Name, service.Name)
 				return
 			}
@@ -349,7 +352,7 @@ func TestServiceUpdatePriceCheck(t *testing.T) {
 //	correctResponseBody := models.MessageOnlyResponse{Message: "Service was updated successfully"}
 //
 //	w := httptest.NewRecorder()
-//	req, _ := http.NewRequest("PATCH", "/services/"+serviceId.String(), bytes.NewBuffer(marshalledRequestBody))
+//	req, _ := http.NewRequest("PATCH", "/services/"+serviceID.String(), bytes.NewBuffer(marshalledRequestBody))
 //	req.AddCookie(adminCookies[0])
 //	router.ServeHTTP(w, req)
 //
@@ -365,7 +368,7 @@ func TestServiceUpdatePriceCheck(t *testing.T) {
 //	responseBody := models.ServiceList{}
 //	correctResponseBody := models.Service{
 //		Name:    serviceName,
-//		OwnerId: adminUserId,
+//		PayerID: adminUserID,
 //		Price:   5000,
 //	}
 //
@@ -385,9 +388,9 @@ func TestServiceUpdatePriceCheck(t *testing.T) {
 //		if service.Name == correctResponseBody.Name {
 //			if service.Price == correctResponseBody.Price &&
 //				service.IsActive &&
-//				service.OwnerId == adminUserId {
+//				service.PayerID == adminUserID {
 //
-//				serviceId = service.Id
+//				serviceID = service.ID
 //				assert.Equal(t, correctResponseBody.Name, service.Name)
 //				return
 //			}
@@ -407,7 +410,7 @@ func TestServiceWDPUpdateName(t *testing.T) {
 	correctResponseBody := models.MessageOnlyResponse{Message: "Service was updated successfully"}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("PATCH", "/services/"+serviceWDPId.String(), bytes.NewBuffer(marshalledRequestBody))
+	req, _ := http.NewRequest("PATCH", "/services/"+serviceWDPID.String(), bytes.NewBuffer(marshalledRequestBody))
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -421,10 +424,10 @@ func TestServiceWDPUpdateName(t *testing.T) {
 }
 func TestServiceWDPUpdateNameCheck(t *testing.T) {
 	responseBody := models.ServiceList{}
-	correctResponseBody := models.ServiceWDP{
+	correctResponseBody := models.Service{
 		IsActive: true,
 		Name:     serviceName + "_DP" + "_Updated",
-		OwnerId:  adminUserId,
+		UserID:   adminUserID,
 		Price:    5000,
 		DynamicPrices: &[]models.DynamicPrice{
 			{
@@ -458,10 +461,10 @@ func TestServiceWDPUpdateNameCheck(t *testing.T) {
 		if service.Name == correctResponseBody.Name {
 			if service.Price == correctResponseBody.Price &&
 				service.IsActive &&
-				service.OwnerId == adminUserId {
+				service.UserID == adminUserID {
 
 				if models.AreDPsEqualInAttPri(*service.DynamicPrices, *correctResponseBody.DynamicPrices) {
-					serviceWDPId = service.Id
+					serviceWDPID = service.ID
 					assert.Equal(t, correctResponseBody.Name, service.Name)
 					return
 				}
@@ -488,7 +491,7 @@ func TestServiceWDPUpdatePrice(t *testing.T) {
 	correctResponseBody := models.MessageOnlyResponse{Message: "Service was updated successfully"}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("PATCH", "/services/"+serviceWDPId.String(), bytes.NewBuffer(marshalledRequestBody))
+	req, _ := http.NewRequest("PATCH", "/services/"+serviceWDPID.String(), bytes.NewBuffer(marshalledRequestBody))
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -502,10 +505,10 @@ func TestServiceWDPUpdatePrice(t *testing.T) {
 }
 func TestServiceWDPUpdatePriceCheck(t *testing.T) {
 	responseBody := models.ServiceList{}
-	correctResponseBody := models.ServiceWDP{
+	correctResponseBody := models.Service{
 		IsActive: true,
 		Name:     serviceName + "_DP" + "_Updated",
-		OwnerId:  adminUserId,
+		UserID:   adminUserID,
 		Price:    5001,
 		DynamicPrices: &[]models.DynamicPrice{
 			{
@@ -539,10 +542,10 @@ func TestServiceWDPUpdatePriceCheck(t *testing.T) {
 		if service.Name == correctResponseBody.Name {
 			if service.Price == correctResponseBody.Price &&
 				service.IsActive &&
-				service.OwnerId == adminUserId {
+				service.UserID == adminUserID {
 
 				if models.AreDPsEqualInAttPri(*service.DynamicPrices, *correctResponseBody.DynamicPrices) {
-					serviceWDPId = service.Id
+					serviceWDPID = service.ID
 					assert.Equal(t, correctResponseBody.Name, service.Name)
 					return
 				}
@@ -581,7 +584,7 @@ func TestServiceWDPUpdateDP(t *testing.T) {
 	correctResponseBody := models.MessageOnlyResponse{Message: "Service was updated successfully"}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("PATCH", "/services/"+serviceWDPId.String(), bytes.NewBuffer(marshalledRequestBody))
+	req, _ := http.NewRequest("PATCH", "/services/"+serviceWDPID.String(), bytes.NewBuffer(marshalledRequestBody))
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -595,10 +598,10 @@ func TestServiceWDPUpdateDP(t *testing.T) {
 }
 func TestServiceWDPUpdateDPCheck(t *testing.T) {
 	responseBody := models.ServiceList{}
-	correctResponseBody := models.ServiceWDP{
+	correctResponseBody := models.Service{
 		IsActive: true,
 		Name:     serviceName + "_DP" + "_Updated",
-		OwnerId:  adminUserId,
+		UserID:   adminUserID,
 		Price:    5001,
 		DynamicPrices: &[]models.DynamicPrice{
 			{
@@ -632,10 +635,10 @@ func TestServiceWDPUpdateDPCheck(t *testing.T) {
 		if service.Name == correctResponseBody.Name {
 			if service.Price == correctResponseBody.Price &&
 				service.IsActive &&
-				service.OwnerId == adminUserId {
+				service.UserID == adminUserID {
 
 				if models.AreDPsEqualInAttPri(*service.DynamicPrices, *correctResponseBody.DynamicPrices) {
-					serviceWDPId = service.Id
+					serviceWDPID = service.ID
 					assert.Equal(t, correctResponseBody.Name, service.Name)
 					return
 				}
@@ -679,7 +682,7 @@ func TestServiceWDPUpdateDPCheck(t *testing.T) {
 //	correctResponseBody := models.MessageOnlyResponse{Message: "Service was updated successfully"}
 //
 //	w := httptest.NewRecorder()
-//	req, _ := http.NewRequest("PATCH", "/services/"+serviceWDPId.String(), bytes.NewBuffer(marshalledRequestBody))
+//	req, _ := http.NewRequest("PATCH", "/services/"+serviceWDPID.String(), bytes.NewBuffer(marshalledRequestBody))
 //	req.AddCookie(adminCookies[0])
 //	router.ServeHTTP(w, req)
 //
@@ -696,7 +699,7 @@ func TestServiceWDPUpdateDPCheck(t *testing.T) {
 //	correctResponseBody := models.ServiceWDP{
 //		IsActive: true,
 //		Name:     serviceName + "_DP",
-//		OwnerId:  adminUserId,
+//		PayerID:  adminUserID,
 //		Price:    5000,
 //		DynamicPrices: &[]models.DynamicPrice{
 //			{
@@ -730,10 +733,10 @@ func TestServiceWDPUpdateDPCheck(t *testing.T) {
 //		if service.Name == correctResponseBody.Name {
 //			if service.Price == correctResponseBody.Price &&
 //				service.IsActive &&
-//				service.OwnerId == adminUserId {
+//				service.PayerID == adminUserID {
 //
 //				if models.AreDPsEqualInAttPri(*service.DynamicPrices, *correctResponseBody.DynamicPrices) {
-//					serviceWDPId = service.Id
+//					serviceWDPID = service.ID
 //					assert.Equal(t, correctResponseBody.Name, service.Name)
 //					return
 //				}

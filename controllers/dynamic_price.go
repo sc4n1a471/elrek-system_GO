@@ -10,13 +10,13 @@ import (
 )
 
 func GetDynamicPricesWrapper(ctx *gin.Context) {
-	userId, _ := CheckAuth(ctx, false)
-	if userId == "" {
+	userID, _ := CheckAuth(ctx, false)
+	if userID == "" {
 		return
 	}
 
-	serviceId := openapitypes.UUID(uuid.MustParse(ctx.Param("id")))
-	dynamicPrices, actionResponses := GetDynamicPrices(serviceId)
+	serviceID := openapitypes.UUID(uuid.MustParse(ctx.Param("id")))
+	dynamicPrices, actionResponses := GetDynamicPrices(serviceID)
 	if !actionResponses.Success {
 		SendMessageOnly(actionResponses.Message, ctx, 500)
 		return
@@ -24,10 +24,10 @@ func GetDynamicPricesWrapper(ctx *gin.Context) {
 	ctx.JSON(200, dynamicPrices)
 }
 
-func GetDynamicPrices(serviceId openapitypes.UUID) ([]models.DynamicPrice, ActionResponse) {
+func GetDynamicPrices(serviceID openapitypes.UUID) ([]models.DynamicPrice, ActionResponse) {
 	var dynamicPrices []models.DynamicPrice
 
-	result := DB.Find(&dynamicPrices, "service_id = ?", serviceId)
+	result := DB.Find(&dynamicPrices, "service_id = ?", serviceID)
 	if result.Error != nil {
 		return nil, ActionResponse{false, "Could not get dynamic prices: " + result.Error.Error()}
 	}
@@ -36,13 +36,13 @@ func GetDynamicPrices(serviceId openapitypes.UUID) ([]models.DynamicPrice, Actio
 
 // NOT USED CURRENTLY AS ENDPOINT
 //func CreateDynamicPricesWrapperEndpoint(ctx *gin.Context) {
-//	userId, _ := CheckAuth(ctx, true)
-//	if userId == "" {
+//	userID, _ := CheckAuth(ctx, true)
+//	if userID == "" {
 //		return
 //	}
 //
 //	tx := DB.Begin()
-//	result := CreateDynamicPricesWrapperJson(ctx, tx, userId)
+//	result := CreateDynamicPricesWrapperJson(ctx, tx, userID)
 //	if !result.Success {
 //		tx.Rollback()
 //		SendMessageOnly(result.Message, ctx, 500)
@@ -52,30 +52,30 @@ func GetDynamicPrices(serviceId openapitypes.UUID) ([]models.DynamicPrice, Actio
 //	SendMessageOnly("Dynamic prices were created successfully", ctx, 200)
 //}
 //
-//func CreateDynamicPricesWrapperJson(ctx *gin.Context, tx *gorm.DB, userId string) ActionResponse {
+//func CreateDynamicPricesWrapperJson(ctx *gin.Context, tx *gorm.DB, userID string) ActionResponse {
 //	var dynamicPrices []models.DynamicPriceCreateUpdate
 //	err := ctx.BindJSON(&dynamicPrices)
 //	if err != nil {
 //		return ActionResponse{false, "Dynamic price parse error: " + err.Error()}
 //	}
 //
-//	return createDynamicPrices(tx, dynamicPrices, userId)
+//	return createDynamicPrices(tx, dynamicPrices, userID)
 //}
 
 func createDynamicPrices(
 	tx *gorm.DB,
 	newDynamicPrices []models.DynamicPriceCreateUpdate,
-	userId string,
-	serviceId openapitypes.UUID) ActionResponse {
+	userID string,
+	serviceID openapitypes.UUID) ActionResponse {
 
 	for _, dynamicPrice := range newDynamicPrices {
 		var dynamicPriceFull models.DynamicPrice
-		dynamicPriceFull.ServiceId = serviceId
+		dynamicPriceFull.ServiceID = serviceID
 		dynamicPriceFull.Price = dynamicPrice.Price
 		dynamicPriceFull.Attendees = dynamicPrice.Attendees
-		dynamicPriceFull.OwnerId = openapitypes.UUID(uuid.MustParse(userId))
+		dynamicPriceFull.UserID = openapitypes.UUID(uuid.MustParse(userID))
 		dynamicPriceFull.Active = true
-		dynamicPriceFull.Id = openapitypes.UUID(uuid.New())
+		dynamicPriceFull.ID = openapitypes.UUID(uuid.New())
 
 		result := tx.Create(&dynamicPriceFull)
 		if result.Error != nil {
@@ -88,20 +88,20 @@ func createDynamicPrices(
 func createDynamicPricesFromFullData(
 	tx *gorm.DB,
 	existingDynamicPrices []models.DynamicPrice,
-	userId string,
-	serviceId openapitypes.UUID) ActionResponse {
+	userID string,
+	serviceID openapitypes.UUID) ActionResponse {
 
 	var strippedDynamicPrices []models.DynamicPriceCreateUpdate
 	for _, dynamicPrice := range existingDynamicPrices {
 		var strippedDynamicPrice models.DynamicPriceCreateUpdate
-		strippedDynamicPrice.OwnerId = openapitypes.UUID(uuid.MustParse(userId))
+		strippedDynamicPrice.OwnerID = openapitypes.UUID(uuid.MustParse(userID))
 		strippedDynamicPrice.Attendees = dynamicPrice.Attendees
 		strippedDynamicPrice.Price = dynamicPrice.Price
 
 		strippedDynamicPrices = append(strippedDynamicPrices, strippedDynamicPrice)
 	}
 
-	dpResult := createDynamicPrices(tx, strippedDynamicPrices, userId, serviceId)
+	dpResult := createDynamicPrices(tx, strippedDynamicPrices, userID, serviceID)
 	if !dpResult.Success {
 		return dpResult
 	}
@@ -111,20 +111,20 @@ func createDynamicPricesFromFullData(
 func updateDynamicPrices(
 	tx *gorm.DB,
 	updatableDyPrices []models.DynamicPrice,
-	userId string,
-	serviceId openapitypes.UUID) ActionResponse {
+	userID string,
+	serviceID openapitypes.UUID) ActionResponse {
 
 	var newDynamicPrices []models.DynamicPriceCreateUpdate
 
 	for _, updatableDyPrice := range updatableDyPrices {
 		var currentDynamicPrice models.DynamicPrice
-		result := DB.First(&currentDynamicPrice, "id = ?", updatableDyPrice.Id)
+		result := DB.First(&currentDynamicPrice, "id = ?", updatableDyPrice.ID)
 		if result.Error != nil {
 			return ActionResponse{false, "Could not get existing dynamic price: " + result.Error.Error()}
 		}
 
 		var newDynamicPrice models.DynamicPriceCreateUpdate
-		newDynamicPrice.OwnerId = updatableDyPrice.OwnerId
+		newDynamicPrice.OwnerID = updatableDyPrice.UserID
 
 		if updatableDyPrice.Attendees != currentDynamicPrice.Attendees {
 			newDynamicPrice.Attendees = updatableDyPrice.Attendees
@@ -138,7 +138,7 @@ func updateDynamicPrices(
 
 	var deletableDynamicPrices []models.DynamicPrice
 	var existingDynamicPrices []models.DynamicPrice
-	result := DB.Find(&existingDynamicPrices, "service_id = ?", serviceId)
+	result := DB.Find(&existingDynamicPrices, "service_id = ?", serviceID)
 	if result.Error != nil {
 		return ActionResponse{false, "Could not get existing dynamic prices before deletion: " + result.Error.Error()}
 	}
@@ -146,7 +146,7 @@ func updateDynamicPrices(
 	for _, existingDynamicPrice := range existingDynamicPrices {
 		found := false
 		for _, updatableDyPrice := range updatableDyPrices {
-			if existingDynamicPrice.Id == updatableDyPrice.Id {
+			if existingDynamicPrice.ID == updatableDyPrice.ID {
 				found = true
 				break
 			}
@@ -161,7 +161,7 @@ func updateDynamicPrices(
 		return deleteResult
 	}
 
-	return createDynamicPrices(tx, newDynamicPrices, userId, serviceId)
+	return createDynamicPrices(tx, newDynamicPrices, userID, serviceID)
 }
 
 func deleteDynamicPrices(tx *gorm.DB, deletableDynamicPrices []models.DynamicPrice) ActionResponse {
@@ -177,9 +177,9 @@ func deleteDynamicPrices(tx *gorm.DB, deletableDynamicPrices []models.DynamicPri
 	return ActionResponse{true, "SUCCESS"}
 }
 
-func deleteDynamicPricesByServiceId(tx *gorm.DB, serviceId openapitypes.UUID) ActionResponse {
+func deleteDynamicPricesByServiceID(tx *gorm.DB, serviceID openapitypes.UUID) ActionResponse {
 	var dynamicPrices []models.DynamicPrice
-	result := DB.Find(&dynamicPrices, "service_id = ?", serviceId)
+	result := DB.Find(&dynamicPrices, "service_id = ?", serviceID)
 	if result.Error != nil {
 		return ActionResponse{false, "Could not get dynamic prices: " + result.Error.Error()}
 	}

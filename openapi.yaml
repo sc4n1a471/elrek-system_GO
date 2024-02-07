@@ -111,6 +111,32 @@ paths:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - users
+  /users/create_admin:
+    post:
+      description: Endpoint for admin user creation
+        The OwnerID of this user will be the same that is generated as ID
+      requestBody:
+        description: User object that needs to be added to the database
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './models/user.yaml#/components/schemas/UserCreate'
+      responses:
+        200:
+          description: Admin user was created successfully
+          content:
+            application/json:
+              schema:
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - users
   /users/{id}:
     get:
       description: Endpoint for user listing
@@ -276,7 +302,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './models/service.yaml#/components/schemas/ServiceWDP'
+                $ref: './models/service.yaml#/components/schemas/Service'
         default:
           description: Unexpected error, error is returned in message
           content:
@@ -771,7 +797,7 @@ paths:
       tags:
         - incomes
     post:
-      description: Endpoint for income creation. 
+      description: Endpoint for income creation.
         In case of pass_in_use_id, validity is also checked and updated.
         In case of service_id, amount is calculated based on dynamic_price.
       requestBody:

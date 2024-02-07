@@ -6,38 +6,7 @@ components:
         id:
           type: string
           format: uuid
-        owner_id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        price:
-          type: number
-        #        location:
-        #          type: string
-        comment:
-          type: string
-        prev_service_id:
-          type: string
-          format: uuid
-        active:
-          type: boolean
-        created_at:
-          type: string
-          format: date-time
-    #      required:
-    #        - owner_id
-    #        - name
-    #        - price
-    #        - comment
-    #        - active
-    ServiceWDP:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        owner_id:
+        user_id:
           type: string
           format: uuid
         name:
@@ -63,7 +32,7 @@ components:
     ServiceList:
       type: array
       items:
-        $ref: '#/components/schemas/ServiceWDP'
+        $ref: '#/components/schemas/Service'
     ServiceCreate:
       type: object
       properties:

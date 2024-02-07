@@ -6,7 +6,7 @@ components:
         id:
           type: string
           format: uuid
-        owner_id:
+        user_id:
           type: string
           format: uuid
         attendees:
@@ -27,7 +27,7 @@ components:
       items:
         type: object
         properties:
-          owner_id:
+          user_id:
             type: string
             format: uuid
           attendees:
@@ -35,7 +35,7 @@ components:
           price:
             type: number
         required:
-          - owner_id
+          - user_id
           - attendees
           - price
     Dynamic_priceListSuccessResponse:

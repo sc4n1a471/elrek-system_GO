@@ -42,7 +42,8 @@ func SetupRouter() *gin.Engine {
 	// USERS
 	router.GET("/users", controllers.GetUsers)
 	router.GET("/users/:id", controllers.GetUser)
-	router.POST("/users", controllers.CreateUser)
+	router.POST("/users", controllers.CreateUserWrapper)
+	router.POST("/users/create_admin", controllers.CreateAdminUserWrapper)
 	router.PATCH("/users/:id", controllers.UpdateUser)
 	router.DELETE("/users/:id", controllers.DeleteUser)
 	router.DELETE("/users/permanently/:id", controllers.DeleteUserPermanently)

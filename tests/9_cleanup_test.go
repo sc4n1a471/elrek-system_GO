@@ -17,7 +17,7 @@ func TestServiceDeleteWithoutAdmin(t *testing.T) {
 	correctResponseBody := models.MessageOnlyResponse{Message: "Access denied"}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("DELETE", "/services/"+serviceId.String(), nil)
+	req, _ := http.NewRequest("DELETE", "/services/"+serviceID.String(), nil)
 	req.AddCookie(nonAdminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -35,7 +35,7 @@ func TestServiceDelete(t *testing.T) {
 	correctResponseBody := models.MessageOnlyResponse{Message: "Service was deleted successfully"}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("DELETE", "/services/"+serviceId.String(), nil)
+	req, _ := http.NewRequest("DELETE", "/services/"+serviceID.String(), nil)
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -52,8 +52,8 @@ func TestServiceDeleteCheck(t *testing.T) {
 	correctResponseBody := models.Service{
 		IsActive:      false,
 		Name:          serviceName + "_Updated",
-		OwnerId:       adminUserId,
-		PrevServiceId: openapitypes.UUID{},
+		UserID:        adminUserID,
+		PrevServiceID: openapitypes.UUID{},
 		Price:         5001,
 	}
 
@@ -73,8 +73,8 @@ func TestServiceDeleteCheck(t *testing.T) {
 		if service.Name == serviceName {
 			if service.Price == correctResponseBody.Price &&
 				!service.IsActive &&
-				service.OwnerId == adminUserId &&
-				service.PrevServiceId == correctResponseBody.PrevServiceId {
+				service.UserID == adminUserID &&
+				service.PrevServiceID == correctResponseBody.PrevServiceID {
 
 				assert.NotEqual(t, correctResponseBody.Name, service.Name)
 				return
@@ -88,7 +88,7 @@ func TestServiceWDPDelete(t *testing.T) {
 	correctResponseBody := models.MessageOnlyResponse{Message: "Service was deleted successfully"}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("DELETE", "/services/"+serviceWDPId.String(), nil)
+	req, _ := http.NewRequest("DELETE", "/services/"+serviceWDPID.String(), nil)
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -102,11 +102,11 @@ func TestServiceWDPDelete(t *testing.T) {
 }
 func TestServiceWDPDeleteCheck(t *testing.T) {
 	responseBody := models.ServiceList{}
-	correctResponseBody := models.ServiceWDP{
+	correctResponseBody := models.Service{
 		IsActive:      false,
 		Name:          serviceName + "_DP" + "_Updated",
-		OwnerId:       adminUserId,
-		PrevServiceId: openapitypes.UUID{},
+		UserID:        adminUserID,
+		PrevServiceID: openapitypes.UUID{},
 		Price:         5001,
 		DynamicPrices: &[]models.DynamicPrice{
 			{
@@ -140,7 +140,7 @@ func TestServiceWDPDeleteCheck(t *testing.T) {
 		if service.Name == serviceName {
 			if service.Price == correctResponseBody.Price &&
 				!service.IsActive &&
-				service.OwnerId == adminUserId &&
+				service.UserID == adminUserID &&
 				service.DynamicPrices == correctResponseBody.DynamicPrices {
 
 				assert.NotEqual(t, correctResponseBody.Name, service.Name)
@@ -163,7 +163,7 @@ func TestServiceWDPDeleteCheck(t *testing.T) {
 //	correctResponseBody := models.MessageOnlyResponse{Message: "Service was updated successfully"}
 //
 //	w := httptest.NewRecorder()
-//	req, _ := http.NewRequest("PATCH", "/services/"+serviceId.String(), bytes.NewBuffer(marshalledRequestBody))
+//	req, _ := http.NewRequest("PATCH", "/services/"+serviceID.String(), bytes.NewBuffer(marshalledRequestBody))
 //	req.AddCookie(adminCookies[0])
 //	router.ServeHTTP(w, req)
 //
@@ -184,7 +184,7 @@ func TestUserDelete(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("DELETE", "/users/"+halfAdminUserId.String(), nil)
+	req, _ := http.NewRequest("DELETE", "/users/"+halfAdminUserID.String(), nil)
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -202,7 +202,7 @@ func TestUserDeleteGetUsers(t *testing.T) {
 	var responseBody []models.UserResponse
 	correctResponseBody := models.UserResponse{
 		Email:    "user5@example.com",
-		Id:       halfAdminUserId,
+		ID:       halfAdminUserID,
 		Name:     "User 5",
 		IsAdmin:  true,
 		IsActive: true,
@@ -227,14 +227,14 @@ func TestUserDeleteGetUser(t *testing.T) {
 	var responseBody models.UserResponse
 	correctResponseBody := models.UserResponse{
 		Email:    "user5@example.com",
-		Id:       halfAdminUserId,
+		ID:       halfAdminUserID,
 		Name:     "User 55",
 		IsAdmin:  true,
 		IsActive: false,
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/users/"+halfAdminUserId.String(), nil)
+	req, _ := http.NewRequest("GET", "/users/"+halfAdminUserID.String(), nil)
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -255,7 +255,7 @@ func TestUserDeletePermanently(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("DELETE", "/users/permanently/"+halfAdminUserId.String(), nil)
+	req, _ := http.NewRequest("DELETE", "/users/permanently/"+halfAdminUserID.String(), nil)
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 

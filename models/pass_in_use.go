@@ -8,11 +8,12 @@ type PassInUse struct {
 	Active     *bool              `json:"active,omitempty"`
 	Comment    *string            `json:"comment,omitempty"`
 	CreatedAt  *time.Time         `json:"created_at,omitempty"`
-	Id         *openapitypes.UUID `json:"id,omitempty"`
+	ID         *openapitypes.UUID `json:"id,omitempty"`
 	Occasions  *int               `json:"occasions,omitempty"`
-	OwnerId    *openapitypes.UUID `json:"owner_id,omitempty"`
-	PassId     *openapitypes.UUID `json:"pass_id,omitempty"`
-	UserId     *openapitypes.UUID `json:"user_id,omitempty"`
+	UserID     *openapitypes.UUID `json:"user_id,omitempty" gorm:"size:255"`
+	Pass       Pass               `json:"pass,omitempty" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	PassID     *openapitypes.UUID `json:"pass_id,omitempty" gorm:"size:255"`
+	PayerID    *openapitypes.UUID `json:"payer_id,omitempty" gorm:"size:255"`
 	ValidFrom  *time.Time         `json:"valid_from,omitempty"`
 	ValidUntil *time.Time         `json:"valid_until,omitempty"`
 }
@@ -20,9 +21,9 @@ type PassInUse struct {
 // PassInUseCreate defines model for PassInUseCreate.
 type PassInUseCreate struct {
 	Comment    *string           `json:"comment,omitempty"`
-	OwnerId    openapitypes.UUID `json:"owner_id"`
-	PassId     openapitypes.UUID `json:"pass_id"`
-	UserId     openapitypes.UUID `json:"user_id"`
+	OwnerID    openapitypes.UUID `json:"owner_id"`
+	PassID     openapitypes.UUID `json:"pass_id"`
+	UserID     openapitypes.UUID `json:"user_id"`
 	ValidFrom  time.Time         `json:"valid_from"`
 	ValidUntil time.Time         `json:"valid_until"`
 }

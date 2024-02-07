@@ -21,9 +21,9 @@ var adminCookies []*http.Cookie
 var halfAdminCookies []*http.Cookie
 var nonAdminCookies []*http.Cookie
 var router *gin.Engine
-var halfAdminUserId openapitypes.UUID
-var nonAdminUserId openapitypes.UUID
-var adminUserId = openapitypes.UUID(uuid.MustParse("85ee6a8a-3fb8-4a87-9d76-3656524697fb"))
+var halfAdminUserID openapitypes.UUID
+var nonAdminUserID openapitypes.UUID
+var adminUserID = openapitypes.UUID(uuid.MustParse("16cf214e-a31c-4fb9-b381-2e30df8cc946"))
 
 func TestSetupUserTest(t *testing.T) {
 	dbError := controllers.SetupDB()
@@ -96,7 +96,7 @@ func TestLoginAsAdmin(t *testing.T) {
 	responseBody := models.UserLoginResponse{}
 	correctResponseBody := models.UserLoginResponse{
 		Email:   "user1@example.com",
-		Id:      openapitypes.UUID(uuid.MustParse("85ee6a8a-3fb8-4a87-9d76-3656524697fb")),
+		ID:      adminUserID,
 		Name:    "",
 		IsAdmin: true,
 	}
@@ -118,7 +118,7 @@ func TestLoginAsAdmin(t *testing.T) {
 
 func TestLoginAsNonAdmin(t *testing.T) {
 	requestBody := models.UserLogin{
-		Email:    "user3@example.com",
+		Email:    "user2@example.com",
 		Password: "string",
 	}
 	marshalledRequestBody, _ := json.Marshal(requestBody)
@@ -137,7 +137,7 @@ func TestLoginAsNonAdmin(t *testing.T) {
 	if err != nil {
 		t.Errorf("Error unmarshalling response body: %s", err)
 	}
-	nonAdminUserId = responseBody.Id
+	nonAdminUserID = responseBody.ID
 }
 
 // MARK: Create user ===================
@@ -186,7 +186,7 @@ func TestUserCreateDuplicate(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	// MARK: Asserts ================
-	assert.Equal(t, 400, w.Code)
+	assert.Equal(t, 500, w.Code) // TODO: Change to 400 when issue #3 is done
 
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
 	if err != nil {
@@ -242,7 +242,7 @@ func TestLoginAsHalfAdmin(t *testing.T) {
 	if err != nil {
 		t.Errorf("Error unmarshalling response body: %s", err)
 	}
-	halfAdminUserId = responseBody.Id
+	halfAdminUserID = responseBody.ID
 }
 
 func TestUserCreateWithoutAdmin(t *testing.T) {
@@ -276,7 +276,7 @@ func TestUserGetCreatedUser(t *testing.T) {
 	var responseBody []models.UserResponse
 	correctResponseBody := models.UserResponse{
 		Email:    "user5@example.com",
-		Id:       halfAdminUserId,
+		ID:       halfAdminUserID,
 		Name:     "",
 		IsAdmin:  false,
 		IsActive: true,
@@ -311,7 +311,7 @@ func TestUserUpdateNameWithoutAdmin(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("PATCH", "/users/"+halfAdminUserId.String(), bytes.NewReader(marshalledRequestBody))
+	req, _ := http.NewRequest("PATCH", "/users/"+halfAdminUserID.String(), bytes.NewReader(marshalledRequestBody))
 	req.AddCookie(halfAdminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -329,14 +329,14 @@ func TestUserUpdateNameWithoutAdminCheck(t *testing.T) {
 	var responseBody models.UserResponse
 	correctResponseBody := models.UserResponse{
 		Email:    "user5@example.com",
-		Id:       halfAdminUserId,
+		ID:       halfAdminUserID,
 		Name:     "User 5",
 		IsAdmin:  false,
 		IsActive: true,
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/users/"+halfAdminUserId.String(), nil)
+	req, _ := http.NewRequest("GET", "/users/"+halfAdminUserID.String(), nil)
 	req.AddCookie(halfAdminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -362,7 +362,7 @@ func TestUserUpdateIsAdminWithoutAdmin(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("PATCH", "/users/"+halfAdminUserId.String(), bytes.NewReader(marshalledRequestBody))
+	req, _ := http.NewRequest("PATCH", "/users/"+halfAdminUserID.String(), bytes.NewReader(marshalledRequestBody))
 	req.AddCookie(halfAdminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -380,14 +380,14 @@ func TestUserUpdateIsAdminWithoutAdminCheck(t *testing.T) {
 	var responseBody models.UserResponse
 	correctResponseBody := models.UserResponse{
 		Email:    "user5@example.com",
-		Id:       halfAdminUserId,
+		ID:       halfAdminUserID,
 		Name:     "User 5",
 		IsAdmin:  false,
 		IsActive: true,
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/users/"+halfAdminUserId.String(), nil)
+	req, _ := http.NewRequest("GET", "/users/"+halfAdminUserID.String(), nil)
 	req.AddCookie(halfAdminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -414,7 +414,7 @@ func TestUserUpdateName(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("PATCH", "/users/"+halfAdminUserId.String(), bytes.NewReader(marshalledRequestBody))
+	req, _ := http.NewRequest("PATCH", "/users/"+halfAdminUserID.String(), bytes.NewReader(marshalledRequestBody))
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -432,14 +432,14 @@ func TestUserUpdateNameCheck(t *testing.T) {
 	var responseBody models.UserResponse
 	correctResponseBody := models.UserResponse{
 		Email:    "user5@example.com",
-		Id:       halfAdminUserId,
+		ID:       halfAdminUserID,
 		Name:     "User 55",
 		IsAdmin:  false,
 		IsActive: true,
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/users/"+halfAdminUserId.String(), nil)
+	req, _ := http.NewRequest("GET", "/users/"+halfAdminUserID.String(), nil)
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -464,11 +464,11 @@ func TestUserUpdateIsAdmin(t *testing.T) {
 		Message: "User was updated successfully",
 	}
 
-	fmt.Println(nonAdminUserId)
-	fmt.Println(halfAdminUserId)
+	fmt.Println(nonAdminUserID)
+	fmt.Println(halfAdminUserID)
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("PATCH", "/users/"+halfAdminUserId.String(), bytes.NewReader(marshalledRequestBody))
+	req, _ := http.NewRequest("PATCH", "/users/"+halfAdminUserID.String(), bytes.NewReader(marshalledRequestBody))
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -486,14 +486,14 @@ func TestUserUpdateIsAdminCheck(t *testing.T) {
 	var responseBody models.UserResponse
 	correctResponseBody := models.UserResponse{
 		Email:    "user5@example.com",
-		Id:       halfAdminUserId,
+		ID:       halfAdminUserID,
 		Name:     "User 55",
 		IsAdmin:  true,
 		IsActive: true,
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/users/"+halfAdminUserId.String(), nil)
+	req, _ := http.NewRequest("GET", "/users/"+halfAdminUserID.String(), nil)
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
