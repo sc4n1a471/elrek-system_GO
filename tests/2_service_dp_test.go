@@ -16,9 +16,11 @@ import (
 var serviceID openapitypes.UUID
 var serviceWDPID openapitypes.UUID
 var serviceName string
+var serviceObject models.Service
+var randomID int
 
 func TestServiceSetup(t *testing.T) {
-	randomID := rand.Intn(1000)
+	randomID = rand.Intn(1000)
 	serviceName = fmt.Sprint("Service_", randomID)
 	fmt.Println("Service name: ", serviceName)
 }
@@ -121,7 +123,6 @@ func TestServiceCreateCheck(t *testing.T) {
 				service.IsActive &&
 				service.UserID == correctResponseBody.UserID &&
 				service.PrevServiceID == correctResponseBody.PrevServiceID {
-
 				serviceID = service.ID
 				assert.Equal(t, correctResponseBody.Name, service.Name)
 				return
@@ -332,6 +333,7 @@ func TestServiceUpdatePriceCheck(t *testing.T) {
 				service.IsActive &&
 				service.UserID == adminUserID {
 
+				serviceObject = service
 				serviceID = service.ID
 				assert.Equal(t, correctResponseBody.Name, service.Name)
 				return

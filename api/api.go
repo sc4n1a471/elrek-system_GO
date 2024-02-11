@@ -61,5 +61,12 @@ func SetupRouter() *gin.Engine {
 	//router.PATCH("/dynamic_prices/:id", controllers.UpdateDynamicPrices)
 	//router.DELETE("/dynamic_prices/:id", controllers.DeleteDynamicPrices)
 
+	// PASSES
+	router.GET("/passes", controllers.GetPasses)
+	router.GET("/passes/:id", controllers.GetPass)
+	router.POST("/passes", controllers.CreatePassWrapper)
+	router.PATCH("/passes/:id", controllers.UpdatePass)
+	router.DELETE("/passes/:id", controllers.DeletePassWrapper)
+
 	return router
 }

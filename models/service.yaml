@@ -29,6 +29,31 @@ components:
           type: array
           items:
             $ref: './dynamic_price.yaml#/components/schemas/Dynamic_price'
+    ServiceOnly:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        price:
+          type: number
+        #        location:
+        #          type: string
+        comment:
+          type: string
+        prev_service_id:
+          type: string
+          format: uuid
+        active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
     ServiceList:
       type: array
       items:

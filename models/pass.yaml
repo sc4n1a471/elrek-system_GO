@@ -24,9 +24,10 @@ components:
           type: boolean
         duration:
           type: string
-        service_id:
-          type: string
-          format: uuid
+        services:
+          type: array
+          items:
+            $ref: './service.yaml#/components/schemas/ServiceOnly'
         created_at:
           type: string
           format: date-time
