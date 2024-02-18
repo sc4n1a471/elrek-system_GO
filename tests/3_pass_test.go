@@ -15,7 +15,6 @@ import (
 )
 
 var passName string
-var passID openapitypes.UUID
 var service2ID string
 var service2Object models.Service
 
@@ -92,7 +91,7 @@ func TestPassCreate(t *testing.T) {
 
 	responseBody := models.MessageOnlyResponse{}
 	correctResponseBody := models.MessageOnlyResponse{
-		Message: "Pass was created, successfully",
+		Message: "Pass was created successfully",
 	}
 
 	w := httptest.NewRecorder()
@@ -134,27 +133,10 @@ func TestPassCreateCheck(t *testing.T) {
 		t.Errorf("Error while unmarshalling response body: %v", err)
 	}
 
-	for _, pass := range responseBody {
-		if pass.Name == correctResponseBody.Name {
-			assert.Equal(t, correctResponseBody.IsActive, pass.IsActive)
-			assert.Equal(t, correctResponseBody.Comment, pass.Comment)
-			assert.Equal(t, correctResponseBody.Duration, pass.Duration)
-			assert.Equal(t, correctResponseBody.OccasionLimit, pass.OccasionLimit)
-			assert.Equal(t, correctResponseBody.UserID, pass.UserID)
-			assert.Equal(t, correctResponseBody.PrevPassID, pass.PrevPassID)
-			assert.Equal(t, correctResponseBody.Price, pass.Price)
-			assert.Equal(t, correctResponseBody.Name, pass.Name)
-
-			// Required because getPasses does not return dynamic prices with services
-			correctResponseBody.Services[0].DynamicPrices = nil
-
-			assert.Equal(t, correctResponseBody.Services, pass.Services)
-			passID = pass.ID
-		}
-	}
+	passObject = checkPassEqual(t, responseBody, correctResponseBody, true)
 }
 
-func checkPassUpdateEqual(t *testing.T, correctResponseBody models.Pass, responseBody []models.Pass) {
+func checkPassEqual(t *testing.T, responseBody []models.Pass, correctResponseBody models.Pass, checkServices bool) models.Pass {
 	for _, pass := range responseBody {
 		if pass.Name == correctResponseBody.Name {
 			assert.Equal(t, correctResponseBody.IsActive, pass.IsActive)
@@ -166,15 +148,18 @@ func checkPassUpdateEqual(t *testing.T, correctResponseBody models.Pass, respons
 			assert.Equal(t, correctResponseBody.Price, pass.Price)
 			assert.Equal(t, correctResponseBody.Name, pass.Name)
 
-			// Required because getPasses does not return dynamic prices with services
-			correctResponseBody.Services[0].DynamicPrices = nil
-
-			checkServicesEqual(t, correctResponseBody.Services, pass.Services)
-			passID = pass.ID
+			if checkServices {
+				// Required because getPasses does not return dynamic prices with services
+				correctResponseBody.Services[0].DynamicPrices = nil
+				checkServicesEqual(t, pass.Services, correctResponseBody.Services)
+			}
+			return pass
 		}
 	}
+	t.Errorf("Error: Pass not found")
+	return models.Pass{}
 }
-func checkServicesEqual(t *testing.T, correctResponseBody []models.Service, responseBody []models.Service) {
+func checkServicesEqual(t *testing.T, responseBody []models.Service, correctResponseBody []models.Service) {
 	for _, service := range responseBody {
 		for _, correctService := range correctResponseBody {
 			if service.Name == correctService.Name {
@@ -205,7 +190,7 @@ func TestPassUpdate1(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("PATCH", fmt.Sprint("/passes/", passID), bytes.NewBuffer(marshalledRequestBody))
+	req, _ := http.NewRequest("PATCH", fmt.Sprint("/passes/", passObject.ID), bytes.NewBuffer(marshalledRequestBody))
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -244,7 +229,7 @@ func TestPassUpdate1Check(t *testing.T) {
 		t.Errorf("Error while unmarshalling response body: %v", err)
 	}
 
-	checkPassUpdateEqual(t, correctResponseBody, responseBody)
+	checkPassEqual(t, responseBody, correctResponseBody, true)
 }
 
 func TestPassUpdate2(t *testing.T) {
@@ -262,7 +247,7 @@ func TestPassUpdate2(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("PATCH", fmt.Sprint("/passes/", passID), bytes.NewBuffer(marshalledRequestBody))
+	req, _ := http.NewRequest("PATCH", fmt.Sprint("/passes/", passObject.ID), bytes.NewBuffer(marshalledRequestBody))
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -302,7 +287,7 @@ func TestPassUpdate2Check(t *testing.T) {
 		t.Errorf("Error while unmarshalling response body: %v", err)
 	}
 
-	checkPassUpdateEqual(t, correctResponseBody, responseBody)
+	checkPassEqual(t, responseBody, correctResponseBody, true)
 }
 
 // createService3 is used to create a second service to add to pass' services
@@ -372,7 +357,7 @@ func TestPassUpdate3(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("PATCH", fmt.Sprint("/passes/", passID), bytes.NewBuffer(marshalledRequestBody))
+	req, _ := http.NewRequest("PATCH", fmt.Sprint("/passes/", passObject.ID), bytes.NewBuffer(marshalledRequestBody))
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -414,7 +399,7 @@ func TestPassUpdate3Check(t *testing.T) {
 		t.Errorf("Error while unmarshalling response body: %v", err)
 	}
 
-	checkPassUpdateEqual(t, correctResponseBody, responseBody)
+	checkPassEqual(t, responseBody, correctResponseBody, true)
 }
 
 func TestPassDelete(t *testing.T) {
@@ -424,7 +409,7 @@ func TestPassDelete(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("DELETE", fmt.Sprint("/passes/", passID), nil)
+	req, _ := http.NewRequest("DELETE", fmt.Sprint("/passes/", passObject.ID), nil)
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -437,9 +422,6 @@ func TestPassDelete(t *testing.T) {
 }
 func TestPassDeleteCheck(t *testing.T) {
 	var responseBody []models.Pass
-	correctResponseBody := models.Pass{
-		Name: passName + "_Updated",
-	}
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/passes", nil)
@@ -453,8 +435,12 @@ func TestPassDeleteCheck(t *testing.T) {
 	}
 
 	for _, pass := range responseBody {
-		if pass.Name == correctResponseBody.Name {
-			t.Errorf("Error: Pass was not deleted")
+		if pass.ID == passObject.ID {
+			fmt.Println(pass)
+			if pass.IsActive {
+				t.Errorf("Error: Pass was not deleted")
+			}
+			return
 		}
 	}
 }

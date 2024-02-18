@@ -159,6 +159,7 @@ func TestUserCreate(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	// MARK: Asserts ================
+	fmt.Println(w.Body.String())
 	assert.Equal(t, 201, w.Code)
 
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)

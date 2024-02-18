@@ -20,6 +20,12 @@ type ActionResponse struct {
 
 func SetupDB() error {
 	fmt.Println("Connecting to database...")
+
+	//loc, err := time.LoadLocation("Europe/Budapest")
+	//if err != nil {
+	//	return err
+	//}
+
 	dsn := os.Getenv("DB_USERNAME") +
 		":" +
 		os.Getenv("DB_PASSWORD") +
@@ -29,7 +35,8 @@ func SetupDB() error {
 		os.Getenv("DB_PORT") +
 		")/" +
 		os.Getenv("DB_NAME") +
-		"?parseTime=true"
+		"?parseTime=true" +
+		"&loc=Local"
 
 	DB, Error = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if Error != nil {

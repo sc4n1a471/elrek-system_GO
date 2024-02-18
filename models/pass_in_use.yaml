@@ -18,6 +18,8 @@ components:
         pass_id:
           type: string
           format: uuid
+        pass:
+          $ref: './pass.yaml#/components/schemas/Pass'
         user_id:
           type: string
           format: uuid
@@ -42,7 +44,7 @@ components:
         pass_id:
           type: string
           format: uuid
-        user_id:
+        payer_id:
           type: string
           format: uuid
         valid_from:
@@ -53,7 +55,7 @@ components:
           format: date-time
       required:
         - pass_id
-        - user_id
+        - payer_id
         - valid_from
         - valid_until
     PassInUseUpdate:

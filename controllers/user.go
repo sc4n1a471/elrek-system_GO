@@ -61,10 +61,9 @@ func Login(ctx *gin.Context) {
 	ctx.JSON(200, userLoginResponse)
 }
 
-// This function checks if the user is authenticated or not. If yes, returns the following information
-//  1. bool: true if authenticated else false
-//  2. string: the user ID
-//  3. bool: true if the user is admin else false
+// CheckAuth This function checks if the user is authenticated or not. If yes, returns the following information
+//  1. string: the user ID
+//  2. bool: true if the user is admin else false
 func CheckAuth(ctx *gin.Context, onlyAdmin bool) (string, bool) {
 	cookie, err := ctx.Cookie("jwt")
 

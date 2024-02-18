@@ -113,9 +113,12 @@ func UpdateService(ctx *gin.Context) {
 		return
 	}
 
-	tx := DB.Begin()
+	if service.UserID.String() != userID {
+		SendMessageOnly("You are not allowed to update this service", ctx, 403)
+		return
+	}
 
-	fmt.Println(serviceUpdate.Name, serviceUpdate.Price, serviceUpdate.DynamicPrices, serviceUpdate.Comment)
+	tx := DB.Begin()
 
 	update := true
 	if serviceUpdate.Name != nil {

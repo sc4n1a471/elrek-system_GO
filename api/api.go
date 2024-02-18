@@ -26,7 +26,7 @@ func Api() {
 
 func SetupRouter() *gin.Engine {
 	router := gin.Default()
-	gin.SetMode(gin.ReleaseMode)
+	//gin.SetMode(gin.ReleaseMode)
 
 	// PING
 	router.GET("/ping", func(ctx *gin.Context) {
@@ -67,6 +67,15 @@ func SetupRouter() *gin.Engine {
 	router.POST("/passes", controllers.CreatePassWrapper)
 	router.PATCH("/passes/:id", controllers.UpdatePass)
 	router.DELETE("/passes/:id", controllers.DeletePassWrapper)
+
+	// PASSES IN USE
+	router.GET("/passes_in_use", controllers.GetPassesInUse)
+	router.GET("/passes_in_use/:id", controllers.GetPassInUse)
+	router.POST("/passes_in_use", controllers.CreatePassInUse)
+	router.PATCH("/passes_in_use/:id", controllers.UpdatePassInUse)
+	router.DELETE("/passes_in_use/:id", controllers.DeletePassInUse)
+	router.GET("/passes_in_use/:id/validity", controllers.CheckPassInUseValidityWrapper)
+	router.GET("/passes_in_use/:id/use", controllers.UsePassInUseWrapper)
 
 	return router
 }
