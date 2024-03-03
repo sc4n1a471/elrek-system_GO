@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	openapitypes "github.com/oapi-codegen/runtime/types"
 	"gorm.io/gorm"
+	"sort"
 )
 
 func GetDynamicPricesWrapper(ctx *gin.Context) {
@@ -16,7 +17,7 @@ func GetDynamicPricesWrapper(ctx *gin.Context) {
 	}
 
 	serviceID := openapitypes.UUID(uuid.MustParse(ctx.Param("id")))
-	dynamicPrices, actionResponses := GetDynamicPrices(serviceID)
+	dynamicPrices, actionResponses := getDynamicPrices(serviceID)
 	if !actionResponses.Success {
 		SendMessageOnly(actionResponses.Message, ctx, 500)
 		return
@@ -24,13 +25,19 @@ func GetDynamicPricesWrapper(ctx *gin.Context) {
 	ctx.JSON(200, dynamicPrices)
 }
 
-func GetDynamicPrices(serviceID openapitypes.UUID) ([]models.DynamicPrice, ActionResponse) {
+func getDynamicPrices(serviceID openapitypes.UUID) ([]models.DynamicPrice, ActionResponse) {
 	var dynamicPrices []models.DynamicPrice
 
 	result := DB.Find(&dynamicPrices, "service_id = ?", serviceID)
 	if result.Error != nil {
 		return nil, ActionResponse{false, "Could not get dynamic prices: " + result.Error.Error()}
 	}
+
+	// sorts array by attendees ascending
+	sort.Slice(dynamicPrices, func(i, j int) bool {
+		return dynamicPrices[i].Attendees < dynamicPrices[j].Attendees
+	})
+
 	return dynamicPrices, ActionResponse{true, "SUCCESS"}
 }
 

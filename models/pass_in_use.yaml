@@ -6,7 +6,7 @@ components:
         id:
           type: string
           format: uuid
-        owner_id:
+        user_id:
           type: string
           format: uuid
         occasions:
@@ -20,7 +20,7 @@ components:
           format: uuid
         pass:
           $ref: './pass.yaml#/components/schemas/Pass'
-        user_id:
+        payer_id:
           type: string
           format: uuid
         valid_from:

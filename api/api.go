@@ -63,7 +63,7 @@ func SetupRouter() *gin.Engine {
 
 	// PASSES
 	router.GET("/passes", controllers.GetPasses)
-	router.GET("/passes/:id", controllers.GetPass)
+	router.GET("/passes/:id", controllers.GetPassWrapper)
 	router.POST("/passes", controllers.CreatePassWrapper)
 	router.PATCH("/passes/:id", controllers.UpdatePass)
 	router.DELETE("/passes/:id", controllers.DeletePassWrapper)
@@ -75,7 +75,15 @@ func SetupRouter() *gin.Engine {
 	router.PATCH("/passes_in_use/:id", controllers.UpdatePassInUse)
 	router.DELETE("/passes_in_use/:id", controllers.DeletePassInUse)
 	router.GET("/passes_in_use/:id/validity", controllers.CheckPassInUseValidityWrapper)
-	router.GET("/passes_in_use/:id/use", controllers.UsePassInUseWrapper)
+	//router.GET("/passes_in_use/:id/use", controllers.UsePassInUseWrapper)
+
+	// INCOMES
+	router.GET("/incomes", controllers.GetIncomes)
+	router.GET("/incomes/:id", controllers.GetIncome)
+	router.POST("/incomes", controllers.CreateIncomeWrapper)
+	router.POST("/incomes/multiple_users", controllers.CreateIncomeMultipleUsersWrapper)
+	router.PATCH("/incomes/:id", controllers.UpdateIncome)
+	router.DELETE("/incomes/:id", controllers.DeleteIncome)
 
 	return router
 }

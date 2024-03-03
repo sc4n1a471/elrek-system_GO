@@ -59,10 +59,9 @@ func TestLoginWrongPassword(t *testing.T) {
 	}
 	assert.Equal(t, correctResponseBody, responseBody)
 }
-
 func TestLoginWrongEmail(t *testing.T) {
 	requestBody := models.UserLogin{
-		Email:    "user11@example.com",
+		Email:    "user-1@example.com",
 		Password: "stringg",
 	}
 	marshalledRequestBody, _ := json.Marshal(requestBody)
@@ -77,7 +76,7 @@ func TestLoginWrongEmail(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	// MARK: Asserts ================
-	assert.Equal(t, 500, w.Code)
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
 
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
 	if err != nil {
@@ -85,7 +84,6 @@ func TestLoginWrongEmail(t *testing.T) {
 	}
 	assert.Equal(t, correctResponseBody, responseBody)
 }
-
 func TestLoginAsAdmin(t *testing.T) {
 	requestBody := models.UserLogin{
 		Email:    "user1@example.com",
@@ -115,7 +113,6 @@ func TestLoginAsAdmin(t *testing.T) {
 	}
 	assert.Equal(t, correctResponseBody, responseBody)
 }
-
 func TestLoginAsNonAdmin(t *testing.T) {
 	requestBody := models.UserLogin{
 		Email:    "user2@example.com",
@@ -168,7 +165,6 @@ func TestUserCreate(t *testing.T) {
 	}
 	assert.Equal(t, correctResponseBody, responseBody)
 }
-
 func TestUserCreateDuplicate(t *testing.T) {
 	requestBody := models.UserCreate{
 		Email:    "user1@example.com",
@@ -195,7 +191,6 @@ func TestUserCreateDuplicate(t *testing.T) {
 	}
 	assert.Equal(t, correctResponseBody, responseBody)
 }
-
 func TestUserCreateWithoutCookies(t *testing.T) {
 	requestBody := models.UserCreate{
 		Email:    "user1@example.com",
@@ -221,7 +216,6 @@ func TestUserCreateWithoutCookies(t *testing.T) {
 	}
 	assert.Equal(t, correctResponseBody, responseBody)
 }
-
 func TestLoginAsHalfAdmin(t *testing.T) {
 	requestBody := models.UserLogin{
 		Email:    "user5@example.com",
@@ -245,7 +239,6 @@ func TestLoginAsHalfAdmin(t *testing.T) {
 	}
 	halfAdminUserID = responseBody.ID
 }
-
 func TestUserCreateWithoutAdmin(t *testing.T) {
 	requestBody := models.UserCreate{
 		Email:    "user5@example.com",
@@ -272,7 +265,6 @@ func TestUserCreateWithoutAdmin(t *testing.T) {
 	}
 	assert.Equal(t, correctResponseBody, responseBody)
 }
-
 func TestUserGetCreatedUser(t *testing.T) {
 	var responseBody []models.UserResponse
 	correctResponseBody := models.UserResponse{
@@ -325,7 +317,6 @@ func TestUserUpdateNameWithoutAdmin(t *testing.T) {
 	}
 	assert.Equal(t, correctResponseBody, responseBody)
 }
-
 func TestUserUpdateNameWithoutAdminCheck(t *testing.T) {
 	var responseBody models.UserResponse
 	correctResponseBody := models.UserResponse{
@@ -376,7 +367,6 @@ func TestUserUpdateIsAdminWithoutAdmin(t *testing.T) {
 	}
 	assert.Equal(t, correctResponseBody, responseBody)
 }
-
 func TestUserUpdateIsAdminWithoutAdminCheck(t *testing.T) {
 	var responseBody models.UserResponse
 	correctResponseBody := models.UserResponse{
@@ -428,7 +418,6 @@ func TestUserUpdateName(t *testing.T) {
 	}
 	assert.Equal(t, correctResponseBody, responseBody)
 }
-
 func TestUserUpdateNameCheck(t *testing.T) {
 	var responseBody models.UserResponse
 	correctResponseBody := models.UserResponse{
@@ -482,7 +471,6 @@ func TestUserUpdateIsAdmin(t *testing.T) {
 	}
 	assert.Equal(t, correctResponseBody, responseBody)
 }
-
 func TestUserUpdateIsAdminCheck(t *testing.T) {
 	var responseBody models.UserResponse
 	correctResponseBody := models.UserResponse{

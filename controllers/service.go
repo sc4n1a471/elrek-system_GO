@@ -16,7 +16,7 @@ func GetServices(ctx *gin.Context) {
 	}
 
 	var services []models.Service
-	result := DB.Where("user_id = ? and is_active = true", userID).Preload("DynamicPrices").Find(&services)
+	result := DB.Where("user_id = ? and is_active = ?", userID, true).Preload("DynamicPrices").Find(&services)
 	if result.Error != nil {
 		SendMessageOnly("Could not get services: "+result.Error.Error(), ctx, 500)
 		return
@@ -166,7 +166,7 @@ func UpdateService(ctx *gin.Context) {
 				return
 			}
 		} else {
-			dynamicPrices, dpResult := GetDynamicPrices(service.PrevServiceID)
+			dynamicPrices, dpResult := getDynamicPrices(service.PrevServiceID)
 			if !dpResult.Success {
 				SendMessageOnly(dpResult.Message, ctx, 500)
 				tx.Rollback()

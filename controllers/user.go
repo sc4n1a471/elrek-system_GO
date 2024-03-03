@@ -117,7 +117,7 @@ func GetUsers(ctx *gin.Context) {
 	}
 
 	var users []models.User
-	result := DB.Where("is_active = ? and owner_id = ?", isActive, userID).Find(&users)
+	result := DB.Order("email asc").Where("is_active = ? and owner_id = ?", isActive, userID).Find(&users)
 	if result.Error != nil {
 		SendMessageOnly("Could not get users: "+result.Error.Error(), ctx, 500)
 		return

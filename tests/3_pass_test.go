@@ -17,6 +17,9 @@ import (
 var passName string
 var service2ID string
 var service2Object models.Service
+var passWDPObject models.Pass
+var passObject models.Pass
+var prevPassID openapitypes.UUID
 
 func TestPassSetup(t *testing.T) {
 	passName = fmt.Sprint("Pass_", randomID)
@@ -85,7 +88,7 @@ func TestPassCreate(t *testing.T) {
 		OccasionLimit: nil,
 		UserID:        adminUserID,
 		Price:         5000,
-		ServiceIDs:    []openapitypes.UUID{serviceID},
+		ServiceIDs:    []openapitypes.UUID{serviceObject.ID},
 	}
 	marshalledRequestBody, _ := json.Marshal(requestBody)
 
@@ -133,10 +136,10 @@ func TestPassCreateCheck(t *testing.T) {
 		t.Errorf("Error while unmarshalling response body: %v", err)
 	}
 
-	passObject = checkPassEqual(t, responseBody, correctResponseBody, true)
+	passObject = checkPassEqual(t, responseBody, correctResponseBody, true, false)
 }
 
-func checkPassEqual(t *testing.T, responseBody []models.Pass, correctResponseBody models.Pass, checkServices bool) models.Pass {
+func checkPassEqual(t *testing.T, responseBody []models.Pass, correctResponseBody models.Pass, checkServices bool, checkPrevPass bool) models.Pass {
 	for _, pass := range responseBody {
 		if pass.Name == correctResponseBody.Name {
 			assert.Equal(t, correctResponseBody.IsActive, pass.IsActive)
@@ -144,7 +147,9 @@ func checkPassEqual(t *testing.T, responseBody []models.Pass, correctResponseBod
 			assert.Equal(t, correctResponseBody.Duration, pass.Duration)
 			assert.Equal(t, correctResponseBody.OccasionLimit, pass.OccasionLimit)
 			assert.Equal(t, correctResponseBody.UserID, pass.UserID)
-			//assert.Equal(t, correctResponseBody.PrevPassID, pass.PrevPassID)
+			if checkPrevPass {
+				assert.Equal(t, correctResponseBody.PrevPassID, pass.PrevPassID)
+			}
 			assert.Equal(t, correctResponseBody.Price, pass.Price)
 			assert.Equal(t, correctResponseBody.Name, pass.Name)
 
@@ -229,9 +234,10 @@ func TestPassUpdate1Check(t *testing.T) {
 		t.Errorf("Error while unmarshalling response body: %v", err)
 	}
 
-	checkPassEqual(t, responseBody, correctResponseBody, true)
+	checkPassEqual(t, responseBody, correctResponseBody, true, false)
 }
 
+// TestPassUpdate2 updates pass by creating new one
 func TestPassUpdate2(t *testing.T) {
 	updatedDuration := "2_week"
 	updatedOccasionLimit := 8
@@ -257,6 +263,8 @@ func TestPassUpdate2(t *testing.T) {
 		t.Errorf("Error while unmarshalling response body: %v", err)
 	}
 	assert.Equal(t, correctResponseBody, responseBody)
+
+	prevPassID = passObject.ID
 }
 func TestPassUpdate2Check(t *testing.T) {
 	var responseBody []models.Pass
@@ -269,6 +277,7 @@ func TestPassUpdate2Check(t *testing.T) {
 		Duration:      &correctDuration,
 		Name:          passName + "_Updated",
 		OccasionLimit: &correctOccasionLimit,
+		PrevPassID:    prevPassID,
 		UserID:        adminUserID,
 		Price:         5000,
 		Services: []models.Service{
@@ -287,7 +296,37 @@ func TestPassUpdate2Check(t *testing.T) {
 		t.Errorf("Error while unmarshalling response body: %v", err)
 	}
 
-	checkPassEqual(t, responseBody, correctResponseBody, true)
+	passObject = checkPassEqual(t, responseBody, correctResponseBody, true, true)
+}
+func TestPassUpdate2CheckIfPrevDisabled(t *testing.T) {
+	var responseBody models.Pass
+	correctComment := "Updated comment"
+	correctResponseBody := models.Pass{
+		IsActive:      false,
+		Comment:       &correctComment,
+		Duration:      nil,
+		Name:          passName + "_Updated",
+		OccasionLimit: nil,
+		UserID:        adminUserID,
+		Price:         5000,
+		Services: []models.Service{
+			serviceObject,
+		},
+	}
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/passes/"+prevPassID.String(), nil)
+	req.AddCookie(adminCookies[0])
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	fmt.Println(w.Body.String())
+	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
+	if err != nil {
+		t.Errorf("Error while unmarshalling response body: %v", err)
+	}
+
+	checkPassEqual(t, []models.Pass{responseBody}, correctResponseBody, true, false)
 }
 
 // createService3 is used to create a second service to add to pass' services
@@ -345,7 +384,7 @@ func TestPassUpdate3(t *testing.T) {
 		return
 	}
 
-	updatedServiceIDs := []openapitypes.UUID{serviceID, uuid.MustParse(service2ID)}
+	updatedServiceIDs := []openapitypes.UUID{serviceObject.ID, uuid.MustParse(service2ID)}
 	requestBody := models.PassUpdate{
 		ServiceIDs: &updatedServiceIDs,
 	}
@@ -367,6 +406,8 @@ func TestPassUpdate3(t *testing.T) {
 		t.Errorf("Error while unmarshalling response body: %v", err)
 	}
 	assert.Equal(t, correctResponseBody, responseBody)
+
+	prevPassID = passObject.ID
 }
 func TestPassUpdate3Check(t *testing.T) {
 	var responseBody []models.Pass
@@ -380,7 +421,7 @@ func TestPassUpdate3Check(t *testing.T) {
 		Name:          passName + "_Updated",
 		OccasionLimit: &correctOccasionLimit,
 		UserID:        adminUserID,
-		PrevPassID:    openapitypes.UUID{},
+		PrevPassID:    prevPassID,
 		Price:         5000,
 		Services: []models.Service{
 			service2Object,
@@ -399,9 +440,43 @@ func TestPassUpdate3Check(t *testing.T) {
 		t.Errorf("Error while unmarshalling response body: %v", err)
 	}
 
-	checkPassEqual(t, responseBody, correctResponseBody, true)
+	passObject = checkPassEqual(t, responseBody, correctResponseBody, true, true)
+	fmt.Println(passObject.PrevPassID)
+}
+func TestPassUpdate3CheckIfPrevDisabled(t *testing.T) {
+	var responseBody models.Pass
+	correctComment := "Updated comment"
+	correctDuration := "2_week"
+	correctOccasionLimit := 8
+	correctResponseBody := models.Pass{
+		IsActive:      false,
+		Comment:       &correctComment,
+		Duration:      &correctDuration,
+		Name:          passName + "_Updated",
+		OccasionLimit: &correctOccasionLimit,
+		UserID:        adminUserID,
+		PrevPassID:    openapitypes.UUID{},
+		Price:         5000,
+		Services: []models.Service{
+			serviceObject,
+		},
+	}
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/passes/"+prevPassID.String(), nil)
+	req.AddCookie(adminCookies[0])
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
+	if err != nil {
+		t.Errorf("Error while unmarshalling response body: %v", err)
+	}
+
+	checkPassEqual(t, []models.Pass{responseBody}, correctResponseBody, true, false)
 }
 
+// TestPassDelete deletes passObject
 func TestPassDelete(t *testing.T) {
 	responseBody := models.MessageOnlyResponse{}
 	correctResponseBody := models.MessageOnlyResponse{
@@ -443,4 +518,62 @@ func TestPassDeleteCheck(t *testing.T) {
 			return
 		}
 	}
+}
+
+// Pass for later testing (income)
+func TestPassCreateWDP(t *testing.T) {
+	requestBody := models.PassCreate{
+		Name:          passName + "_WDP",
+		OccasionLimit: &occasionLimit,
+		UserID:        adminUserID,
+		Price:         5000,
+		ServiceIDs:    []openapitypes.UUID{serviceWDPObject.ID},
+	}
+	marshalledRequestBody, _ := json.Marshal(requestBody)
+
+	responseBody := models.MessageOnlyResponse{}
+	correctResponseBody := models.MessageOnlyResponse{
+		Message: "Pass was created successfully",
+	}
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/passes", bytes.NewBuffer(marshalledRequestBody))
+	req.AddCookie(adminCookies[0])
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusCreated, w.Code)
+	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
+	if err != nil {
+		t.Errorf("Error while unmarshalling response body: %v", err)
+	}
+	assert.Equal(t, correctResponseBody, responseBody)
+}
+func TestPassCreateWDPCheck(t *testing.T) {
+	var responseBody []models.Pass
+	correctResponseBody := models.Pass{
+		IsActive:      true,
+		Comment:       nil,
+		Duration:      nil,
+		Name:          passName + "_WDP",
+		OccasionLimit: &occasionLimit,
+		UserID:        adminUserID,
+		PrevPassID:    openapitypes.UUID{},
+		Price:         5000,
+		Services: []models.Service{
+			serviceWDPObject,
+		},
+	}
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/passes", nil)
+	req.AddCookie(adminCookies[0])
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
+	if err != nil {
+		t.Errorf("Error while unmarshalling response body: %v", err)
+	}
+
+	passWDPObject = checkPassEqual(t, responseBody, correctResponseBody, false, false)
 }

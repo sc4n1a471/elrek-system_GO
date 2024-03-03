@@ -17,7 +17,7 @@ func TestServiceDeleteWithoutAdmin(t *testing.T) {
 	correctResponseBody := models.MessageOnlyResponse{Message: "Access denied"}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("DELETE", "/services/"+serviceID.String(), nil)
+	req, _ := http.NewRequest("DELETE", "/services/"+serviceObject.ID.String(), nil)
 	req.AddCookie(nonAdminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -35,7 +35,7 @@ func TestServiceDelete(t *testing.T) {
 	correctResponseBody := models.MessageOnlyResponse{Message: "Service was deleted successfully"}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("DELETE", "/services/"+serviceID.String(), nil)
+	req, _ := http.NewRequest("DELETE", "/services/"+serviceObject.ID.String(), nil)
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -88,7 +88,7 @@ func TestServiceWDPDelete(t *testing.T) {
 	correctResponseBody := models.MessageOnlyResponse{Message: "Service was deleted successfully"}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("DELETE", "/services/"+serviceWDPID.String(), nil)
+	req, _ := http.NewRequest("DELETE", "/services/"+serviceWDPObject.ID.String(), nil)
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -163,7 +163,7 @@ func TestServiceWDPDeleteCheck(t *testing.T) {
 //	correctResponseBody := models.MessageOnlyResponse{Message: "Service was updated successfully"}
 //
 //	w := httptest.NewRecorder()
-//	req, _ := http.NewRequest("PATCH", "/services/"+serviceID.String(), bytes.NewBuffer(marshalledRequestBody))
+//	req, _ := http.NewRequest("PATCH", "/services/"+serviceObject.ID.String(), bytes.NewBuffer(marshalledRequestBody))
 //	req.AddCookie(adminCookies[0])
 //	router.ServeHTTP(w, req)
 //

@@ -6,7 +6,7 @@ components:
         id:
           type: string
           format: uuid
-        owner_id:
+        user_id:
           type: string
           format: uuid
         name:
@@ -28,6 +28,33 @@ components:
           type: array
           items:
             $ref: './service.yaml#/components/schemas/ServiceOnly'
+        created_at:
+          type: string
+          format: date-time
+    PassOnly:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        price:
+          type: number
+        occasion_limit:
+          type: integer
+        comment:
+          type: string
+        prev_pass_id:
+          type: string
+          format: uuid
+        active:
+          type: boolean
+        duration:
+          type: string
         created_at:
           type: string
           format: date-time

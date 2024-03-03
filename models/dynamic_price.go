@@ -8,19 +8,19 @@ import (
 // DynamicPrice defines model for Dynamic_price.
 type DynamicPrice struct {
 	Active    bool              `json:"active,omitempty"`
-	Attendees int32             `json:"attendees,omitempty"`
+	Attendees int               `json:"attendees,omitempty"`
 	ID        openapitypes.UUID `json:"id,omitempty"`
 	UserID    openapitypes.UUID `json:"user_id,omitempty"`
-	Price     float32           `json:"price,omitempty"`
+	Price     int               `json:"price,omitempty"`
 	ServiceID openapitypes.UUID `json:"service_id,omitempty" gorm:"size:255"`
 }
 
 // DynamicPriceCreateUpdate defines model for Dynamic_priceCreateUpdate.
 // Updating dynamic prices uses the same model
 type DynamicPriceCreateUpdate struct {
-	Attendees int32             `json:"attendees"`
+	Attendees int               `json:"attendees"`
 	OwnerID   openapitypes.UUID `json:"user_id"`
-	Price     float32           `json:"price"`
+	Price     int               `json:"price"`
 }
 
 // DynamicPriceList defines model for Dynamic_priceList.
