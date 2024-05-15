@@ -1,8 +1,9 @@
 package models
 
 import (
-	openapitypes "github.com/oapi-codegen/runtime/types"
 	"sort"
+
+	openapitypes "github.com/oapi-codegen/runtime/types"
 )
 
 // DynamicPrice defines model for Dynamic_price.
@@ -28,13 +29,13 @@ type DynamicPriceList = []DynamicPrice
 
 // DynamicPriceListErrorResponse defines model for Dynamic_priceListErrorResponse.
 type DynamicPriceListErrorResponse struct {
-	DynamicPrices *[]interface{} `json:"dynamic_prices,omitempty"`
+	DynamicPrices *[]interface{} `json:"dynamic-prices,omitempty"`
 	Message       *string        `json:"message,omitempty"`
 }
 
 // DynamicPriceListSuccessResponse defines model for Dynamic_priceListSuccessResponse.
 type DynamicPriceListSuccessResponse struct {
-	DynamicPrices *DynamicPriceList `json:"dynamic_prices,omitempty"`
+	DynamicPrices *DynamicPriceList `json:"dynamic-prices,omitempty"`
 	Message       *string           `json:"message,omitempty"`
 }
 

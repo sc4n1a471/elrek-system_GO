@@ -3,11 +3,13 @@ package controllers
 import (
 	"elrek-system_GO/models"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
 	"net/http"
 	"os"
+
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 var DB *gorm.DB
@@ -19,12 +21,19 @@ type ActionResponse struct {
 }
 
 func SetupDB() error {
-	fmt.Println("Connecting to database...")
+	godotenv.Load(".env")
+	godotenv.Load("../.env")
+
+	fmt.Println("Connecting to database: " + os.Getenv("DB_HOST") + "...")
 
 	//loc, err := time.LoadLocation("Europe/Budapest")
 	//if err != nil {
 	//	return err
 	//}
+
+	if os.Getenv("DB_HOST") == "" {
+		return fmt.Errorf("DB_HOST is not set")
+	}
 
 	dsn := os.Getenv("DB_USERNAME") +
 		":" +
@@ -48,7 +57,7 @@ func SetupDB() error {
 		&models.Service{},
 		&models.DynamicPrice{},
 		&models.Pass{},
-		&models.PassInUse{},
+		&models.ActivePass{},
 		&models.Income{})
 	if err != nil {
 		fmt.Print(err.Error())

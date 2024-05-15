@@ -5,19 +5,20 @@ import (
 	"elrek-system_GO/models"
 	"encoding/json"
 	"fmt"
-	"github.com/go-playground/assert/v2"
-	"github.com/google/uuid"
-	openapitypes "github.com/oapi-codegen/runtime/types"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/go-playground/assert/v2"
+	"github.com/google/uuid"
+	openapitypes "github.com/oapi-codegen/runtime/types"
 )
 
 var serviceName string
 var serviceObject models.Service
 var serviceWDPObject models.Service
 var serviceWoPassObject models.Service
-var serviceWithDPWoPIUObject models.Service
+var serviceWithDPWoActivePassObject models.Service
 var randomID openapitypes.UUID
 
 func TestServiceSetup(t *testing.T) {
@@ -278,10 +279,10 @@ func TestServiceCreateWithDPWoPassCheck(t *testing.T) {
 				service.PrevServiceID == correctResponseBody.PrevServiceID {
 
 				if models.AreDPsEqualInAttPri(*service.DynamicPrices, *correctResponseBody.DynamicPrices) {
-					serviceWithDPWoPIUObject = service
+					serviceWithDPWoActivePassObject = service
 				}
 
-				serviceWithDPWoPIUObject = service
+				serviceWithDPWoActivePassObject = service
 				assert.Equal(t, correctResponseBody.Name, service.Name)
 				return
 			}

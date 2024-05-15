@@ -3,8 +3,11 @@ package api
 import (
 	"elrek-system_GO/controllers"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
+	"time"
+
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 )
 
 func Api() {
@@ -28,6 +31,18 @@ func SetupRouter() *gin.Engine {
 	router := gin.Default()
 	//gin.SetMode(gin.ReleaseMode)
 
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:4200"},
+		AllowMethods:     []string{"GET", "HEAD", "OPTIONS", "POST", "PUT"},
+		AllowHeaders:     []string{"Origin", "Content-Type"},
+		ExposeHeaders:    []string{"Content-Length", "Content-Type"},
+		AllowCredentials: true,
+		AllowOriginFunc: func(origin string) bool {
+			return origin == "http://localhost:4200"
+		},
+		MaxAge: 12 * time.Hour,
+	}))
+
 	// PING
 	router.GET("/ping", func(ctx *gin.Context) {
 		ctx.JSON(200, gin.H{
@@ -37,13 +52,14 @@ func SetupRouter() *gin.Engine {
 
 	// AUTH
 	router.POST("/login", controllers.Login)
+	router.GET("/check-permissions", controllers.CheckPermissions)
 	router.POST("/logout", controllers.Logout)
 
 	// USERS
 	router.GET("/users", controllers.GetUsers)
 	router.GET("/users/:id", controllers.GetUser)
 	router.POST("/users", controllers.CreateUserWrapper)
-	router.POST("/users/create_admin", controllers.CreateAdminUserWrapper)
+	router.POST("/users/create-admin", controllers.CreateAdminUserWrapper)
 	router.PATCH("/users/:id", controllers.UpdateUser)
 	router.DELETE("/users/:id", controllers.DeleteUser)
 	router.DELETE("/users/permanently/:id", controllers.DeleteUserPermanently)
@@ -56,10 +72,10 @@ func SetupRouter() *gin.Engine {
 	router.DELETE("/services/:id", controllers.DeleteServiceWrapper)
 
 	// DYNAMIC PRICES
-	router.GET("/dynamic_prices/:id", controllers.GetDynamicPricesWrapper)
-	//router.POST("/dynamic_prices", controllers.CreateDynamicPricesWrapperEndpoint)
-	//router.PATCH("/dynamic_prices/:id", controllers.UpdateDynamicPrices)
-	//router.DELETE("/dynamic_prices/:id", controllers.DeleteDynamicPrices)
+	router.GET("/dynamic-prices/:id", controllers.GetDynamicPricesWrapper)
+	//router.POST("/dynamic-prices", controllers.CreateDynamicPricesWrapperEndpoint)
+	//router.PATCH("/dynamic-prices/:id", controllers.UpdateDynamicPrices)
+	//router.DELETE("/dynamic-prices/:id", controllers.DeleteDynamicPrices)
 
 	// PASSES
 	router.GET("/passes", controllers.GetPasses)
@@ -69,19 +85,19 @@ func SetupRouter() *gin.Engine {
 	router.DELETE("/passes/:id", controllers.DeletePassWrapper)
 
 	// PASSES IN USE
-	router.GET("/passes_in_use", controllers.GetPassesInUse)
-	router.GET("/passes_in_use/:id", controllers.GetPassInUse)
-	router.POST("/passes_in_use", controllers.CreatePassInUse)
-	router.PATCH("/passes_in_use/:id", controllers.UpdatePassInUse)
-	router.DELETE("/passes_in_use/:id", controllers.DeletePassInUse)
-	router.GET("/passes_in_use/:id/validity", controllers.CheckPassInUseValidityWrapper)
-	//router.GET("/passes_in_use/:id/use", controllers.UsePassInUseWrapper)
+	router.GET("/active-passes", controllers.GetActivePasses)
+	router.GET("/active-passes/:id", controllers.GetActivePass)
+	router.POST("/active-passes", controllers.CreateActivePass)
+	router.PATCH("/active-passes/:id", controllers.UpdateactivePass)
+	router.DELETE("/active-passes/:id", controllers.DeleteactivePass)
+	router.GET("/active-passes/:id/validity", controllers.CheckactivePassValidityWrapper)
+	//router.GET("/active-passes/:id/use", controllers.UseactivePassWrapper)
 
 	// INCOMES
 	router.GET("/incomes", controllers.GetIncomes)
 	router.GET("/incomes/:id", controllers.GetIncome)
 	router.POST("/incomes", controllers.CreateIncomeWrapper)
-	router.POST("/incomes/multiple_users", controllers.CreateIncomeMultipleUsersWrapper)
+	router.POST("/incomes/multiple-users", controllers.CreateIncomeMultipleUsersWrapper)
 	router.PATCH("/incomes/:id", controllers.UpdateIncome)
 	router.DELETE("/incomes/:id", controllers.DeleteIncome)
 

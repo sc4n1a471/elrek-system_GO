@@ -25,7 +25,7 @@ components:
         created_at:
           type: string
           format: date-time
-        dynamic_prices:
+        dynamic-prices:
           type: array
           items:
             $ref: './dynamic_price.yaml#/components/schemas/Dynamic_price'
@@ -69,7 +69,7 @@ components:
           type: string
         #location:
         #  type: string
-        dynamic_prices:
+        dynamic-prices:
           type: array
           items:
             $ref: './dynamic_price.yaml#/components/schemas/Dynamic_priceCreateUpdate'
@@ -87,7 +87,7 @@ components:
         #  type: string
         comment:
           type: string
-        dynamic_prices:
+        dynamic-prices:
           type: array
           items:
             $ref: './dynamic_price.yaml#/components/schemas/Dynamic_priceCreateUpdate'

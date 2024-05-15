@@ -1,6 +1,6 @@
 components:
   schemas:
-    PassInUse:
+    activePass:
       type: object
       properties:
         id:
@@ -32,11 +32,11 @@ components:
         created_at:
           type: string
           format: date-time
-    PassInUseList:
+    activePassList:
       type: array
       items:
-        $ref: '#/components/schemas/PassInUse'
-    PassInUseCreate:
+        $ref: '#/components/schemas/activePass'
+    activePassCreate:
       type: object
       properties:
         comment:
@@ -58,7 +58,7 @@ components:
         - payer_id
         - valid_from
         - valid_until
-    PassInUseUpdate:
+    activePassUpdate:
       type: object
       properties:
         comment:

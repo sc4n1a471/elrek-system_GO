@@ -111,7 +111,7 @@ paths:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - users
-  /users/create_admin:
+  /users/create-admin:
     post:
       description: Endpoint for admin user creation
         The OwnerID of this user will be the same that is generated as ID
@@ -366,7 +366,7 @@ paths:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - services
-  /dynamic_prices:
+  /dynamic-prices:
     post:
       description: Endpoint for dynamic_price creation
       requestBody:
@@ -390,8 +390,8 @@ paths:
               schema:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
-        - dynamic_prices
-  /dynamic_prices/{id}:
+        - dynamic-prices
+  /dynamic-prices/{id}:
     get:
       description: Endpoint for dynamic_price listing for a service
       parameters:
@@ -403,7 +403,7 @@ paths:
             type: string
       responses:
         200:
-          description: Returns dynamic_prices
+          description: Returns dynamic-prices
           content:
             application/json:
               schema:
@@ -415,13 +415,13 @@ paths:
               schema:
                 $ref: './models/dynamic_price.yaml#/components/schemas/Dynamic_priceListErrorResponse'
       tags:
-        - dynamic_prices
+        - dynamic-prices
     put:
       description: Not endpoint for dynamic_price update
         Should only be called when updating service
         Receives an array of dynamic_price objects
-        Makes inactive all dynamic_prices for the service that is changed
-        Creates new dynamic_prices for the service
+        Makes inactive all dynamic-prices for the service that is changed
+        Creates new dynamic-prices for the service
       parameters:
         - name: id
           in: path
@@ -450,7 +450,7 @@ paths:
               schema:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
-        - dynamic_prices
+        - dynamic-prices
     delete:
       description: Not endpoint for dynamic_price deletion
         Makes dynamic_price inactive
@@ -475,7 +475,7 @@ paths:
               schema:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
-        - dynamic_prices
+        - dynamic-prices
   /passes:
     get:
       description: Endpoint for pass(es) listing
@@ -598,16 +598,16 @@ paths:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - passes
-  /passes_in_use:
+  /active-passes:
     get:
       description: Endpoint for pass(es)_in_use listing
       responses:
         200:
-          description: Returns a list of passes_in_use
+          description: Returns a list of active-passes
           content:
             application/json:
               schema:
-                $ref: './models/pass_in_use.yaml#/components/schemas/PassInUseList'
+                $ref: './models/active_pass.yaml#/components/schemas/activePassList'
         default:
           description: Unexpected error, error is returned in message
           content:
@@ -615,19 +615,19 @@ paths:
               schema:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
-        - passes_in_use
+        - active-passes
     post:
-      description: Endpoint for pass_in_use creation
+      description: Endpoint for active_pass creation
       requestBody:
-        description: PassInUse object that needs to be added to the database
+        description: activePass object that needs to be added to the database
         required: true
         content:
           application/json:
             schema:
-              $ref: './models/pass_in_use.yaml#/components/schemas/PassInUseCreate'
+              $ref: './models/active_pass.yaml#/components/schemas/activePassCreate'
       responses:
         200:
-          description: PassInUse was created successfully
+          description: activePass was created successfully
           content:
             application/json:
               schema:
@@ -639,24 +639,24 @@ paths:
               schema:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
-        - passes_in_use
-  /passes_in_use/{id}:
+        - active-passes
+  /active-passes/{id}:
     get:
-      description: Endpoint for pass_in_use listing
+      description: Endpoint for active_pass listing
       parameters:
         - name: id
           in: path
-          description: ID of the pass_in_use to list
+          description: ID of the active_pass to list
           required: true
           schema:
             type: string
       responses:
         200:
-          description: Returns a pass_in_use
+          description: Returns a active_pass
           content:
             application/json:
               schema:
-                $ref: './models/pass_in_use.yaml#/components/schemas/PassInUse'
+                $ref: './models/active_pass.yaml#/components/schemas/activePass'
         default:
           description: Unexpected error, error is returned in message
           content:
@@ -664,50 +664,50 @@ paths:
               schema:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
-        - passes_in_use
+        - active-passes
     patch:
-      description: Endpoint for partial pass_in_use update
+      description: Endpoint for partial active_pass update
       parameters:
         - name: id
           in: path
-          description: ID of the pass_in_use to update
+          description: ID of the active_pass to update
           required: true
           schema:
             type: string
       requestBody:
-        description: Attributes of pass_in_use that needs to be updated in the database
+        description: Attributes of active_pass that needs to be updated in the database
         required: true
         content:
           application/json:
             schema:
-              $ref: './models/pass_in_use.yaml#/components/schemas/PassInUseUpdate'
+              $ref: './models/active_pass.yaml#/components/schemas/activePassUpdate'
       responses:
         200:
-          description: PassInUse was updated successfully
+          description: activePass was updated successfully
           content:
             application/json:
               schema:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
         default:
-          description: PassInUse could not be updated
+          description: activePass could not be updated
           content:
             application/json:
               schema:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
-        - passes_in_use
+        - active-passes
     delete:
-      description: Endpoint for pass_in_use deletion
+      description: Endpoint for active_pass deletion
       parameters:
         - name: id
           in: path
-          description: ID of the pass_in_use to delete
+          description: ID of the active_pass to delete
           required: true
           schema:
             type: string
       responses:
         200:
-          description: PassInUse was deleted successfully
+          description: activePass was deleted successfully
           content:
             application/json:
               schema:
@@ -719,16 +719,16 @@ paths:
               schema:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
-        - passes_in_use
-  /passes_in_use/{id}/validity:
+        - active-passes
+  /active-passes/{id}/validity:
     get:
-      description: Endpoint for checking validity pass_in_use
+      description: Endpoint for checking validity active_pass
         Checks if request date is between valid_from and valid_to
         Checks if occasions is equal to pass.occasion_limit
       parameters:
         - name: id
           in: path
-          description: ID of the pass_in_use to check for validity
+          description: ID of the active_pass to check for validity
           required: true
           schema:
             type: string
@@ -746,7 +746,7 @@ paths:
               schema:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
-        - passes_in_use
+        - active-passes
   /incomes:
     get:
       description: Endpoint for income(s) listing
@@ -767,7 +767,7 @@ paths:
         - incomes
     post:
       description: Endpoint for income creation.
-        In case of pass_in_use_id, validity is also checked and updated.
+        In case of active_pass_id, validity is also checked and updated.
         In case of service_id, amount is calculated based on dynamic_price.
       requestBody:
         description: Income object that needs to be added to the database
@@ -791,12 +791,12 @@ paths:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - incomes
-  /incomes/multiple_users:
+  /incomes/multiple-users:
     post:
       description: Endpoint for income creation for multiple users 
         with multiple passes in use creations or services
       requestBody:
-        description: Object that contains arrays of [service_ids | pass_in_use_ids], payer_ids
+        description: Object that contains arrays of [service_ids | active_pass_ids], payer_ids
           Amount | Comment | IsPaid attributes are optional. If amount is provided, it is used for all incomes
           Checks for valid passes in use for users, same as /incomes
         required: true
@@ -907,11 +907,11 @@ tags:
     description: User related endpoints
   - name: services
     description: Service related endpoints
-  - name: dynamic_prices
+  - name: dynamic-prices
     description: Dynamic_price related endpoints
   - name: passes
     description: Pass related endpoints
-  - name: passes_in_use
+  - name: active-passes
     description: Active pass related endpoints
   - name: incomes
     description: Income related endpoints

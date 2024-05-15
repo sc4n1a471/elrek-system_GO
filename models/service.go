@@ -1,7 +1,10 @@
 package models
 
-import "time"
-import openapitypes "github.com/oapi-codegen/runtime/types"
+import (
+	"time"
+
+	openapitypes "github.com/oapi-codegen/runtime/types"
+)
 
 // Service defines model for Service.
 type Service struct {
@@ -13,7 +16,7 @@ type Service struct {
 	UserID        openapitypes.UUID `json:"user_id" gorm:"size:255"`
 	PrevServiceID openapitypes.UUID `json:"prev_service_id,omitempty"`
 	Price         int               `json:"price,omitempty"`
-	DynamicPrices *[]DynamicPrice   `json:"dynamic_prices,omitempty" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	DynamicPrices *[]DynamicPrice   `json:"dynamic-prices,omitempty" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 // ServiceCreate defines model for ServiceCreate.
@@ -21,7 +24,7 @@ type ServiceCreate struct {
 	Name                     string                      `json:"name"`
 	Price                    int                         `json:"price"`
 	Comment                  *string                     `json:"comment,omitempty"`
-	DynamicPriceCreateUpdate *[]DynamicPriceCreateUpdate `json:"dynamic_price,omitempty"`
+	DynamicPriceCreateUpdate *[]DynamicPriceCreateUpdate `json:"dynamicPrices,omitempty"`
 }
 
 // ServiceList defines model for ServiceList.
@@ -32,5 +35,5 @@ type ServiceUpdate struct {
 	Name          *string                     `json:"name,omitempty"`
 	Price         *int                        `json:"price,omitempty"`
 	Comment       *string                     `json:"comment,omitempty"`
-	DynamicPrices *[]DynamicPriceCreateUpdate `json:"dynamic_prices,omitempty"`
+	DynamicPrices *[]DynamicPriceCreateUpdate `json:"dynamic-prices,omitempty"`
 }

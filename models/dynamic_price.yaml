@@ -41,14 +41,14 @@ components:
     Dynamic_priceListSuccessResponse:
       type: object
       properties:
-        dynamic_prices:
+        dynamic-prices:
           $ref: '#/components/schemas/Dynamic_priceList'
         message:
           type: string
     Dynamic_priceListErrorResponse:
       type: object
       properties:
-        dynamic_prices:
+        dynamic-prices:
           type: array
         message:
           type: string

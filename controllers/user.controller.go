@@ -2,13 +2,15 @@ package controllers
 
 import (
 	"elrek-system_GO/models"
+	"net/http"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	openapitypes "github.com/oapi-codegen/runtime/types"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
-	"time"
 )
 
 var SecretKey = "123456789ABCDEF"
@@ -59,6 +61,33 @@ func Login(ctx *gin.Context) {
 	userLoginResponse.IsAdmin = user.IsAdmin
 
 	ctx.JSON(200, userLoginResponse)
+}
+
+func CheckPermissions(ctx *gin.Context) {
+	userID, _ := CheckAuth(ctx, false)
+	userIDAdmin, _ := CheckAuth(ctx, true)
+
+	if userID == "" {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"isAuthenticated": false,
+			"isAdmin":         false,
+		})
+		return
+	} else {
+		if userIDAdmin == "" {
+			ctx.JSON(http.StatusOK, gin.H{
+				"isAuthenticated": true,
+				"isAdmin":         false,
+			})
+			return
+		} else {
+			ctx.JSON(http.StatusOK, gin.H{
+				"isAuthenticated": true,
+				"isAdmin":         true,
+			})
+			return
+		}
+	}
 }
 
 // CheckAuth This function checks if the user is authenticated or not. If yes, returns the following information
@@ -124,7 +153,7 @@ func GetUsers(ctx *gin.Context) {
 	}
 
 	if len(users) == 0 {
-		SendMessageOnly("No users found", ctx, 404)
+		ctx.JSON(200, []models.UserResponse{})
 		return
 	}
 

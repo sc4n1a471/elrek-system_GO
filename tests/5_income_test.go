@@ -5,18 +5,19 @@ import (
 	"elrek-system_GO/models"
 	"encoding/json"
 	"fmt"
-	"github.com/go-playground/assert/v2"
-	openapitypes "github.com/oapi-codegen/runtime/types"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/go-playground/assert/v2"
+	openapitypes "github.com/oapi-codegen/runtime/types"
 )
 
 var incomeName string
 var incomeNameDP string
 
-var incomeNameDPwoPIU string
+var incomeNameDPwoActivePass string
 var incomeNameMU string
 var incomeNameMU3 string
 var incomeBasic models.Income
@@ -55,9 +56,9 @@ func checkIncomeEquality(
 			assert.Equal(t, expected.Comment, actual.Comment)
 			assert.Equal(t, expected.UserID, actual.UserID)
 
-			assert.Equal(t, expected.PassInUseID, actual.PassInUseID)
-			if expected.PassInUse != nil {
-				assert.Equal(t, expected.PassInUse.ID, actual.PassInUse.ID)
+			assert.Equal(t, expected.ActivePassID, actual.ActivePassID)
+			if expected.ActivePass != nil {
+				assert.Equal(t, expected.ActivePass.ID, actual.ActivePass.ID)
 			}
 
 			assert.Equal(t, expected.ServiceID, actual.ServiceID)
@@ -86,7 +87,7 @@ func checkIncomeEquality(
 func TestIncomeSetup(t *testing.T) {
 	incomeName = fmt.Sprint("Income", randomID)
 	incomeNameDP = fmt.Sprint("IncomeDP", randomID)
-	incomeNameDPwoPIU = fmt.Sprint("IncomeDPwoPIU", randomID)
+	incomeNameDPwoActivePass = fmt.Sprint("IncomeDPwoActivePass", randomID)
 	incomeNameMU = fmt.Sprint("IncomeMU", randomID)
 	incomeNameMU3 = fmt.Sprint("IncomeMU3", randomID)
 
@@ -129,8 +130,8 @@ func TestCreateIncomeBasicCheck(t *testing.T) {
 		Amount:      serviceWoPassObject.Price,
 		Comment:     nil,
 		UserID:      adminUserID,
-		PassInUseID: nil,
-		PassInUse:   nil,
+		ActivePassID: nil,
+		ActivePass:   nil,
 		ServiceID:   &serviceWoPassObject.ID,
 		Service:     &serviceWoPassObject,
 		PayerID:     nonAdminUserID,
@@ -151,17 +152,17 @@ func TestCreateIncomeBasicCheck(t *testing.T) {
 	checkIncomeEquality(t, correctResponseBody, responseBody, false, false, nil)
 }
 
-// Check for income that was created when TestPassInUseCreate was run
-//func TestCreateIncomePIUCheck(t *testing.T) {
+// Check for income that was created when TestactivePassCreate was run
+//func TestCreateIncomeActivePassCheck(t *testing.T) {
 //	var responseBody []models.Income
 //	name := "Bérlet vásárlás"
 //	correctResponseBody := models.Income{
 //		IsActive:    true,
-//		Amount:      passInUseObject.Pass.Price,
+//		Amount:      activePassObject.Pass.Price,
 //		Comment:     nil,
 //		UserID:      adminUserID,
-//		PassInUseID: &passInUseObject.ID,
-//		PassInUse:   &passInUseObject,
+//		ActivePassID: &activePassObject.ID,
+//		activePass:   &activePassObject,
 //		ServiceID:   nil,
 //		Service:     nil,
 //		PayerID:     nonAdminUserID,
@@ -182,7 +183,7 @@ func TestCreateIncomeBasicCheck(t *testing.T) {
 //	checkIncomeEquality(t, correctResponseBody, responseBody, false, false)
 //}
 
-// limit is 0 before this, this is an unused PIU
+// limit is 0 before this, this is an unused ActivePass
 func TestCreateIncomeDP(t *testing.T) {
 	requestBody := models.IncomeCreate{
 		ServiceID: &serviceWDPObject.ID,
@@ -215,8 +216,8 @@ func TestCreateIncomeDPCheck(t *testing.T) {
 		Amount:      0,
 		Comment:     nil,
 		UserID:      adminUserID,
-		PassInUseID: nil,
-		PassInUse:   nil,
+		ActivePassID: nil,
+		ActivePass:   nil,
 		ServiceID:   &serviceWDPObject.ID,
 		Service:     &serviceWDPObject,
 		PayerID:     nonAdminUserID,
@@ -237,11 +238,11 @@ func TestCreateIncomeDPCheck(t *testing.T) {
 	checkIncomeEquality(t, correctResponseBody, responseBody, false, false, nil)
 }
 
-func TestCreateIncomeDPwoPIU(t *testing.T) {
+func TestCreateIncomeDPwoActivePass(t *testing.T) {
 	requestBody := models.IncomeCreate{
-		ServiceID: &serviceWithDPWoPIUObject.ID,
+		ServiceID: &serviceWithDPWoActivePassObject.ID,
 		PayerID:   nonAdminUserID,
-		Name:      &incomeNameDPwoPIU,
+		Name:      &incomeNameDPwoActivePass,
 	}
 	marshalledRequestBody, _ := json.Marshal(requestBody)
 
@@ -262,19 +263,19 @@ func TestCreateIncomeDPwoPIU(t *testing.T) {
 	}
 	assert.Equal(t, correctResponseBody, responseBody)
 }
-func TestCreateIncomeDPwoPIUCheck(t *testing.T) {
+func TestCreateIncomeDPwoActivePassCheck(t *testing.T) {
 	var responseBody []models.Income
 	correctResponseBody := models.Income{
 		IsActive:    true,
-		Amount:      (*serviceWithDPWoPIUObject.DynamicPrices)[2].Price,
+		Amount:      (*serviceWithDPWoActivePassObject.DynamicPrices)[2].Price,
 		Comment:     nil,
 		UserID:      adminUserID,
-		PassInUseID: nil,
-		PassInUse:   nil,
-		ServiceID:   &serviceWithDPWoPIUObject.ID,
-		Service:     &serviceWithDPWoPIUObject,
+		ActivePassID: nil,
+		ActivePass:   nil,
+		ServiceID:   &serviceWithDPWoActivePassObject.ID,
+		Service:     &serviceWithDPWoActivePassObject,
 		PayerID:     nonAdminUserID,
-		Name:        &incomeNameDPwoPIU,
+		Name:        &incomeNameDPwoActivePass,
 		IsPaid:      false,
 	}
 
@@ -382,7 +383,7 @@ func TestCreateIncomeDPMultipleUsers(t *testing.T) {
 	requestBody := models.IncomeCreateMultipleUsers{
 		PayerIDs:     testUsersIDs[:4],
 		ServiceIDs:   &[]openapitypes.UUID{serviceWDPObject.ID},
-		PassInUseIDs: nil,
+		ActivePassIDs: nil,
 		Comment:      nil,
 		CreatedAt:    &createdAt,
 		Name:         &incomeNameMU,
@@ -396,7 +397,7 @@ func TestCreateIncomeDPMultipleUsers(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest("POST", "/incomes/multiple_users", bytes.NewBuffer(marshalledRequestBody))
+	req := httptest.NewRequest("POST", "/incomes/multiple-users", bytes.NewBuffer(marshalledRequestBody))
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -414,8 +415,8 @@ func TestCreateIncomeDPMultipleUsersCheck(t *testing.T) {
 		Amount:      serviceWDPObject.Price,
 		Comment:     nil,
 		UserID:      adminUserID,
-		PassInUseID: nil,
-		PassInUse:   nil,
+		ActivePassID: nil,
+		ActivePass:   nil,
 		ServiceID:   &serviceWDPObject.ID,
 		Service:     &serviceWDPObject,
 		Name:        &incomeNameMU,
@@ -445,7 +446,7 @@ func TestCreateIncomeDPMultipleUsers2(t *testing.T) {
 	requestBody := models.IncomeCreateMultipleUsers{
 		PayerIDs:     testUsersIDs[:3],
 		ServiceIDs:   &[]openapitypes.UUID{serviceWDPObject.ID},
-		PassInUseIDs: nil,
+		ActivePassIDs: nil,
 		Comment:      nil,
 		Name:         &incomeNameMU3,
 	}
@@ -458,7 +459,7 @@ func TestCreateIncomeDPMultipleUsers2(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest("POST", "/incomes/multiple_users", bytes.NewBuffer(marshalledRequestBody))
+	req := httptest.NewRequest("POST", "/incomes/multiple-users", bytes.NewBuffer(marshalledRequestBody))
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -476,8 +477,8 @@ func TestCreateIncomeDPMultipleUsers2Check(t *testing.T) {
 		Amount:      (*serviceWDPObject.DynamicPrices)[0].Price,
 		Comment:     nil,
 		UserID:      adminUserID,
-		PassInUseID: nil,
-		PassInUse:   nil,
+		ActivePassID: nil,
+		ActivePass:   nil,
 		ServiceID:   &serviceWDPObject.ID,
 		Service:     &serviceWDPObject,
 		Name:        &incomeNameMU3,
@@ -507,8 +508,8 @@ func TestCreateIncomeDPMultipleUsers2CheckWrong(t *testing.T) {
 		Amount:      (*serviceWDPObject.DynamicPrices)[1].Price,
 		Comment:     nil,
 		UserID:      adminUserID,
-		PassInUseID: nil,
-		PassInUse:   nil,
+		ActivePassID: nil,
+		ActivePass:   nil,
 		ServiceID:   &serviceWDPObject.ID,
 		Service:     &serviceWDPObject,
 		Name:        &incomeNameMU3,

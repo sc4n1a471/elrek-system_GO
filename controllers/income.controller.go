@@ -3,6 +3,7 @@ package controllers
 import (
 	"elrek-system_GO/models"
 	"fmt"
+
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	openapitypes "github.com/oapi-codegen/runtime/types"
@@ -19,7 +20,8 @@ func GetIncomes(ctx *gin.Context) {
 
 	var incomes []models.Income
 	result := DB.Where("user_id = ? and is_active = ?", userID, true).
-		Preload("PassInUse").
+		Preload("ActivePass.Pass").
+		Preload("User").
 		Preload("Service").
 		Find(&incomes)
 	if result.Error != nil {
@@ -29,14 +31,14 @@ func GetIncomes(ctx *gin.Context) {
 
 	// Why did I do this?
 	//for _, income := range incomes {
-	//	if income.PassInUseID != nil {
-	//		passInUse, err := getPassInUse(*income.PassInUseID)
+	//	if income.ActivePassID != nil {
+	//		activePass, err := getactivePass(*income.ActivePassID)
 	//		if err != nil {
-	//			SendMessageOnly("Could not get pass in use: "+err.Error(), ctx, 500)
+	//			SendMessageOnly("Could not get active pass: "+err.Error(), ctx, 500)
 	//			return
 	//		}
 	//
-	//		income.PassInUse = &passInUse
+	//		income.activePass = &activePass
 	//	}
 	//}
 
@@ -52,7 +54,7 @@ func GetIncome(ctx *gin.Context) {
 	var income models.Income
 	id := ctx.Param("id")
 
-	result := DB.Preload("PassInUse").
+	result := DB.Preload("ActivePass").
 		Preload("Service").
 		First(&income, "id = ?", id)
 	if result.Error != nil {
@@ -146,9 +148,9 @@ func CreateIncomeMultipleUsersWrapper(ctx *gin.Context) {
 					return
 				}
 			}
-		} else if incomeCreateMultipleUsers.PassInUseIDs != nil {
-			for _, passInUseID := range *incomeCreateMultipleUsers.PassInUseIDs {
-				incomeCreate.PassInUseID = &passInUseID
+		} else if incomeCreateMultipleUsers.ActivePassIDs != nil {
+			for _, ActivePassID := range *incomeCreateMultipleUsers.ActivePassIDs {
+				incomeCreate.ActivePassID = &ActivePassID
 
 				result := createIncome(
 					tx,
@@ -163,7 +165,7 @@ func CreateIncomeMultipleUsersWrapper(ctx *gin.Context) {
 				}
 			}
 		} else {
-			SendMessageOnly("ServiceIDs or PassInUseIDs must be provided", ctx, 400)
+			SendMessageOnly("ServiceIDs or ActivePassIDs must be provided", ctx, 400)
 			tx.Rollback()
 			return
 		}
@@ -178,14 +180,14 @@ func createIncome(tx *gorm.DB, incomeCreate models.IncomeCreate, userID openapit
 
 	// ========== Creating income model ==========
 	income := models.Income{
-		IsActive:    true,
-		Comment:     incomeCreate.Comment,
-		ID:          openapitypes.UUID(uuid.New()),
-		UserID:      userID,
-		PassInUseID: incomeCreate.PassInUseID,
-		ServiceID:   incomeCreate.ServiceID,
-		PayerID:     incomeCreate.PayerID,
-		Name:        incomeCreate.Name,
+		IsActive:     true,
+		Comment:      incomeCreate.Comment,
+		ID:           openapitypes.UUID(uuid.New()),
+		UserID:       userID,
+		ActivePassID: incomeCreate.ActivePassID,
+		ServiceID:    incomeCreate.ServiceID,
+		PayerID:      incomeCreate.PayerID,
+		Name:         incomeCreate.Name,
 	}
 
 	if incomeCreate.CreatedAt != nil {
@@ -201,7 +203,7 @@ func createIncome(tx *gorm.DB, incomeCreate models.IncomeCreate, userID openapit
 	if incomeCreate.Amount != 0 {
 		income.Amount = incomeCreate.Amount
 
-		if incomeCreate.PassInUseID != nil && incomeCreate.Name == nil {
+		if incomeCreate.ActivePassID != nil && incomeCreate.Name == nil {
 			name := "Bérlet vásárlás"
 			income.Name = &name
 		}
@@ -215,11 +217,12 @@ func createIncome(tx *gorm.DB, incomeCreate models.IncomeCreate, userID openapit
 					Message: "Could not get service in incomeCreation: " + result.Error.Error(),
 				}
 			}
+			income.Name = &service.Name
 
-			useResult := usePassInUse(tx, incomeCreate.PayerID, service.ID)
+			useResult := useActivePass(tx, incomeCreate.PayerID, service.ID)
 			fmt.Println("createIncome / useResult: ", useResult)
 			if !useResult.Success {
-				if useResult.Message == NoPIUWasFound || useResult.Message == NoValidPIUWasFound {
+				if useResult.Message == NoActivePassWasFound || useResult.Message == NoValidActivePassWasFound {
 					income.Amount = service.Price
 
 					var dynamicPrices []models.DynamicPrice
@@ -245,17 +248,17 @@ func createIncome(tx *gorm.DB, incomeCreate models.IncomeCreate, userID openapit
 				} else {
 					return ActionResponse{
 						Success: false,
-						Message: "Could not use pass in use: " + useResult.Message,
+						Message: "Could not use active pass: " + useResult.Message,
 					}
 				}
 			} else {
-				// Has valid passInUse
+				// Has valid activePass
 				income.Amount = 0
 			}
 		} else {
 			return ActionResponse{
 				Success: false,
-				Message: "Amount must be provided if pass in use or service is not provided",
+				Message: "Amount must be provided if active pass or service is not provided",
 			}
 		}
 	}
@@ -269,15 +272,15 @@ func createIncome(tx *gorm.DB, incomeCreate models.IncomeCreate, userID openapit
 		}
 	}
 
-	if income.PassInUseID != nil {
-		var passInUse models.PassInUse
-		result = tx.First(&passInUse, "id = ?", income.PassInUseID)
+	if income.ActivePassID != nil {
+		var activePass models.ActivePass
+		result = tx.First(&activePass, "id = ?", income.ActivePassID)
 
-		err := tx.Model(&income).Association("PassInUse").Append(&passInUse)
+		err := tx.Model(&income).Association("ActivePass").Append(&activePass)
 		if err != nil {
 			return ActionResponse{
 				Success: false,
-				Message: "Could not associate pass in use with income: " + err.Error(),
+				Message: "Could not associate active pass with income: " + err.Error(),
 			}
 		}
 	}

@@ -5,20 +5,21 @@ import (
 	"elrek-system_GO/models"
 	"encoding/json"
 	"fmt"
-	"github.com/go-playground/assert/v2"
-	openapitypes "github.com/oapi-codegen/runtime/types"
-	assert2 "github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/go-playground/assert/v2"
+	openapitypes "github.com/oapi-codegen/runtime/types"
+	assert2 "github.com/stretchr/testify/assert"
 )
 
 var validFrom = time.Now().Round(time.Second)
 var validUntil = time.Now().Add(time.Hour * 24).Round(time.Second)
 var occasionLimit = 2
-var passInUseObject models.PassInUse
-var passInUseWDPObject models.PassInUse
+var activePassObject models.ActivePass
+var activePassWDPObject models.ActivePass
 var newPassName string
 var passObject2 models.Pass
 
@@ -27,44 +28,43 @@ var updatedValidUntil = validUntil.Add(time.Hour * 24).Round(time.Second)
 var updatedComment = "Updated comment"
 var updatedOccasions = 1
 
-func checkPassInUseEqual(t *testing.T, responseBody []models.PassInUse, correctResponseBody models.PassInUse) models.PassInUse {
-	for _, passInUse := range responseBody {
-		if passInUse.PassID == correctResponseBody.PassID &&
-			passInUse.IsActive == correctResponseBody.IsActive {
+func checkactivePassEqual(t *testing.T, responseBody []models.ActivePass, correctResponseBody models.ActivePass) models.ActivePass {
+	for _, activePass := range responseBody {
+		if activePass.PassID == correctResponseBody.PassID &&
+			activePass.IsActive == correctResponseBody.IsActive {
 
-			if passInUse.Comment != nil {
-				assert.Equal(t, correctResponseBody.Comment, *passInUse.Comment)
+			if activePass.Comment != nil {
+				assert.Equal(t, correctResponseBody.Comment, *activePass.Comment)
 			} else {
-				assert.Equal(t, correctResponseBody.Comment, passInUse.Comment)
+				assert.Equal(t, correctResponseBody.Comment, activePass.Comment)
 			}
 
-			assert.Equal(t, correctResponseBody.UserID, passInUse.UserID)
-			assert.Equal(t, correctResponseBody.PayerID, passInUse.PayerID)
-			assert.Equal(t, correctResponseBody.ValidFrom, passInUse.ValidFrom)
-			assert.Equal(t, correctResponseBody.ValidUntil, passInUse.ValidUntil)
-			assert.Equal(t, correctResponseBody.Occasions, passInUse.Occasions)
+			assert.Equal(t, correctResponseBody.UserID, activePass.UserID)
+			assert.Equal(t, correctResponseBody.PayerID, activePass.PayerID)
+			assert.Equal(t, correctResponseBody.ValidFrom, activePass.ValidFrom)
+			assert.Equal(t, correctResponseBody.ValidUntil, activePass.ValidUntil)
+			assert.Equal(t, correctResponseBody.Occasions, activePass.Occasions)
 
-			checkPassEqual(t, []models.Pass{correctResponseBody.Pass}, passInUse.Pass, false, false)
+			checkPassEqual(t, []models.Pass{correctResponseBody.Pass}, activePass.Pass, false, false)
 
-			return passInUse
+			return activePass
 		}
 	}
 	t.Error("Pass in use not found")
-	return models.PassInUse{}
+	return models.ActivePass{}
 }
 
-func TestPassInUseSetup(t *testing.T) {
+func TestactivePassSetup(t *testing.T) {
 	newPassName = fmt.Sprint(passName+"InUse", randomID)
 	fmt.Println("newPassName", newPassName)
 }
 
-func TestPassInUseCreateWithoutLoggingIn(t *testing.T) {
-	requestBody := models.PassInUseCreate{
-		UserID:     openapitypes.UUID{},
-		PassID:     openapitypes.UUID{},
-		PayerID:    openapitypes.UUID{},
-		ValidFrom:  time.Time{},
-		ValidUntil: time.Time{},
+func TestactivePassCreateWithoutLoggingIn(t *testing.T) {
+	requestBody := models.ActivePassCreate{
+		UserID:    openapitypes.UUID{},
+		PassID:    openapitypes.UUID{},
+		PayerID:   openapitypes.UUID{},
+		ValidFrom: time.Time{},
 	}
 	marshalledRequestBody, _ := json.Marshal(requestBody)
 
@@ -74,7 +74,7 @@ func TestPassInUseCreateWithoutLoggingIn(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/passes_in_use", bytes.NewBuffer(marshalledRequestBody))
+	req, _ := http.NewRequest("POST", "/active-passes", bytes.NewBuffer(marshalledRequestBody))
 	router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
@@ -84,13 +84,12 @@ func TestPassInUseCreateWithoutLoggingIn(t *testing.T) {
 	}
 	assert.Equal(t, correctResponseBody, responseBody)
 }
-func TestPassInUseCreateWithoutWithoutAdmin(t *testing.T) {
-	requestBody := models.PassInUseCreate{
-		UserID:     openapitypes.UUID{},
-		PassID:     openapitypes.UUID{},
-		PayerID:    openapitypes.UUID{},
-		ValidFrom:  time.Time{},
-		ValidUntil: time.Time{},
+func TestactivePassCreateWithoutWithoutAdmin(t *testing.T) {
+	requestBody := models.ActivePassCreate{
+		UserID:    openapitypes.UUID{},
+		PassID:    openapitypes.UUID{},
+		PayerID:   openapitypes.UUID{},
+		ValidFrom: time.Time{},
 	}
 	marshalledRequestBody, _ := json.Marshal(requestBody)
 
@@ -100,7 +99,7 @@ func TestPassInUseCreateWithoutWithoutAdmin(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/passes_in_use", bytes.NewBuffer(marshalledRequestBody))
+	req, _ := http.NewRequest("POST", "/active-passes", bytes.NewBuffer(marshalledRequestBody))
 	req.AddCookie(nonAdminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -156,14 +155,14 @@ func createPass(t *testing.T) models.Pass {
 
 	return checkPassEqual(t, responseBody, correctResponseBody, false, false)
 }
-func TestPassInUseCreate(t *testing.T) {
+func TestactivePassCreate(t *testing.T) {
 	passObject2 = createPass(t)
-	requestBody := models.PassInUseCreate{
+	requestBody := models.ActivePassCreate{
 		UserID:     adminUserID,
 		PassID:     passObject2.ID,
 		PayerID:    nonAdminUserID,
 		ValidFrom:  validFrom,
-		ValidUntil: validUntil,
+		ValidUntil: &validUntil,
 	}
 	marshalledRequestBody, _ := json.Marshal(requestBody)
 
@@ -173,7 +172,7 @@ func TestPassInUseCreate(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/passes_in_use", bytes.NewBuffer(marshalledRequestBody))
+	req, _ := http.NewRequest("POST", "/active-passes", bytes.NewBuffer(marshalledRequestBody))
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -184,9 +183,9 @@ func TestPassInUseCreate(t *testing.T) {
 	}
 	assert.Equal(t, correctResponseBody, responseBody)
 }
-func TestPassInUseCreateCheck(t *testing.T) {
-	var responseBody []models.PassInUse
-	correctResponseBody := models.PassInUse{
+func TestactivePassCreateCheck(t *testing.T) {
+	var responseBody []models.ActivePass
+	correctResponseBody := models.ActivePass{
 		IsActive:   true,
 		Comment:    nil,
 		UserID:     adminUserID,
@@ -199,7 +198,7 @@ func TestPassInUseCreateCheck(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/passes_in_use", nil)
+	req, _ := http.NewRequest("GET", "/active-passes", nil)
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -209,16 +208,16 @@ func TestPassInUseCreateCheck(t *testing.T) {
 		t.Error(err)
 	}
 
-	passInUseObject = checkPassInUseEqual(t, responseBody, correctResponseBody)
+	activePassObject = checkactivePassEqual(t, responseBody, correctResponseBody)
 }
 
-func TestPassInUseCreateWithInvalidPassID(t *testing.T) {
-	requestBody := models.PassInUseCreate{
+func TestactivePassCreateWithInvalidPassID(t *testing.T) {
+	requestBody := models.ActivePassCreate{
 		UserID:     adminUserID,
 		PassID:     openapitypes.UUID{},
 		PayerID:    nonAdminUserID,
 		ValidFrom:  validFrom,
-		ValidUntil: validUntil,
+		ValidUntil: &validUntil,
 	}
 	marshalledRequestBody, _ := json.Marshal(requestBody)
 
@@ -228,7 +227,7 @@ func TestPassInUseCreateWithInvalidPassID(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/passes_in_use", bytes.NewBuffer(marshalledRequestBody))
+	req, _ := http.NewRequest("POST", "/active-passes", bytes.NewBuffer(marshalledRequestBody))
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -239,13 +238,13 @@ func TestPassInUseCreateWithInvalidPassID(t *testing.T) {
 	}
 	assert.Equal(t, correctResponseBody, responseBody)
 }
-func TestPassInUseCreateWithInvalidPayerID(t *testing.T) {
-	requestBody := models.PassInUseCreate{
+func TestactivePassCreateWithInvalidPayerID(t *testing.T) {
+	requestBody := models.ActivePassCreate{
 		UserID:     adminUserID,
 		PassID:     passObject.ID,
 		PayerID:    openapitypes.UUID{},
 		ValidFrom:  validFrom,
-		ValidUntil: validUntil,
+		ValidUntil: &validUntil,
 	}
 	marshalledRequestBody, _ := json.Marshal(requestBody)
 
@@ -255,7 +254,7 @@ func TestPassInUseCreateWithInvalidPayerID(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/passes_in_use", bytes.NewBuffer(marshalledRequestBody))
+	req, _ := http.NewRequest("POST", "/active-passes", bytes.NewBuffer(marshalledRequestBody))
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -267,8 +266,8 @@ func TestPassInUseCreateWithInvalidPayerID(t *testing.T) {
 	assert2.Contains(t, responseBody.Message, correctResponseBody.Message)
 }
 
-func TestPassInUseUpdate(t *testing.T) {
-	requestBody := models.PassInUseUpdate{
+func TestactivePassUpdate(t *testing.T) {
+	requestBody := models.ActivePassUpdate{
 		Comment:    &updatedComment,
 		Occasions:  &updatedOccasions,
 		ValidFrom:  &updatedValidFrom,
@@ -282,7 +281,7 @@ func TestPassInUseUpdate(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("PATCH", "/passes_in_use/"+passInUseObject.ID.String(), bytes.NewBuffer(marshalledRequestBody))
+	req, _ := http.NewRequest("PATCH", "/active-passes/"+activePassObject.ID.String(), bytes.NewBuffer(marshalledRequestBody))
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -293,9 +292,9 @@ func TestPassInUseUpdate(t *testing.T) {
 	}
 	assert.Equal(t, correctResponseBody, responseBody)
 }
-func TestPassInUseUpdateCheck(t *testing.T) {
-	var responseBody []models.PassInUse
-	correctResponseBody := models.PassInUse{
+func TestactivePassUpdateCheck(t *testing.T) {
+	var responseBody []models.ActivePass
+	correctResponseBody := models.ActivePass{
 		IsActive:   true,
 		Comment:    &updatedComment,
 		UserID:     adminUserID,
@@ -308,7 +307,7 @@ func TestPassInUseUpdateCheck(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/passes_in_use", nil)
+	req, _ := http.NewRequest("GET", "/active-passes", nil)
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -318,13 +317,13 @@ func TestPassInUseUpdateCheck(t *testing.T) {
 		t.Error(err)
 	}
 
-	passInUseObject = checkPassInUseEqual(t, responseBody, correctResponseBody)
+	activePassObject = checkactivePassEqual(t, responseBody, correctResponseBody)
 }
 
 // occasions limit is not reached, is at 1/2
-func TestPassInUseValidityCheck1(t *testing.T) {
+func TestactivePassValidityCheck1(t *testing.T) {
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/passes_in_use/"+passInUseObject.ID.String()+"/validity", nil)
+	req, _ := http.NewRequest("GET", "/active-passes/"+activePassObject.ID.String()+"/validity", nil)
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -332,13 +331,13 @@ func TestPassInUseValidityCheck1(t *testing.T) {
 	assert.Equal(t, "true", w.Body.String())
 }
 
-func TestPassInUseCreateWDP(t *testing.T) {
-	requestBody := models.PassInUseCreate{
+func TestactivePassCreateWDP(t *testing.T) {
+	requestBody := models.ActivePassCreate{
 		UserID:     adminUserID,
 		PassID:     passWDPObject.ID,
 		PayerID:    nonAdminUserID,
 		ValidFrom:  validFrom,
-		ValidUntil: validUntil,
+		ValidUntil: &validUntil,
 	}
 	marshalledRequestBody, _ := json.Marshal(requestBody)
 
@@ -348,7 +347,7 @@ func TestPassInUseCreateWDP(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("POST", "/passes_in_use", bytes.NewBuffer(marshalledRequestBody))
+	req, _ := http.NewRequest("POST", "/active-passes", bytes.NewBuffer(marshalledRequestBody))
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -359,9 +358,9 @@ func TestPassInUseCreateWDP(t *testing.T) {
 	}
 	assert.Equal(t, correctResponseBody, responseBody)
 }
-func TestPassInUseCreateWDPCheck(t *testing.T) {
-	var responseBody []models.PassInUse
-	correctResponseBody := models.PassInUse{
+func TestactivePassCreateWDPCheck(t *testing.T) {
+	var responseBody []models.ActivePass
+	correctResponseBody := models.ActivePass{
 		IsActive:   true,
 		Comment:    nil,
 		UserID:     adminUserID,
@@ -374,7 +373,7 @@ func TestPassInUseCreateWDPCheck(t *testing.T) {
 	}
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/passes_in_use", nil)
+	req, _ := http.NewRequest("GET", "/active-passes", nil)
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
@@ -384,18 +383,18 @@ func TestPassInUseCreateWDPCheck(t *testing.T) {
 		t.Error(err)
 	}
 
-	passInUseWDPObject = checkPassInUseEqual(t, responseBody, correctResponseBody)
+	activePassWDPObject = checkactivePassEqual(t, responseBody, correctResponseBody)
 }
 
 //// occasions limit is reached, not yet invalidated
-//func TestPassInUseUsage(t *testing.T) {
+//func TestactivePassUsage(t *testing.T) {
 //	responseBody := models.MessageOnlyResponse{}
 //	correctResponseBody := models.MessageOnlyResponse{
 //		Message: "Pass in use was used successfully",
 //	}
 //
 //	w := httptest.NewRecorder()
-//	req, _ := http.NewRequest("GET", "/passes_in_use/"+passInUseObject.ID.String()+"/use", nil)
+//	req, _ := http.NewRequest("GET", "/active-passes/"+activePassObject.ID.String()+"/use", nil)
 //	req.AddCookie(adminCookies[0])
 //	router.ServeHTTP(w, req)
 //
@@ -406,9 +405,9 @@ func TestPassInUseCreateWDPCheck(t *testing.T) {
 //	}
 //	assert.Equal(t, correctResponseBody, responseBody)
 //}
-//func TestPassInUseUsageCheck(t *testing.T) {
-//	var responseBody []models.PassInUse
-//	correctResponseBody := models.PassInUse{
+//func TestactivePassUsageCheck(t *testing.T) {
+//	var responseBody []models.ActivePass
+//	correctResponseBody := models.ActivePass{
 //		IsActive:   true,
 //		Comment:    &updatedComment,
 //		UserID:     adminUserID,
@@ -421,7 +420,7 @@ func TestPassInUseCreateWDPCheck(t *testing.T) {
 //	}
 //
 //	w := httptest.NewRecorder()
-//	req, _ := http.NewRequest("GET", "/passes_in_use", nil)
+//	req, _ := http.NewRequest("GET", "/active-passes", nil)
 //	req.AddCookie(adminCookies[0])
 //	router.ServeHTTP(w, req)
 //
@@ -431,18 +430,18 @@ func TestPassInUseCreateWDPCheck(t *testing.T) {
 //		t.Error(err)
 //	}
 //
-//	passInUseObject = checkPassInUseEqual(t, responseBody, correctResponseBody)
+//	activePassObject = checkactivePassEqual(t, responseBody, correctResponseBody)
 //}
 //
-//// Try to use a passInUse with limit reached, should invalidate it
-//func TestPassInUseUsage2(t *testing.T) {
+//// Try to use a activePass with limit reached, should invalidate it
+//func TestactivePassUsage2(t *testing.T) {
 //	responseBody := models.MessageOnlyResponse{}
 //	correctResponseBody := models.MessageOnlyResponse{
 //		Message: "Pass in use is not valid",
 //	}
 //
 //	w := httptest.NewRecorder()
-//	req, _ := http.NewRequest("GET", "/passes_in_use/"+passInUseObject.ID.String()+"/use", nil)
+//	req, _ := http.NewRequest("GET", "/active-passes/"+activePassObject.ID.String()+"/use", nil)
 //	req.AddCookie(adminCookies[0])
 //	router.ServeHTTP(w, req)
 //
@@ -453,9 +452,9 @@ func TestPassInUseCreateWDPCheck(t *testing.T) {
 //	}
 //	assert.Equal(t, correctResponseBody, responseBody)
 //}
-//func TestPassInUseValidityCheck2(t *testing.T) {
+//func TestactivePassValidityCheck2(t *testing.T) {
 //	w := httptest.NewRecorder()
-//	req, _ := http.NewRequest("GET", "/passes_in_use/"+passInUseObject.ID.String()+"/validity", nil)
+//	req, _ := http.NewRequest("GET", "/active-passes/"+activePassObject.ID.String()+"/validity", nil)
 //	req.AddCookie(adminCookies[0])
 //	router.ServeHTTP(w, req)
 //
@@ -464,9 +463,9 @@ func TestPassInUseCreateWDPCheck(t *testing.T) {
 //}
 //
 //// Test valid_until validation
-//func TestPassInUseCreate2(t *testing.T) {
+//func TestactivePassCreate2(t *testing.T) {
 //	passObject = createPass(t)
-//	requestBody := models.PassInUseCreate{
+//	requestBody := models.ActivePassCreate{
 //		UserID:     adminUserID,
 //		PassID:     passObject.ID,
 //		PayerID:    nonAdminUserID,
@@ -481,7 +480,7 @@ func TestPassInUseCreateWDPCheck(t *testing.T) {
 //	}
 //
 //	w := httptest.NewRecorder()
-//	req, _ := http.NewRequest("POST", "/passes_in_use", bytes.NewBuffer(marshalledRequestBody))
+//	req, _ := http.NewRequest("POST", "/active-passes", bytes.NewBuffer(marshalledRequestBody))
 //	req.AddCookie(adminCookies[0])
 //	router.ServeHTTP(w, req)
 //
@@ -492,9 +491,9 @@ func TestPassInUseCreateWDPCheck(t *testing.T) {
 //	}
 //	assert.Equal(t, correctResponseBody, responseBody)
 //}
-//func TestPassInUseValidityCheck3(t *testing.T) {
+//func TestactivePassValidityCheck3(t *testing.T) {
 //	w := httptest.NewRecorder()
-//	req, _ := http.NewRequest("GET", "/passes_in_use/"+passInUseObject.ID.String()+"/validity", nil)
+//	req, _ := http.NewRequest("GET", "/active-passes/"+activePassObject.ID.String()+"/validity", nil)
 //	req.AddCookie(adminCookies[0])
 //	router.ServeHTTP(w, req)
 //
