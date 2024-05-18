@@ -5,13 +5,14 @@ import (
 	"elrek-system_GO/models"
 	"encoding/json"
 	"fmt"
-	"github.com/go-playground/assert/v2"
-	"github.com/google/uuid"
-	openapitypes "github.com/oapi-codegen/runtime/types"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/go-playground/assert/v2"
+	"github.com/google/uuid"
+	openapitypes "github.com/oapi-codegen/runtime/types"
 )
 
 var passName string
@@ -356,7 +357,6 @@ func createService3() string {
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
 	if err != nil {
 		return "Error: Could not unmarshal response body"

@@ -217,7 +217,9 @@ func createIncome(tx *gorm.DB, incomeCreate models.IncomeCreate, userID openapit
 					Message: "Could not get service in incomeCreation: " + result.Error.Error(),
 				}
 			}
-			income.Name = &service.Name
+			if incomeCreate.Name == nil {
+				income.Name = &service.Name
+			}
 
 			useResult := useActivePass(tx, incomeCreate.PayerID, service.ID)
 			fmt.Println("createIncome / useResult: ", useResult)

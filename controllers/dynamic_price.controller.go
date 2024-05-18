@@ -3,11 +3,12 @@ package controllers
 import (
 	"elrek-system_GO/models"
 	"fmt"
+	"sort"
+
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	openapitypes "github.com/oapi-codegen/runtime/types"
 	"gorm.io/gorm"
-	"sort"
 )
 
 func GetDynamicPricesWrapper(ctx *gin.Context) {
@@ -101,7 +102,7 @@ func createDynamicPricesFromFullData(
 	var strippedDynamicPrices []models.DynamicPriceCreateUpdate
 	for _, dynamicPrice := range existingDynamicPrices {
 		var strippedDynamicPrice models.DynamicPriceCreateUpdate
-		strippedDynamicPrice.OwnerID = openapitypes.UUID(uuid.MustParse(userID))
+		strippedDynamicPrice.UserID = openapitypes.UUID(uuid.MustParse(userID))
 		strippedDynamicPrice.Attendees = dynamicPrice.Attendees
 		strippedDynamicPrice.Price = dynamicPrice.Price
 
@@ -131,7 +132,7 @@ func updateDynamicPrices(
 		}
 
 		var newDynamicPrice models.DynamicPriceCreateUpdate
-		newDynamicPrice.OwnerID = updatableDyPrice.UserID
+		newDynamicPrice.UserID = updatableDyPrice.UserID
 
 		if updatableDyPrice.Attendees != currentDynamicPrice.Attendees {
 			newDynamicPrice.Attendees = updatableDyPrice.Attendees

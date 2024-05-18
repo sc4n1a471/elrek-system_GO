@@ -6,7 +6,7 @@ components:
         id:
           type: string
           format: uuid
-        user_id:
+        userID:
           type: string
           format: uuid
         name:
@@ -17,25 +17,25 @@ components:
         #          type: string
         comment:
           type: string
-        prev_service_id:
+        prevServiceID:
           type: string
           format: uuid
         active:
           type: boolean
-        created_at:
+        createdAt:
           type: string
           format: date-time
-        dynamic-prices:
+        dynamicPrices:
           type: array
           items:
-            $ref: './dynamic_price.yaml#/components/schemas/Dynamic_price'
+            $ref: './dynamic_price.yaml#/components/schemas/DynamicPrice'
     ServiceOnly:
       type: object
       properties:
         id:
           type: string
           format: uuid
-        user_id:
+        userID:
           type: string
           format: uuid
         name:
@@ -46,12 +46,12 @@ components:
         #          type: string
         comment:
           type: string
-        prev_service_id:
+        prevServiceID:
           type: string
           format: uuid
         active:
           type: boolean
-        created_at:
+        createdAt:
           type: string
           format: date-time
     ServiceList:
@@ -69,10 +69,10 @@ components:
           type: string
         #location:
         #  type: string
-        dynamic-prices:
+        dynamicPrices:
           type: array
           items:
-            $ref: './dynamic_price.yaml#/components/schemas/Dynamic_priceCreateUpdate'
+            $ref: './dynamic_price.yaml#/components/schemas/DynamicPriceCreateUpdate'
       required:
         - name
         - price
@@ -87,7 +87,7 @@ components:
         #  type: string
         comment:
           type: string
-        dynamic-prices:
+        dynamicPrices:
           type: array
           items:
-            $ref: './dynamic_price.yaml#/components/schemas/Dynamic_priceCreateUpdate'
+            $ref: './dynamic_price.yaml#/components/schemas/DynamicPriceCreateUpdate'

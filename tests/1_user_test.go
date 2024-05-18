@@ -7,14 +7,15 @@ import (
 	"elrek-system_GO/models"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/assert/v2"
 	"github.com/google/uuid"
 	openapitypes "github.com/oapi-codegen/runtime/types"
 	assert2 "github.com/stretchr/testify/assert"
-	"net/http"
-	"net/http/httptest"
-	"testing"
 )
 
 var adminCookies []*http.Cookie
@@ -50,7 +51,6 @@ func TestLoginWrongPassword(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/login", bytes.NewReader(marshalledRequestBody))
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, 401, w.Code)
 
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
@@ -75,7 +75,6 @@ func TestLoginWrongEmail(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/login", bytes.NewReader(marshalledRequestBody))
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
 
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
@@ -104,7 +103,6 @@ func TestLoginAsAdmin(t *testing.T) {
 	router.ServeHTTP(w, req)
 	adminCookies = w.Result().Cookies()
 
-	// MARK: Asserts ================
 	assert.Equal(t, 200, w.Code)
 
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
@@ -127,7 +125,6 @@ func TestLoginAsNonAdmin(t *testing.T) {
 	router.ServeHTTP(w, req)
 	nonAdminCookies = w.Result().Cookies()
 
-	// MARK: Asserts ================
 	assert.Equal(t, 200, w.Code)
 
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
@@ -155,7 +152,6 @@ func TestUserCreate(t *testing.T) {
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	fmt.Println(w.Body.String())
 	assert.Equal(t, 201, w.Code)
 
@@ -165,6 +161,8 @@ func TestUserCreate(t *testing.T) {
 	}
 	assert.Equal(t, correctResponseBody, responseBody)
 }
+
+// MARK: TestUserCreateDuplicate
 func TestUserCreateDuplicate(t *testing.T) {
 	requestBody := models.UserCreate{
 		Email:    "user1@example.com",
@@ -182,7 +180,6 @@ func TestUserCreateDuplicate(t *testing.T) {
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, 500, w.Code) // TODO: Change to 400 when issue #3 is done
 
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
@@ -191,6 +188,8 @@ func TestUserCreateDuplicate(t *testing.T) {
 	}
 	assert.Equal(t, correctResponseBody, responseBody)
 }
+
+// MARK: TestUserCreateWithoutCookies
 func TestUserCreateWithoutCookies(t *testing.T) {
 	requestBody := models.UserCreate{
 		Email:    "user1@example.com",
@@ -207,7 +206,6 @@ func TestUserCreateWithoutCookies(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/users", bytes.NewReader(marshalledRequestBody))
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, 401, w.Code)
 
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
@@ -216,6 +214,8 @@ func TestUserCreateWithoutCookies(t *testing.T) {
 	}
 	assert.Equal(t, correctResponseBody, responseBody)
 }
+
+// MARK: TestUserCreateWithoutAdmin
 func TestLoginAsHalfAdmin(t *testing.T) {
 	requestBody := models.UserLogin{
 		Email:    "user5@example.com",
@@ -230,7 +230,6 @@ func TestLoginAsHalfAdmin(t *testing.T) {
 	router.ServeHTTP(w, req)
 	halfAdminCookies = w.Result().Cookies()
 
-	// MARK: Asserts ================
 	assert.Equal(t, 200, w.Code)
 
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
@@ -239,6 +238,8 @@ func TestLoginAsHalfAdmin(t *testing.T) {
 	}
 	halfAdminUserID = responseBody.ID
 }
+
+// MARK: TestUserCreateWithoutAdmin
 func TestUserCreateWithoutAdmin(t *testing.T) {
 	requestBody := models.UserCreate{
 		Email:    "user5@example.com",
@@ -256,7 +257,6 @@ func TestUserCreateWithoutAdmin(t *testing.T) {
 	req.AddCookie(halfAdminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, 403, w.Code)
 
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
@@ -265,6 +265,8 @@ func TestUserCreateWithoutAdmin(t *testing.T) {
 	}
 	assert.Equal(t, correctResponseBody, responseBody)
 }
+
+// MARK: Get created user
 func TestUserGetCreatedUser(t *testing.T) {
 	var responseBody []models.UserResponse
 	correctResponseBody := models.UserResponse{
@@ -280,7 +282,6 @@ func TestUserGetCreatedUser(t *testing.T) {
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, 200, w.Code)
 
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
@@ -290,7 +291,6 @@ func TestUserGetCreatedUser(t *testing.T) {
 	assert2.Contains(t, responseBody, correctResponseBody)
 }
 
-// MARK: Update user ===================
 // MARK: Update user without admin =====
 func TestUserUpdateNameWithoutAdmin(t *testing.T) {
 	requestBody := models.UserUpdate{}
@@ -308,7 +308,6 @@ func TestUserUpdateNameWithoutAdmin(t *testing.T) {
 	req.AddCookie(halfAdminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, 200, w.Code)
 
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
@@ -317,6 +316,8 @@ func TestUserUpdateNameWithoutAdmin(t *testing.T) {
 	}
 	assert.Equal(t, correctResponseBody, responseBody)
 }
+
+// MARK: TestUserUpdateNameWithoutAdminCheck
 func TestUserUpdateNameWithoutAdminCheck(t *testing.T) {
 	var responseBody models.UserResponse
 	correctResponseBody := models.UserResponse{
@@ -332,7 +333,6 @@ func TestUserUpdateNameWithoutAdminCheck(t *testing.T) {
 	req.AddCookie(halfAdminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, 200, w.Code)
 
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
@@ -342,6 +342,7 @@ func TestUserUpdateNameWithoutAdminCheck(t *testing.T) {
 	assert.Equal(t, responseBody, correctResponseBody)
 }
 
+// MARK: UserUpdateIsAdminWithoutAdmin
 func TestUserUpdateIsAdminWithoutAdmin(t *testing.T) {
 	requestBody := models.UserUpdate{}
 	isAdmin := true
@@ -358,7 +359,6 @@ func TestUserUpdateIsAdminWithoutAdmin(t *testing.T) {
 	req.AddCookie(halfAdminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, 403, w.Code)
 
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
@@ -382,7 +382,6 @@ func TestUserUpdateIsAdminWithoutAdminCheck(t *testing.T) {
 	req.AddCookie(halfAdminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, 200, w.Code)
 
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
@@ -409,7 +408,6 @@ func TestUserUpdateName(t *testing.T) {
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, 200, w.Code)
 
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
@@ -433,7 +431,6 @@ func TestUserUpdateNameCheck(t *testing.T) {
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, 200, w.Code)
 
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
@@ -462,7 +459,6 @@ func TestUserUpdateIsAdmin(t *testing.T) {
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, 200, w.Code)
 
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
@@ -486,7 +482,6 @@ func TestUserUpdateIsAdminCheck(t *testing.T) {
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, 200, w.Code)
 
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)

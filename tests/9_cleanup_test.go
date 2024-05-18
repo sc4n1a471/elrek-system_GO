@@ -3,12 +3,13 @@ package tests
 import (
 	"elrek-system_GO/models"
 	"encoding/json"
-	"github.com/go-playground/assert/v2"
-	openapitypes "github.com/oapi-codegen/runtime/types"
-	assert2 "github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/go-playground/assert/v2"
+	openapitypes "github.com/oapi-codegen/runtime/types"
+	assert2 "github.com/stretchr/testify/assert"
 )
 
 // MARK: Delete services ===================
@@ -21,7 +22,6 @@ func TestServiceDeleteWithoutAdmin(t *testing.T) {
 	req.AddCookie(nonAdminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, http.StatusForbidden, w.Code)
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
 	if err != nil {
@@ -39,7 +39,6 @@ func TestServiceDelete(t *testing.T) {
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, http.StatusOK, w.Code)
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
 	if err != nil {
@@ -62,7 +61,6 @@ func TestServiceDeleteCheck(t *testing.T) {
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, http.StatusOK, w.Code)
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
 	if err != nil {
@@ -92,7 +90,6 @@ func TestServiceWDPDelete(t *testing.T) {
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, http.StatusOK, w.Code)
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
 	if err != nil {
@@ -129,7 +126,6 @@ func TestServiceWDPDeleteCheck(t *testing.T) {
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, http.StatusOK, w.Code)
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
 	if err != nil {
@@ -167,7 +163,7 @@ func TestServiceWDPDeleteCheck(t *testing.T) {
 //	req.AddCookie(adminCookies[0])
 //	router.ServeHTTP(w, req)
 //
-//	// MARK: Asserts ================
+//
 //	assert.Equal(t, http.StatusOK, w.Code)
 //	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
 //	if err != nil {
@@ -188,7 +184,6 @@ func TestUserDelete(t *testing.T) {
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, 200, w.Code)
 
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
@@ -213,7 +208,6 @@ func TestUserDeleteGetUsers(t *testing.T) {
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, 200, w.Code)
 
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
@@ -238,7 +232,6 @@ func TestUserDeleteGetUser(t *testing.T) {
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, 200, w.Code)
 
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
@@ -259,7 +252,6 @@ func TestUserDeletePermanently(t *testing.T) {
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, 200, w.Code)
 
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)

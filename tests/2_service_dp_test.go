@@ -41,7 +41,6 @@ func TestServiceCreateWithoutLoggingIn(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/services", bytes.NewBuffer(marshalledRequestBody))
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
 	if err != nil {
@@ -65,7 +64,6 @@ func TestServiceCreateWithoutAdmin(t *testing.T) {
 	req.AddCookie(nonAdminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, http.StatusForbidden, w.Code)
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
 	if err != nil {
@@ -89,7 +87,6 @@ func TestServiceCreate(t *testing.T) {
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, http.StatusCreated, w.Code)
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
 	if err != nil {
@@ -112,7 +109,6 @@ func TestServiceCreateCheck(t *testing.T) {
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, http.StatusOK, w.Code)
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
 	if err != nil {
@@ -151,7 +147,6 @@ func TestServiceCreateWoPass(t *testing.T) {
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, http.StatusCreated, w.Code)
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
 	if err != nil {
@@ -174,7 +169,6 @@ func TestServiceCreateWoPassCheck(t *testing.T) {
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, http.StatusOK, w.Code)
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
 	if err != nil {
@@ -227,7 +221,6 @@ func TestServiceCreateWithDPWoPass(t *testing.T) {
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, http.StatusCreated, w.Code)
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
 	if err != nil {
@@ -264,7 +257,6 @@ func TestServiceCreateWithDPWoPassCheck(t *testing.T) {
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, http.StatusOK, w.Code)
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
 	if err != nil {
@@ -322,7 +314,6 @@ func TestServiceCreateWithDP(t *testing.T) {
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, http.StatusCreated, w.Code)
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
 	if err != nil {
@@ -359,7 +350,6 @@ func TestServiceCreateWithDPCheck(t *testing.T) {
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, http.StatusOK, w.Code)
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
 	if err != nil {
@@ -395,7 +385,6 @@ func TestServiceUpdateName(t *testing.T) {
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, http.StatusOK, w.Code)
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
 	if err != nil {
@@ -416,7 +405,6 @@ func TestServiceUpdateNameCheck(t *testing.T) {
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, http.StatusOK, w.Code)
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
 	if err != nil {
@@ -454,7 +442,6 @@ func TestServiceUpdatePrice(t *testing.T) {
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, http.StatusOK, w.Code)
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
 	if err != nil {
@@ -475,7 +462,6 @@ func TestServiceUpdatePriceCheck(t *testing.T) {
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, http.StatusOK, w.Code)
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
 	if err != nil {
@@ -512,7 +498,7 @@ func TestServiceUpdatePriceCheck(t *testing.T) {
 //	req.AddCookie(adminCookies[0])
 //	router.ServeHTTP(w, req)
 //
-//	// MARK: Asserts ================
+//
 //	assert.Equal(t, http.StatusOK, w.Code)
 //	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
 //	if err != nil {
@@ -533,7 +519,7 @@ func TestServiceUpdatePriceCheck(t *testing.T) {
 //	req.AddCookie(adminCookies[0])
 //	router.ServeHTTP(w, req)
 //
-//	// MARK: Asserts ================
+//
 //	assert.Equal(t, http.StatusOK, w.Code)
 //	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
 //	if err != nil {
@@ -570,7 +556,6 @@ func TestServiceWDPUpdateName(t *testing.T) {
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, http.StatusOK, w.Code)
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
 	if err != nil {
@@ -606,7 +591,6 @@ func TestServiceWDPUpdateNameCheck(t *testing.T) {
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, http.StatusOK, w.Code)
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
 	if err != nil {
@@ -651,7 +635,6 @@ func TestServiceWDPUpdatePrice(t *testing.T) {
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, http.StatusOK, w.Code)
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
 	if err != nil {
@@ -687,7 +670,6 @@ func TestServiceWDPUpdatePriceCheck(t *testing.T) {
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, http.StatusOK, w.Code)
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
 	if err != nil {
@@ -744,7 +726,6 @@ func TestServiceWDPUpdateDP(t *testing.T) {
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, http.StatusOK, w.Code)
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
 	if err != nil {
@@ -780,7 +761,6 @@ func TestServiceWDPUpdateDPCheck(t *testing.T) {
 	req.AddCookie(adminCookies[0])
 	router.ServeHTTP(w, req)
 
-	// MARK: Asserts ================
 	assert.Equal(t, http.StatusOK, w.Code)
 	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
 	if err != nil {
@@ -842,7 +822,7 @@ func TestServiceWDPUpdateDPCheck(t *testing.T) {
 //	req.AddCookie(adminCookies[0])
 //	router.ServeHTTP(w, req)
 //
-//	// MARK: Asserts ================
+//
 //	assert.Equal(t, http.StatusOK, w.Code)
 //	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
 //	if err != nil {
@@ -878,7 +858,7 @@ func TestServiceWDPUpdateDPCheck(t *testing.T) {
 //	req.AddCookie(adminCookies[0])
 //	router.ServeHTTP(w, req)
 //
-//	// MARK: Asserts ================
+//
 //	assert.Equal(t, http.StatusOK, w.Code)
 //	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
 //	if err != nil {

@@ -8,13 +8,13 @@ import (
 
 // Service defines model for Service.
 type Service struct {
-	IsActive      bool              `json:"is_active,omitempty"`
+	IsActive      bool              `json:"isActive,omitempty"`
 	Comment       *string           `json:"comment,omitempty"`
-	CreatedAt     time.Time         `json:"created_at,omitempty"`
+	CreatedAt     time.Time         `json:"createdAt,omitempty"`
 	ID            openapitypes.UUID `json:"id,omitempty" gorm:"size:255"`
 	Name          string            `json:"name,omitempty"`
-	UserID        openapitypes.UUID `json:"user_id" gorm:"size:255"`
-	PrevServiceID openapitypes.UUID `json:"prev_service_id,omitempty"`
+	UserID        openapitypes.UUID `json:"userID" gorm:"size:255"`
+	PrevServiceID openapitypes.UUID `json:"prevServiceID,omitempty"`
 	Price         int               `json:"price,omitempty"`
 	DynamicPrices *[]DynamicPrice   `json:"dynamic-prices,omitempty" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
@@ -35,5 +35,5 @@ type ServiceUpdate struct {
 	Name          *string                     `json:"name,omitempty"`
 	Price         *int                        `json:"price,omitempty"`
 	Comment       *string                     `json:"comment,omitempty"`
-	DynamicPrices *[]DynamicPriceCreateUpdate `json:"dynamic-prices,omitempty"`
+	DynamicPrices *[]DynamicPriceCreateUpdate `json:"dynamicPrices,omitempty"`
 }

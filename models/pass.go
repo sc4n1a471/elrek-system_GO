@@ -37,7 +37,7 @@ type PassUpdate struct {
 	Comment       *string              `json:"comment,omitempty"`
 	Duration      *string              `json:"duration,omitempty"`
 	Name          *string              `json:"name,omitempty"`
-	OccasionLimit *int                 `json:"occasion_limit,omitempty"`
+	OccasionLimit *int                 `json:"occasionLimit,omitempty"`
 	Price         *int                 `json:"price,omitempty"`
-	ServiceIDs    *[]openapitypes.UUID `json:"service_ids,omitempty"`
+	ServiceIDs    *[]openapitypes.UUID `json:"serviceIDs,omitempty"`
 }

@@ -11,16 +11,16 @@ type DynamicPrice struct {
 	Active    bool              `json:"active,omitempty"`
 	Attendees int               `json:"attendees,omitempty"`
 	ID        openapitypes.UUID `json:"id,omitempty"`
-	UserID    openapitypes.UUID `json:"user_id,omitempty"`
+	UserID    openapitypes.UUID `json:"userID,omitempty"`
 	Price     int               `json:"price,omitempty"`
-	ServiceID openapitypes.UUID `json:"service_id,omitempty" gorm:"size:255"`
+	ServiceID openapitypes.UUID `json:"serviceID,omitempty" gorm:"size:255"`
 }
 
 // DynamicPriceCreateUpdate defines model for Dynamic_priceCreateUpdate.
 // Updating dynamic prices uses the same model
 type DynamicPriceCreateUpdate struct {
 	Attendees int               `json:"attendees"`
-	OwnerID   openapitypes.UUID `json:"user_id"`
+	UserID    openapitypes.UUID `json:"userID"`
 	Price     int               `json:"price"`
 }
 
@@ -29,13 +29,13 @@ type DynamicPriceList = []DynamicPrice
 
 // DynamicPriceListErrorResponse defines model for Dynamic_priceListErrorResponse.
 type DynamicPriceListErrorResponse struct {
-	DynamicPrices *[]interface{} `json:"dynamic-prices,omitempty"`
+	DynamicPrices *[]interface{} `json:"dynamicPrices,omitempty"`
 	Message       *string        `json:"message,omitempty"`
 }
 
 // DynamicPriceListSuccessResponse defines model for Dynamic_priceListSuccessResponse.
 type DynamicPriceListSuccessResponse struct {
-	DynamicPrices *DynamicPriceList `json:"dynamic-prices,omitempty"`
+	DynamicPrices *DynamicPriceList `json:"dynamicPrices,omitempty"`
 	Message       *string           `json:"message,omitempty"`
 }
 

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"errors"
+
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	openapitypes "github.com/oapi-codegen/runtime/types"
@@ -55,6 +57,12 @@ func checkActivePassValidity(tx *gorm.DB, ActivePassID openapitypes.UUID, servic
 
 	if occasionLimit == nil {
 		fmt.Println("occasionLimit is nil")
+
+		if activePass.ValidUntil == nil {
+			fmt.Println("activePass.ValidUntil is nil, too...")
+			return false, errors.New("The Active Pass does not have a valid occasion limit or a valid until date")
+		}
+
 		if now.After(*activePass.ValidUntil) {
 			activePass.IsActive = false
 			result := tx.Save(&activePass)

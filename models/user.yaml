@@ -9,7 +9,7 @@ components:
         email:
           type: string
           format: email
-        owner_id:
+        ownerID:
           type: string
           format: email
         name:
@@ -17,14 +17,14 @@ components:
         password:
           type: string
           format: password
-        is_admin:
+        isAdmin:
           type: boolean
-        is_active:
+        isActive:
           type: boolean
-        created_at:
+        createdAt:
           type: string
           format: date-time
-        updated_at:
+        updatedAt:
           type: string
           format: date-time
     #      required:
@@ -46,7 +46,7 @@ components:
         password:
           type: string
           format: password
-        is_admin:
+        isAdmin:
           type: boolean
       required:
         - name
@@ -60,7 +60,7 @@ components:
         email:
           type: string
           format: email
-        is_admin:
+        isAdmin:
           type: boolean
     UserLogin:
       type: object
@@ -83,7 +83,7 @@ components:
           type: uuid
         name:
           type: integer
-        is_admin:
+        isAdmin:
           type: boolean
     UserResponse:
       type: object
@@ -94,7 +94,7 @@ components:
           type: uuid
         name:
           type: integer
-        is_admin:
+        isAdmin:
           type: boolean
-        is_active:
+        isActive:
           type: boolean

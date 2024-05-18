@@ -1,12 +1,12 @@
 components:
   schemas:
-    activePass:
+    ActivePass:
       type: object
       properties:
         id:
           type: string
           format: uuid
-        user_id:
+        userID:
           type: string
           format: uuid
         occasions:
@@ -15,59 +15,60 @@ components:
           type: string
         active:
           type: boolean
-        pass_id:
+        passID:
           type: string
           format: uuid
         pass:
           $ref: './pass.yaml#/components/schemas/Pass'
-        payer_id:
+        payerID:
           type: string
           format: uuid
-        valid_from:
+        user:
+          $ref: './user.yaml#/components/schemas/User'
+        validFrom:
           type: string
           format: date-time
-        valid_until:
+        validUntil:
           type: string
           format: date-time
-        created_at:
+        createdAt:
           type: string
           format: date-time
-    activePassList:
+    ActivePassList:
       type: array
       items:
-        $ref: '#/components/schemas/activePass'
-    activePassCreate:
+        $ref: '#/components/schemas/ActivePass'
+    ActivePassCreate:
       type: object
       properties:
         comment:
           type: string
-        pass_id:
+        passID:
           type: string
           format: uuid
-        payer_id:
+        payerID:
           type: string
           format: uuid
-        valid_from:
+        validFrom:
           type: string
           format: date-time
-        valid_until:
+        validUntil:
           type: string
           format: date-time
       required:
-        - pass_id
-        - payer_id
-        - valid_from
-        - valid_until
-    activePassUpdate:
+        - passID
+        - payerID
+        - validFrom
+    ActivePassUpdate:
       type: object
       properties:
         comment:
           type: string
         occasions:
           type: integer
-        valid_from:
+        validFrom:
           type: string
           format: date-time
-        valid_until:
+        validUntil:
           type: string
           format: date-time

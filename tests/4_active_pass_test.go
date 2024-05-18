@@ -28,7 +28,7 @@ var updatedValidUntil = validUntil.Add(time.Hour * 24).Round(time.Second)
 var updatedComment = "Updated comment"
 var updatedOccasions = 1
 
-func checkactivePassEqual(t *testing.T, responseBody []models.ActivePass, correctResponseBody models.ActivePass) models.ActivePass {
+func checkActivePassEqual(t *testing.T, responseBody []models.ActivePass, correctResponseBody models.ActivePass) models.ActivePass {
 	for _, activePass := range responseBody {
 		if activePass.PassID == correctResponseBody.PassID &&
 			activePass.IsActive == correctResponseBody.IsActive {
@@ -54,12 +54,12 @@ func checkactivePassEqual(t *testing.T, responseBody []models.ActivePass, correc
 	return models.ActivePass{}
 }
 
-func TestactivePassSetup(t *testing.T) {
+func TestActivePassSetup(t *testing.T) {
 	newPassName = fmt.Sprint(passName+"InUse", randomID)
 	fmt.Println("newPassName", newPassName)
 }
 
-func TestactivePassCreateWithoutLoggingIn(t *testing.T) {
+func TestActivePassCreateWithoutLoggingIn(t *testing.T) {
 	requestBody := models.ActivePassCreate{
 		UserID:    openapitypes.UUID{},
 		PassID:    openapitypes.UUID{},
@@ -84,7 +84,7 @@ func TestactivePassCreateWithoutLoggingIn(t *testing.T) {
 	}
 	assert.Equal(t, correctResponseBody, responseBody)
 }
-func TestactivePassCreateWithoutWithoutAdmin(t *testing.T) {
+func TestActivePassCreateWithoutWithoutAdmin(t *testing.T) {
 	requestBody := models.ActivePassCreate{
 		UserID:    openapitypes.UUID{},
 		PassID:    openapitypes.UUID{},
@@ -155,7 +155,7 @@ func createPass(t *testing.T) models.Pass {
 
 	return checkPassEqual(t, responseBody, correctResponseBody, false, false)
 }
-func TestactivePassCreate(t *testing.T) {
+func TestActivePassCreate(t *testing.T) {
 	passObject2 = createPass(t)
 	requestBody := models.ActivePassCreate{
 		UserID:     adminUserID,
@@ -183,7 +183,7 @@ func TestactivePassCreate(t *testing.T) {
 	}
 	assert.Equal(t, correctResponseBody, responseBody)
 }
-func TestactivePassCreateCheck(t *testing.T) {
+func TestActivePassCreateCheck(t *testing.T) {
 	var responseBody []models.ActivePass
 	correctResponseBody := models.ActivePass{
 		IsActive:   true,
@@ -208,10 +208,10 @@ func TestactivePassCreateCheck(t *testing.T) {
 		t.Error(err)
 	}
 
-	activePassObject = checkactivePassEqual(t, responseBody, correctResponseBody)
+	activePassObject = checkActivePassEqual(t, responseBody, correctResponseBody)
 }
 
-func TestactivePassCreateWithInvalidPassID(t *testing.T) {
+func TestActivePassCreateWithInvalidPassID(t *testing.T) {
 	requestBody := models.ActivePassCreate{
 		UserID:     adminUserID,
 		PassID:     openapitypes.UUID{},
@@ -238,7 +238,7 @@ func TestactivePassCreateWithInvalidPassID(t *testing.T) {
 	}
 	assert.Equal(t, correctResponseBody, responseBody)
 }
-func TestactivePassCreateWithInvalidPayerID(t *testing.T) {
+func TestActivePassCreateWithInvalidPayerID(t *testing.T) {
 	requestBody := models.ActivePassCreate{
 		UserID:     adminUserID,
 		PassID:     passObject.ID,
@@ -266,7 +266,7 @@ func TestactivePassCreateWithInvalidPayerID(t *testing.T) {
 	assert2.Contains(t, responseBody.Message, correctResponseBody.Message)
 }
 
-func TestactivePassUpdate(t *testing.T) {
+func TestActivePassUpdate(t *testing.T) {
 	requestBody := models.ActivePassUpdate{
 		Comment:    &updatedComment,
 		Occasions:  &updatedOccasions,
@@ -292,7 +292,7 @@ func TestactivePassUpdate(t *testing.T) {
 	}
 	assert.Equal(t, correctResponseBody, responseBody)
 }
-func TestactivePassUpdateCheck(t *testing.T) {
+func TestActivePassUpdateCheck(t *testing.T) {
 	var responseBody []models.ActivePass
 	correctResponseBody := models.ActivePass{
 		IsActive:   true,
@@ -317,11 +317,11 @@ func TestactivePassUpdateCheck(t *testing.T) {
 		t.Error(err)
 	}
 
-	activePassObject = checkactivePassEqual(t, responseBody, correctResponseBody)
+	activePassObject = checkActivePassEqual(t, responseBody, correctResponseBody)
 }
 
 // occasions limit is not reached, is at 1/2
-func TestactivePassValidityCheck1(t *testing.T) {
+func TestActivePassValidityCheck1(t *testing.T) {
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/active-passes/"+activePassObject.ID.String()+"/validity", nil)
 	req.AddCookie(adminCookies[0])
@@ -331,7 +331,7 @@ func TestactivePassValidityCheck1(t *testing.T) {
 	assert.Equal(t, "true", w.Body.String())
 }
 
-func TestactivePassCreateWDP(t *testing.T) {
+func TestActivePassCreateWDP(t *testing.T) {
 	requestBody := models.ActivePassCreate{
 		UserID:     adminUserID,
 		PassID:     passWDPObject.ID,
@@ -358,7 +358,7 @@ func TestactivePassCreateWDP(t *testing.T) {
 	}
 	assert.Equal(t, correctResponseBody, responseBody)
 }
-func TestactivePassCreateWDPCheck(t *testing.T) {
+func TestActivePassCreateWDPCheck(t *testing.T) {
 	var responseBody []models.ActivePass
 	correctResponseBody := models.ActivePass{
 		IsActive:   true,
@@ -383,11 +383,11 @@ func TestactivePassCreateWDPCheck(t *testing.T) {
 		t.Error(err)
 	}
 
-	activePassWDPObject = checkactivePassEqual(t, responseBody, correctResponseBody)
+	activePassWDPObject = checkActivePassEqual(t, responseBody, correctResponseBody)
 }
 
 //// occasions limit is reached, not yet invalidated
-//func TestactivePassUsage(t *testing.T) {
+//func TestActivePassUsage(t *testing.T) {
 //	responseBody := models.MessageOnlyResponse{}
 //	correctResponseBody := models.MessageOnlyResponse{
 //		Message: "Pass in use was used successfully",
@@ -405,7 +405,7 @@ func TestactivePassCreateWDPCheck(t *testing.T) {
 //	}
 //	assert.Equal(t, correctResponseBody, responseBody)
 //}
-//func TestactivePassUsageCheck(t *testing.T) {
+//func TestActivePassUsageCheck(t *testing.T) {
 //	var responseBody []models.ActivePass
 //	correctResponseBody := models.ActivePass{
 //		IsActive:   true,
@@ -430,11 +430,11 @@ func TestactivePassCreateWDPCheck(t *testing.T) {
 //		t.Error(err)
 //	}
 //
-//	activePassObject = checkactivePassEqual(t, responseBody, correctResponseBody)
+//	activePassObject = checkActivePassEqual(t, responseBody, correctResponseBody)
 //}
 //
 //// Try to use a activePass with limit reached, should invalidate it
-//func TestactivePassUsage2(t *testing.T) {
+//func TestActivePassUsage2(t *testing.T) {
 //	responseBody := models.MessageOnlyResponse{}
 //	correctResponseBody := models.MessageOnlyResponse{
 //		Message: "Pass in use is not valid",
@@ -452,7 +452,7 @@ func TestactivePassCreateWDPCheck(t *testing.T) {
 //	}
 //	assert.Equal(t, correctResponseBody, responseBody)
 //}
-//func TestactivePassValidityCheck2(t *testing.T) {
+//func TestActivePassValidityCheck2(t *testing.T) {
 //	w := httptest.NewRecorder()
 //	req, _ := http.NewRequest("GET", "/active-passes/"+activePassObject.ID.String()+"/validity", nil)
 //	req.AddCookie(adminCookies[0])
@@ -463,7 +463,7 @@ func TestactivePassCreateWDPCheck(t *testing.T) {
 //}
 //
 //// Test valid_until validation
-//func TestactivePassCreate2(t *testing.T) {
+//func TestActivePassCreate2(t *testing.T) {
 //	passObject = createPass(t)
 //	requestBody := models.ActivePassCreate{
 //		UserID:     adminUserID,
@@ -491,7 +491,7 @@ func TestactivePassCreateWDPCheck(t *testing.T) {
 //	}
 //	assert.Equal(t, correctResponseBody, responseBody)
 //}
-//func TestactivePassValidityCheck3(t *testing.T) {
+//func TestActivePassValidityCheck3(t *testing.T) {
 //	w := httptest.NewRecorder()
 //	req, _ := http.NewRequest("GET", "/active-passes/"+activePassObject.ID.String()+"/validity", nil)
 //	req.AddCookie(adminCookies[0])

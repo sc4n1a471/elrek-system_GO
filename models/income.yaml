@@ -6,10 +6,10 @@ components:
         id:
           type: string
           format: uuid
-        user_id:
+        userID:
           type: string
           format: uuid
-        service_id:
+        serviceID:
           type: string
           format: uuid
         service:
@@ -17,26 +17,26 @@ components:
 #        sum_id:
 #          type: string
 #          format: uuid
-        active_pass_id:
+        activePassID:
           type: string
           format: uuid
-        active_pass:
-          $ref: './active_pass.yaml#/components/schemas/activePass'
+        activePass:
+          $ref: './active_pass.yaml#/components/schemas/ActivePass'
         amount:
           type: number
-        payer_id:
+        payerID:
           type: string
           format: uuid
         comment:
           type: string
-        is_active:
+        isActive:
           type: boolean
-        is_paid:
+        isPaid:
           type: boolean
-        created_at:
+        createdAt:
           type: string
           format: date-time
-        updated_at:
+        updatedAt:
           type: string
           format: date-time
     IncomeList:
@@ -46,38 +46,38 @@ components:
     IncomeCreate:
       type: object
       properties:
-        service_id:
+        serviceID:
           type: string
           format: uuid
-        active_pass_id:
+        activePassID:
           type: string
           format: uuid
         amount:
           type: number
-        payer_id:
+        payerID:
           type: string
           format: uuid
         comment:
           type: string
-        is_paid:
+        isPaid:
           type: boolean
       required:
-        - payer_id
+        - payerID
         - amount
     IncomeCreateMultipleUsers:
       type: object
       properties:
-        service_ids:
+        serviceIDs:
           type: array
           items:
             type: string
             format: uuid
-        active_pass_ids:
+        activePassIDs:
           type: array
           items:
             type: string
             format: uuid
-        payer_ids:
+        payerIDs:
           type: array
           items:
             type: string
@@ -86,28 +86,28 @@ components:
           type: string
         amount:
           type: number
-        is_paid:
+        isPaid:
           type: boolean
       required:
-        - payer_ids
+        - payerIDs
     IncomeUpdate:
       type: object
       properties:
-        service_id:
+        serviceID:
           type: string
           format: uuid
 #        sum_id:
 #          type: string
 #          format: uuid
-        active_pass_id:
+        activePassID:
           type: string
           format: uuid
         amount:
           type: number
-        payer_id:
+        payerID:
           type: string
           format: uuid
         comment:
           type: string
-        is_paid:
+        isPaid:
           type: boolean

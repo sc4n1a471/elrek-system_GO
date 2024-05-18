@@ -6,18 +6,18 @@ components:
         id:
           type: string
           format: uuid
-        user_id:
+        userID:
           type: string
           format: uuid
         name:
           type: string
         price:
           type: number
-        occasion_limit:
+        occasionLimit:
           type: integer
         comment:
           type: string
-        prev_pass_id:
+        prevPassID:
           type: string
           format: uuid
         active:
@@ -28,7 +28,7 @@ components:
           type: array
           items:
             $ref: './service.yaml#/components/schemas/ServiceOnly'
-        created_at:
+        createdAt:
           type: string
           format: date-time
     PassOnly:
@@ -37,25 +37,25 @@ components:
         id:
           type: string
           format: uuid
-        user_id:
+        userID:
           type: string
           format: uuid
         name:
           type: string
         price:
           type: number
-        occasion_limit:
+        occasionLimit:
           type: integer
         comment:
           type: string
-        prev_pass_id:
+        prevPassID:
           type: string
           format: uuid
         active:
           type: boolean
         duration:
           type: string
-        created_at:
+        createdAt:
           type: string
           format: date-time
     PassList:
@@ -69,19 +69,19 @@ components:
           type: string
         price:
           type: number
-        occasion_limit:
+        occasionLimit:
           type: integer
         comment:
           type: string
         duration:
           type: string
-        service_id:
+        serviceID:
           type: string
           format: uuid
       required:
         - name
         - price
-        - service_id
+        - serviceID
     PassUpdate:
       type: object
       properties:
@@ -89,12 +89,12 @@ components:
           type: string
         price:
           type: number
-        occasion_limit:
+        occasionLimit:
           type: integer
         comment:
           type: string
         duration:
           type: string
-        service_id:
+        serviceID:
           type: string
           format: uuid

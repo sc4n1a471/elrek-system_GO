@@ -375,7 +375,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './models/dynamic_price.yaml#/components/schemas/Dynamic_priceCreateUpdate'
+              $ref: './models/dynamic_price.yaml#/components/schemas/DynamicPriceCreateUpdate'
       responses:
         200:
           description: Dynamic_price was created successfully
@@ -407,13 +407,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './models/dynamic_price.yaml#/components/schemas/Dynamic_priceListSuccessResponse'
+                $ref: './models/dynamic_price.yaml#/components/schemas/DynamicPriceListSuccessResponse'
         default:
           description: Unexpected error, error is returned in message
           content:
             application/json:
               schema:
-                $ref: './models/dynamic_price.yaml#/components/schemas/Dynamic_priceListErrorResponse'
+                $ref: './models/dynamic_price.yaml#/components/schemas/DynamicPriceListErrorResponse'
       tags:
         - dynamic-prices
     put:
@@ -435,7 +435,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './models/dynamic_price.yaml#/components/schemas/Dynamic_price'
+              $ref: './models/dynamic_price.yaml#/components/schemas/DynamicPrice'
       responses:
         200:
           description: Dynamic_price was updated successfully
@@ -607,7 +607,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './models/active_pass.yaml#/components/schemas/activePassList'
+                $ref: './models/active_pass.yaml#/components/schemas/ActivePassList'
         default:
           description: Unexpected error, error is returned in message
           content:
@@ -624,7 +624,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './models/active_pass.yaml#/components/schemas/activePassCreate'
+              $ref: './models/active_pass.yaml#/components/schemas/ActivePassCreate'
       responses:
         200:
           description: activePass was created successfully
@@ -656,7 +656,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './models/active_pass.yaml#/components/schemas/activePass'
+                $ref: './models/active_pass.yaml#/components/schemas/ActivePass'
         default:
           description: Unexpected error, error is returned in message
           content:
@@ -680,7 +680,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './models/active_pass.yaml#/components/schemas/activePassUpdate'
+              $ref: './models/active_pass.yaml#/components/schemas/ActivePassUpdate'
       responses:
         200:
           description: activePass was updated successfully

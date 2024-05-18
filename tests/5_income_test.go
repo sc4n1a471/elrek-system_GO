@@ -68,7 +68,6 @@ func checkIncomeEquality(
 
 			if expected.PayerID != actual.PayerID {
 				continue
-			} else {
 			}
 
 			assert.Equal(t, expected.IsPaid, actual.IsPaid)
@@ -126,17 +125,17 @@ func TestCreateIncomeBasic(t *testing.T) {
 func TestCreateIncomeBasicCheck(t *testing.T) {
 	var responseBody []models.Income
 	correctResponseBody := models.Income{
-		IsActive:    true,
-		Amount:      serviceWoPassObject.Price,
-		Comment:     nil,
-		UserID:      adminUserID,
+		IsActive:     true,
+		Amount:       serviceWoPassObject.Price,
+		Comment:      nil,
+		UserID:       adminUserID,
 		ActivePassID: nil,
 		ActivePass:   nil,
-		ServiceID:   &serviceWoPassObject.ID,
-		Service:     &serviceWoPassObject,
-		PayerID:     nonAdminUserID,
-		Name:        &incomeName,
-		IsPaid:      false,
+		ServiceID:    &serviceWoPassObject.ID,
+		Service:      &serviceWoPassObject,
+		PayerID:      nonAdminUserID,
+		Name:         &incomeName,
+		IsPaid:       false,
 	}
 
 	w := httptest.NewRecorder()
@@ -212,17 +211,17 @@ func TestCreateIncomeDP(t *testing.T) {
 func TestCreateIncomeDPCheck(t *testing.T) {
 	var responseBody []models.Income
 	correctResponseBody := models.Income{
-		IsActive:    true,
-		Amount:      0,
-		Comment:     nil,
-		UserID:      adminUserID,
+		IsActive:     true,
+		Amount:       0,
+		Comment:      nil,
+		UserID:       adminUserID,
 		ActivePassID: nil,
 		ActivePass:   nil,
-		ServiceID:   &serviceWDPObject.ID,
-		Service:     &serviceWDPObject,
-		PayerID:     nonAdminUserID,
-		Name:        &incomeNameDP,
-		IsPaid:      false,
+		ServiceID:    &serviceWDPObject.ID,
+		Service:      &serviceWDPObject,
+		PayerID:      nonAdminUserID,
+		Name:         &incomeNameDP,
+		IsPaid:       false,
 	}
 
 	w := httptest.NewRecorder()
@@ -266,17 +265,17 @@ func TestCreateIncomeDPwoActivePass(t *testing.T) {
 func TestCreateIncomeDPwoActivePassCheck(t *testing.T) {
 	var responseBody []models.Income
 	correctResponseBody := models.Income{
-		IsActive:    true,
-		Amount:      (*serviceWithDPWoActivePassObject.DynamicPrices)[2].Price,
-		Comment:     nil,
-		UserID:      adminUserID,
+		IsActive:     true,
+		Amount:       (*serviceWithDPWoActivePassObject.DynamicPrices)[2].Price,
+		Comment:      nil,
+		UserID:       adminUserID,
 		ActivePassID: nil,
 		ActivePass:   nil,
-		ServiceID:   &serviceWithDPWoActivePassObject.ID,
-		Service:     &serviceWithDPWoActivePassObject,
-		PayerID:     nonAdminUserID,
-		Name:        &incomeNameDPwoActivePass,
-		IsPaid:      false,
+		ServiceID:    &serviceWithDPWoActivePassObject.ID,
+		Service:      &serviceWithDPWoActivePassObject,
+		PayerID:      nonAdminUserID,
+		Name:         &incomeNameDPwoActivePass,
+		IsPaid:       false,
 	}
 
 	w := httptest.NewRecorder()
@@ -381,12 +380,12 @@ func TestCreateIncomeDPMultipleUsers(t *testing.T) {
 	getTestUsers()
 
 	requestBody := models.IncomeCreateMultipleUsers{
-		PayerIDs:     testUsersIDs[:4],
-		ServiceIDs:   &[]openapitypes.UUID{serviceWDPObject.ID},
+		PayerIDs:      testUsersIDs[:4],
+		ServiceIDs:    &[]openapitypes.UUID{serviceWDPObject.ID},
 		ActivePassIDs: nil,
-		Comment:      nil,
-		CreatedAt:    &createdAt,
-		Name:         &incomeNameMU,
+		Comment:       nil,
+		CreatedAt:     &createdAt,
+		Name:          &incomeNameMU,
 	}
 
 	marshalledRequestBody, _ := json.Marshal(requestBody)
@@ -411,17 +410,17 @@ func TestCreateIncomeDPMultipleUsers(t *testing.T) {
 func TestCreateIncomeDPMultipleUsersCheck(t *testing.T) {
 	var responseBody []models.Income
 	correctResponseBody := models.Income{
-		IsActive:    true,
-		Amount:      serviceWDPObject.Price,
-		Comment:     nil,
-		UserID:      adminUserID,
+		IsActive:     true,
+		Amount:       serviceWDPObject.Price,
+		Comment:      nil,
+		UserID:       adminUserID,
 		ActivePassID: nil,
 		ActivePass:   nil,
-		ServiceID:   &serviceWDPObject.ID,
-		Service:     &serviceWDPObject,
-		Name:        &incomeNameMU,
-		IsPaid:      false,
-		CreatedAt:   createdAt,
+		ServiceID:    &serviceWDPObject.ID,
+		Service:      &serviceWDPObject,
+		Name:         &incomeNameMU,
+		IsPaid:       false,
+		CreatedAt:    createdAt,
 	}
 
 	w := httptest.NewRecorder()
@@ -444,11 +443,11 @@ func TestCreateIncomeDPMultipleUsersCheck(t *testing.T) {
 // Checks for 3 users only
 func TestCreateIncomeDPMultipleUsers2(t *testing.T) {
 	requestBody := models.IncomeCreateMultipleUsers{
-		PayerIDs:     testUsersIDs[:3],
-		ServiceIDs:   &[]openapitypes.UUID{serviceWDPObject.ID},
+		PayerIDs:      testUsersIDs[:3],
+		ServiceIDs:    &[]openapitypes.UUID{serviceWDPObject.ID},
 		ActivePassIDs: nil,
-		Comment:      nil,
-		Name:         &incomeNameMU3,
+		Comment:       nil,
+		Name:          &incomeNameMU3,
 	}
 
 	marshalledRequestBody, _ := json.Marshal(requestBody)
@@ -473,16 +472,16 @@ func TestCreateIncomeDPMultipleUsers2(t *testing.T) {
 func TestCreateIncomeDPMultipleUsers2Check(t *testing.T) {
 	var responseBody []models.Income
 	correctResponseBody := models.Income{
-		IsActive:    true,
-		Amount:      (*serviceWDPObject.DynamicPrices)[0].Price,
-		Comment:     nil,
-		UserID:      adminUserID,
+		IsActive:     true,
+		Amount:       (*serviceWDPObject.DynamicPrices)[0].Price,
+		Comment:      nil,
+		UserID:       adminUserID,
 		ActivePassID: nil,
 		ActivePass:   nil,
-		ServiceID:   &serviceWDPObject.ID,
-		Service:     &serviceWDPObject,
-		Name:        &incomeNameMU3,
-		IsPaid:      false,
+		ServiceID:    &serviceWDPObject.ID,
+		Service:      &serviceWDPObject,
+		Name:         &incomeNameMU3,
+		IsPaid:       false,
 	}
 
 	w := httptest.NewRecorder()
@@ -504,16 +503,16 @@ func TestCreateIncomeDPMultipleUsers2Check(t *testing.T) {
 func TestCreateIncomeDPMultipleUsers2CheckWrong(t *testing.T) {
 	var responseBody []models.Income
 	correctResponseBody := models.Income{
-		IsActive:    true,
-		Amount:      (*serviceWDPObject.DynamicPrices)[1].Price,
-		Comment:     nil,
-		UserID:      adminUserID,
+		IsActive:     true,
+		Amount:       (*serviceWDPObject.DynamicPrices)[1].Price,
+		Comment:      nil,
+		UserID:       adminUserID,
 		ActivePassID: nil,
 		ActivePass:   nil,
-		ServiceID:   &serviceWDPObject.ID,
-		Service:     &serviceWDPObject,
-		Name:        &incomeNameMU3,
-		IsPaid:      false,
+		ServiceID:    &serviceWDPObject.ID,
+		Service:      &serviceWDPObject,
+		Name:         &incomeNameMU3,
+		IsPaid:       false,
 	}
 
 	w := httptest.NewRecorder()

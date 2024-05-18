@@ -8,20 +8,20 @@ import (
 
 // User defines model for User.
 type User struct {
-	CreatedAt    time.Time          `json:"created_at,omitempty"`
+	CreatedAt    time.Time          `json:"createdAt,omitempty"`
 	Email        openapitypes.Email `json:"email" gorm:"unique"`
 	ID           openapitypes.UUID  `json:"id" gorm:"primaryKey,unique,size:255"`
-	IsActive     bool               `json:"is_active" gorm:"default:true"`
-	IsAdmin      bool               `json:"is_admin" gorm:"default:false"`
+	IsActive     bool               `json:"isActive" gorm:"default:true"`
+	IsAdmin      bool               `json:"isAdmin" gorm:"default:false"`
 	Name         string             `json:"name,omitempty"`
-	OwnerID      openapitypes.UUID  `json:"owner_id,omitempty" gorm:"size:255"`
+	OwnerID      openapitypes.UUID  `json:"ownerID,omitempty" gorm:"size:255"`
 	Password     []byte             `json:"-"`
-	UpdatedAt    time.Time          `json:"updated_at,omitempty"`
+	UpdatedAt    time.Time          `json:"updatedAt,omitempty"`
 	Services     []Service          `json:"services,omitempty" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Passes       []Pass             `json:"passes,omitempty" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	ActivePasses []ActivePass       `json:"active_passes,omitempty" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	BoughtPasses []ActivePass       `json:"bought_passes,omitempty" gorm:"foreignKey:PayerID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	MyUsers      []User             `json:"my_users,omitempty" gorm:"foreignKey:OwnerID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	ActivePasses []ActivePass       `json:"activePasses,omitempty" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	BoughtPasses []ActivePass       `json:"boughtPasses,omitempty" gorm:"foreignKey:PayerID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	MyUsers      []User             `json:"myUsers,omitempty" gorm:"foreignKey:OwnerID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 // UserResponse defines model for UserResponse.
@@ -36,9 +36,9 @@ type UserResponse struct {
 // UserCreate defines model for UserCreate.
 type UserCreate struct {
 	Email    openapitypes.Email `json:"email"`
-	Name     string             `json:"name,unique"`
+	Name     string             `json:"name"`
 	Password string             `json:"password"`
-	IsAdmin  bool               `json:"isAdmin,omitempty,default:false"`
+	IsAdmin  bool               `json:"isAdmin"`
 }
 
 // UserLogin defines model for UserLogin.
@@ -60,5 +60,5 @@ type UserUpdate struct {
 	Email    *openapitypes.Email `json:"email,omitempty"`
 	Name     *string             `json:"name,omitempty"`
 	Password string              `json:"password"`
-	IsAdmin  *bool               `json:"is_admin,omitempty,default:false"`
+	IsAdmin  *bool               `json:"isAdmin"`
 }

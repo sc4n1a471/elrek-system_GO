@@ -1,12 +1,12 @@
 components:
   schemas:
-    Dynamic_price:
+    DynamicPrice:
       type: object
       properties:
         id:
           type: string
           format: uuid
-        user_id:
+        userID:
           type: string
           format: uuid
         attendees:
@@ -15,19 +15,19 @@ components:
           type: number
         active:
           type: boolean
-        service_id:
+        serviceID:
           type: string
           format: uuid
-    Dynamic_priceList:
+    DynamicPriceList:
       type: array
       items:
-        $ref: '#/components/schemas/Dynamic_price'
-    Dynamic_priceCreateUpdate:
+        $ref: '#/components/schemas/DynamicPrice'
+    DynamicPriceCreateUpdate:
       type: array
       items:
         type: object
         properties:
-          user_id:
+          userID:
             type: string
             format: uuid
           attendees:
@@ -35,20 +35,20 @@ components:
           price:
             type: number
         required:
-          - user_id
+          - userID
           - attendees
           - price
-    Dynamic_priceListSuccessResponse:
+    DynamicPriceListSuccessResponse:
       type: object
       properties:
-        dynamic-prices:
-          $ref: '#/components/schemas/Dynamic_priceList'
+        dynamicPrices:
+          $ref: '#/components/schemas/DynamicPriceList'
         message:
           type: string
-    Dynamic_priceListErrorResponse:
+    DynamicPriceListErrorResponse:
       type: object
       properties:
-        dynamic-prices:
+        dynamicPrices:
           type: array
         message:
           type: string
