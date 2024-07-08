@@ -237,9 +237,9 @@ func GetActivePasses(ctx *gin.Context) {
 	var activePasses []models.ActivePass
 	var result *gorm.DB
 	if isAdmin {
-		result = DB.Where("user_id = ? and is_active = ?", userID, true).Preload("Pass").Preload("User").Find(&activePasses)
+		result = DB.Where("user_id = ? and is_active = ?", userID, true).Preload("Pass").Preload("Pass.Services").Preload("User").Order("created_at desc").Find(&activePasses)
 	} else {
-		result = DB.Where("payer_id = ? and is_active = ?", userID, true).Preload("Pass").Preload("User").Find(&activePasses)
+		result = DB.Where("payer_id = ? and is_active = ?", userID, true).Preload("Pass").Preload("Pass.Services").Preload("User").Order("created_at desc").Find(&activePasses)
 	}
 
 	if result.Error != nil {

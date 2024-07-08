@@ -15,7 +15,7 @@ func GetPasses(ctx *gin.Context) {
 	}
 
 	var passes []models.Pass
-	result := DB.Where("user_id = ? and is_active = ?", userID, true).Preload("Services").Find(&passes)
+	result := DB.Where("user_id = ? and is_active = ?", userID, true).Preload("Services").Order("created_at desc").Find(&passes)
 	if result.Error != nil {
 		SendMessageOnly("Could not get passes: "+result.Error.Error(), ctx, 500)
 		return

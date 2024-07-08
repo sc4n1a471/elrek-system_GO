@@ -9,7 +9,7 @@ import (
 // Income defines model for Income.
 type Income struct {
 	IsActive     bool               `json:"isActive,omitempty"`
-	Amount       int                `json:"amount,omitempty"`
+	Amount       int                `json:"amount"`
 	Comment      *string            `json:"comment,omitempty"`
 	CreatedAt    time.Time          `json:"createdAt,omitempty"`
 	ID           openapitypes.UUID  `json:"id,omitempty"`
@@ -22,7 +22,7 @@ type Income struct {
 	PayerID      openapitypes.UUID  `json:"payerID,omitempty" gorm:"size:255"`
 	User         User               `json:"user,omitempty" gorm:"foreignKey:PayerID;;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Name         *string            `json:"name,omitempty"`
-	IsPaid       bool               `json:"isPaid,omitempty"`
+	IsPaid       bool               `json:"isPaid"`
 }
 
 // IncomeCreate defines model for IncomeCreate.

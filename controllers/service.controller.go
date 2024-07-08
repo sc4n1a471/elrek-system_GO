@@ -16,7 +16,7 @@ func GetServices(ctx *gin.Context) {
 	}
 
 	var services []models.Service
-	result := DB.Where("user_id = ? and is_active = ?", userID, true).Preload("DynamicPrices").Find(&services)
+	result := DB.Where("user_id = ? and is_active = ?", userID, true).Preload("DynamicPrices").Order("created_at desc").Find(&services)
 	if result.Error != nil {
 		SendMessageOnly("Could not get services: "+result.Error.Error(), ctx, 500)
 		return

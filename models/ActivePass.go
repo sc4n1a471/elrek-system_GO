@@ -8,7 +8,7 @@ import (
 
 // activePass defines model for activePass.
 type ActivePass struct {
-	IsActive   bool              `json:"active,omitempty"`
+	IsActive   bool              `json:"isActive,omitempty"`
 	Comment    *string           `json:"comment,omitempty"`
 	CreatedAt  time.Time         `json:"createdAt,omitempty"`
 	ID         openapitypes.UUID `json:"id,omitempty"`

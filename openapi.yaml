@@ -844,7 +844,7 @@ paths:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - incomes
-    put:
+    patch:
       description: Endpoint for income update
       parameters:
         - name: id

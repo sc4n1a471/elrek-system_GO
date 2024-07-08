@@ -146,7 +146,12 @@ func GetUsers(ctx *gin.Context) {
 	}
 
 	var users []models.User
-	result := DB.Order("email asc").Where("is_active = ? and owner_id = ?", isActive, userID).Find(&users)
+	result := DB.
+		Preload("BoughtPasses").
+		Preload("BoughtPasses.Pass").
+		Where("is_active = ? and owner_id = ?", isActive, userID).
+		Order("name asc").
+		Find(&users)
 	if result.Error != nil {
 		SendMessageOnly("Could not get users: "+result.Error.Error(), ctx, 500)
 		return
@@ -157,18 +162,7 @@ func GetUsers(ctx *gin.Context) {
 		return
 	}
 
-	var userResponses []models.UserResponse
-	for _, user := range users {
-		var userResponse models.UserResponse
-		userResponse.Email = user.Email
-		userResponse.ID = user.ID
-		userResponse.IsActive = user.IsActive
-		userResponse.IsAdmin = user.IsAdmin
-		userResponse.Name = user.Name
-		userResponses = append(userResponses, userResponse)
-	}
-
-	ctx.JSON(200, userResponses)
+	ctx.JSON(200, users)
 }
 
 func GetUser(ctx *gin.Context) {
@@ -324,9 +318,9 @@ func UpdateUser(ctx *gin.Context) {
 		return
 	}
 
-	//if userUpdate.Email != nil {
-	//	user.Email = userUpdate.Email
-	//}
+	if userUpdate.Email != nil {
+		user.Email = *userUpdate.Email
+	}
 
 	if userUpdate.Name != nil {
 		user.Name = *userUpdate.Name

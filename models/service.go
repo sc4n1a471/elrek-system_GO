@@ -16,7 +16,7 @@ type Service struct {
 	UserID        openapitypes.UUID `json:"userID" gorm:"size:255"`
 	PrevServiceID openapitypes.UUID `json:"prevServiceID,omitempty"`
 	Price         int               `json:"price,omitempty"`
-	DynamicPrices *[]DynamicPrice   `json:"dynamic-prices,omitempty" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	DynamicPrices *[]DynamicPrice   `json:"dynamicPrices,omitempty" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 // ServiceCreate defines model for ServiceCreate.

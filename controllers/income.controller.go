@@ -23,6 +23,7 @@ func GetIncomes(ctx *gin.Context) {
 		Preload("ActivePass.Pass").
 		Preload("User").
 		Preload("Service").
+		Order("created_at desc").
 		Find(&incomes)
 	if result.Error != nil {
 		SendMessageOnly("Could not get incomes: "+result.Error.Error(), ctx, 500)
@@ -349,6 +350,9 @@ func UpdateIncome(ctx *gin.Context) {
 	}
 	if incomeUpdate.CreatedAt != nil {
 		income.CreatedAt = *incomeUpdate.CreatedAt
+	}
+	if incomeUpdate.IsPaid != nil {
+		income.IsPaid = *incomeUpdate.IsPaid
 	}
 
 	tx := DB.Begin()
