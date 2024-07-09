@@ -11,6 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// MARK: GET
 func GetDynamicPricesWrapper(ctx *gin.Context) {
 	userID, _ := CheckAuth(ctx, false)
 	if userID == "" {
@@ -70,6 +71,7 @@ func getDynamicPrices(serviceID openapitypes.UUID) ([]models.DynamicPrice, Actio
 //	return createDynamicPrices(tx, dynamicPrices, userID)
 //}
 
+// MARK: CREATE
 func createDynamicPrices(
 	tx *gorm.DB,
 	newDynamicPrices []models.DynamicPriceCreateUpdate,
@@ -116,6 +118,7 @@ func createDynamicPricesFromFullData(
 	return ActionResponse{true, "SUCCESS"}
 }
 
+// MARK: UPDATE
 func updateDynamicPrices(
 	tx *gorm.DB,
 	updatableDyPrices []models.DynamicPrice,
@@ -172,6 +175,7 @@ func updateDynamicPrices(
 	return createDynamicPrices(tx, newDynamicPrices, userID, serviceID)
 }
 
+// MARK: DELETE
 func deleteDynamicPrices(tx *gorm.DB, deletableDynamicPrices []models.DynamicPrice) ActionResponse {
 	fmt.Println("Deleting ", len(deletableDynamicPrices), " dynamic prices")
 	for _, deletableDynamicPrice := range deletableDynamicPrices {

@@ -15,6 +15,7 @@ import (
 
 var SecretKey = "123456789ABCDEF"
 
+// MARK: Login
 func Login(ctx *gin.Context) {
 	var userLogin models.UserLogin
 	if err := ctx.BindJSON(&userLogin); err != nil {
@@ -63,6 +64,7 @@ func Login(ctx *gin.Context) {
 	ctx.JSON(200, userLoginResponse)
 }
 
+// MARK: CheckPermissions
 func CheckPermissions(ctx *gin.Context) {
 	userID, _ := CheckAuth(ctx, false)
 	userIDAdmin, _ := CheckAuth(ctx, true)
@@ -90,6 +92,7 @@ func CheckPermissions(ctx *gin.Context) {
 	}
 }
 
+// MARK: CheckAuth
 // CheckAuth This function checks if the user is authenticated or not. If yes, returns the following information
 //  1. string: the user ID
 //  2. bool: true if the user is admin else false
@@ -122,6 +125,7 @@ func CheckAuth(ctx *gin.Context, onlyAdmin bool) (string, bool) {
 	return claims.Issuer, user.IsAdmin
 }
 
+// MARK: Logout
 func Logout(ctx *gin.Context) {
 	_, err := ctx.Cookie("jwt")
 	if err != nil {
@@ -133,6 +137,7 @@ func Logout(ctx *gin.Context) {
 	SendMessageOnly("Logged out successfully", ctx, 200)
 }
 
+// MARK: GET Users
 func GetUsers(ctx *gin.Context) {
 	userID, _ := CheckAuth(ctx, true)
 	if userID == "" {
@@ -203,6 +208,7 @@ func GetUser(ctx *gin.Context) {
 	ctx.JSON(200, userResponse)
 }
 
+// MARK: CREATE
 func CreateUserWrapper(ctx *gin.Context) {
 	userID, _ := CheckAuth(ctx, true)
 	if userID == "" {
@@ -291,6 +297,7 @@ func createUser(userCreate models.UserCreate, userID string, tx *gorm.DB, admin 
 	return ActionResponse{true, "User was created successfully"}
 }
 
+// MARK: UPDATE
 func UpdateUser(ctx *gin.Context) {
 	userID, _ := CheckAuth(ctx, false)
 	if userID == "" {
@@ -348,6 +355,7 @@ func UpdateUser(ctx *gin.Context) {
 	SendMessageOnly("User was updated successfully", ctx, 200)
 }
 
+// MARK: DELETE
 func DeleteUser(ctx *gin.Context) {
 	userID, _ := CheckAuth(ctx, true)
 	if userID == "" {

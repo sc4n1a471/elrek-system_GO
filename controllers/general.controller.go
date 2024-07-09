@@ -68,6 +68,7 @@ func SetupDB() error {
 	return nil
 }
 
+// MARK: Senders
 func SendMessageOnly(message string, ctx *gin.Context, statusCode int) {
 	ctx.IndentedJSON(statusCode, models.MessageOnlyResponse{
 		Message: message,

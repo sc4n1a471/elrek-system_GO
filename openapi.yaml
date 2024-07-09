@@ -6,6 +6,7 @@ info:
 #servers:
 #  - url: 'yas'
 paths:
+  # MARK: Login
   /login:
     post:
       description: Endpoint for user login
@@ -37,6 +38,7 @@ paths:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - login
+  # MARK: Logout
   /logout:
     post:
       description: Endpoint for user logout
@@ -62,6 +64,7 @@ paths:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - login
+  # MARK: Users
   /users:
     get:
       description: Endpoint for user(s) listing
@@ -111,6 +114,7 @@ paths:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - users
+  # MARK: Admin User
   /users/create-admin:
     post:
       description: Endpoint for admin user creation
@@ -137,6 +141,7 @@ paths:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - users
+  # MARK: User / ID
   /users/{id}:
     get:
       description: Endpoint for user listing
@@ -217,6 +222,7 @@ paths:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - users
+  # MARK: User / Permanently / ID
   /users/permanently/{id}:
     delete:
       description: Endpoint for user permanent deletion
@@ -244,6 +250,7 @@ paths:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - users
+  # MARK: Services
   /services:
     get:
       description: Endpoint for service(s) listing
@@ -286,6 +293,7 @@ paths:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - services
+  # MARK: Service / ID
   /services/{id}:
     get:
       description: Endpoint for service listing
@@ -366,6 +374,7 @@ paths:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - services
+  # MARK: Dynamic Prices
   /dynamic-prices:
     post:
       description: Endpoint for dynamic_price creation
@@ -391,6 +400,7 @@ paths:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - dynamic-prices
+  # MARK: Dynamic Price / ID
   /dynamic-prices/{id}:
     get:
       description: Endpoint for dynamic_price listing for a service
@@ -476,6 +486,7 @@ paths:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - dynamic-prices
+  # MARK: Passes
   /passes:
     get:
       description: Endpoint for pass(es) listing
@@ -518,6 +529,7 @@ paths:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - passes
+  # MARK: Pass / ID
   /passes/{id}:
     get:
       description: Endpoint for pass listing
@@ -598,6 +610,7 @@ paths:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - passes
+  # MARK: Active Passes
   /active-passes:
     get:
       description: Endpoint for pass(es)_in_use listing
@@ -640,6 +653,7 @@ paths:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - active-passes
+  # MARK: Active Pass / ID
   /active-passes/{id}:
     get:
       description: Endpoint for active_pass listing
@@ -720,6 +734,7 @@ paths:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - active-passes
+  # MARK: Active Pass / ID / Validity
   /active-passes/{id}/validity:
     get:
       description: Endpoint for checking validity active_pass
@@ -747,6 +762,7 @@ paths:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - active-passes
+  # MARK: Incomes
   /incomes:
     get:
       description: Endpoint for income(s) listing
@@ -768,6 +784,8 @@ paths:
     post:
       description: Endpoint for income creation.
         In case of active_pass_id, validity is also checked and updated.
+          If the used service was updated by creating a new one and the user still has a valid pass for the old service,
+          that pass can and will be used.
         In case of service_id, amount is calculated based on dynamic_price.
       requestBody:
         description: Income object that needs to be added to the database
@@ -791,6 +809,7 @@ paths:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - incomes
+  # MARK: Incomes / Multiple Users
   /incomes/multiple-users:
     post:
       description: Endpoint for income creation for multiple users 
@@ -819,6 +838,7 @@ paths:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - incomes
+  # MARK: Income / ID
   /incomes/{id}:
     get:
       description: Endpoint for income listing

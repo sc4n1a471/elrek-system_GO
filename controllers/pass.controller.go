@@ -8,6 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// MARK: GET
 func GetPasses(ctx *gin.Context) {
 	userID, _ := CheckAuth(ctx, true)
 	if userID == "" {
@@ -54,6 +55,7 @@ func getPass(passID string) (models.Pass, error) {
 	return pass, nil
 }
 
+// MARK: CREATE
 func CreatePassWrapper(ctx *gin.Context) {
 	userID, _ := CheckAuth(ctx, true)
 	if userID == "" {
@@ -78,6 +80,7 @@ func CreatePassWrapper(ctx *gin.Context) {
 	SendMessageOnly("Pass was created successfully", ctx, 201)
 }
 
+// MARK: createPass
 func createPass(passCreate models.PassCreate, userID string, tx *gorm.DB) ActionResponse {
 	var pass models.Pass
 
@@ -112,6 +115,7 @@ func createPass(passCreate models.PassCreate, userID string, tx *gorm.DB) Action
 	return ActionResponse{Success: true, Message: "SUCCESS"}
 }
 
+// MARK: UPDATE
 func UpdatePass(ctx *gin.Context) {
 	userID, _ := CheckAuth(ctx, false)
 	if userID == "" {
@@ -211,6 +215,7 @@ func UpdatePass(ctx *gin.Context) {
 	SendMessageOnly("Pass was updated successfully", ctx, 200)
 }
 
+// MARK: DELETE
 func DeletePassWrapper(ctx *gin.Context) {
 	userID, _ := CheckAuth(ctx, true)
 	if userID == "" {

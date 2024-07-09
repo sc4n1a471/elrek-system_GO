@@ -21,6 +21,7 @@ const (
 	ActivePassWasUsedSuccessfully        = "Pass in use was used successfully"
 )
 
+// MARK: Check validity
 func CheckactivePassValidityWrapper(ctx *gin.Context) {
 	userID, _ := CheckAuth(ctx, false)
 	if userID == "" {
@@ -99,6 +100,7 @@ func checkActivePassValidity(tx *gorm.DB, ActivePassID openapitypes.UUID, servic
 		}
 	}
 
+	// MARK: Checking if pass is valid for a specific service
 	defaultUUID := openapitypes.UUID{}
 	if serviceID != defaultUUID {
 		fmt.Println("ServiceID is not default, searching for: ", serviceID)
@@ -108,12 +110,27 @@ func checkActivePassValidity(tx *gorm.DB, ActivePassID openapitypes.UUID, servic
 			return false, err
 		}
 
+		prevServices, err := GetPrevServices(serviceID)
+		if err != nil {
+			return false, err
+		}
+
 		for _, service := range pass.Services {
 
-			fmt.Println("Checking: ", service.ID, " -> ", service.ID == serviceID)
+			fmt.Println("Checking: ", service.ID, " == ", serviceID, " -> ", service.ID == serviceID)
 			if service.ID == serviceID {
 				fmt.Println("Service found in pass -> user has valid pass")
 				return true, nil
+			} else {
+
+				// Check if the user has an older pass that is valid for the used service's predecessor
+				for _, prevService := range prevServices {
+					fmt.Println("Checking prev service: ", prevService.ID, " == ", service.ID, " -> ", prevService.ID == service.ID)
+					if prevService.ID == service.ID {
+						fmt.Println("Service found in prevServices -> user has valid pass for previous service")
+						return true, nil
+					}
+				}
 			}
 		}
 
@@ -163,6 +180,7 @@ func checkPayerHasValidActivePassForService(tx *gorm.DB, payerID openapitypes.UU
 	return valid, nil
 }
 
+// MARK: USE ACTIVE PASS
 func UseActivePassWrapper(ctx *gin.Context) {
 	userID, _ := CheckAuth(ctx, true)
 	if userID == "" {
@@ -226,8 +244,7 @@ func useActivePass(tx *gorm.DB, payerID openapitypes.UUID, serviceID openapitype
 	}
 }
 
-// =========== GET /active-passes ===========
-
+// MARK: GET /active-passes
 func GetActivePasses(ctx *gin.Context) {
 	userID, isAdmin := CheckAuth(ctx, false)
 	if userID == "" {
@@ -278,8 +295,7 @@ func getActivePass(id openapitypes.UUID) (models.ActivePass, error) {
 	return activePass, nil
 }
 
-// =========== POST /active-passes ===========
-
+// MARK: POST /active-passes
 func CreateActivePass(ctx *gin.Context) {
 	userID, _ := CheckAuth(ctx, true)
 	if userID == "" {
@@ -373,8 +389,7 @@ func CreateActivePass(ctx *gin.Context) {
 	SendMessageOnly("Pass in use was created successfully", ctx, 201)
 }
 
-// =========== PATCH /active-passes/:id ===========
-
+// MARK: PATCH /active-passes/:id
 func UpdateactivePass(ctx *gin.Context) {
 	userID, _ := CheckAuth(ctx, true)
 	if userID == "" {
@@ -425,8 +440,7 @@ func UpdateactivePass(ctx *gin.Context) {
 	SendMessageOnly("Pass in use was updated successfully", ctx, 200)
 }
 
-// =========== DELETE /active-passes/:id ===========
-
+// MARK: DELETE /active-passes/:id
 func DeleteactivePass(ctx *gin.Context) {
 	userID, _ := CheckAuth(ctx, true)
 	if userID == "" {

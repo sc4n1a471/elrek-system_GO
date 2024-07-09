@@ -84,7 +84,7 @@ func SetupRouter() *gin.Engine {
 	router.PATCH("/passes/:id", controllers.UpdatePass)
 	router.DELETE("/passes/:id", controllers.DeletePassWrapper)
 
-	// PASSES IN USE
+	// ACTIVE PASS
 	router.GET("/active-passes", controllers.GetActivePasses)
 	router.GET("/active-passes/:id", controllers.GetActivePass)
 	router.POST("/active-passes", controllers.CreateActivePass)

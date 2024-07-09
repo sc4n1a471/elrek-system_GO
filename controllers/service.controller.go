@@ -3,12 +3,14 @@ package controllers
 import (
 	"elrek-system_GO/models"
 	"fmt"
+
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	openapitypes "github.com/oapi-codegen/runtime/types"
 	"gorm.io/gorm"
 )
 
+// MARK: GET
 func GetServices(ctx *gin.Context) {
 	userID, _ := CheckAuth(ctx, true)
 	if userID == "" {
@@ -43,6 +45,29 @@ func GetService(ctx *gin.Context) {
 	ctx.JSON(200, service)
 }
 
+func GetPrevServices(rootServiceID openapitypes.UUID) ([]models.Service, error) {
+	var services []models.Service
+	currentServiceID := rootServiceID
+	defaultUUID := openapitypes.UUID{}
+
+	for currentServiceID != defaultUUID {
+		var service models.Service
+		result := DB.Where("id = ?", currentServiceID).Find(&service)
+		if result.Error != nil {
+			return nil, fmt.Errorf("Could not get service: " + result.Error.Error())
+		}
+
+		if rootServiceID != service.ID {
+			services = append(services, service)
+		}
+
+		currentServiceID = service.PrevServiceID
+	}
+
+	return services, nil
+}
+
+// MARK: CREATE
 func CreateServiceWrapper(ctx *gin.Context) {
 	userID, _ := CheckAuth(ctx, true)
 	if userID == "" {
@@ -91,6 +116,7 @@ func createService(ctx *gin.Context, tx *gorm.DB, userID string, prevServiceID o
 	return ActionResponse{true, "SUCCESS"}
 }
 
+// MARK: UPDATE
 func UpdateService(ctx *gin.Context) {
 	userID, _ := CheckAuth(ctx, true)
 	if userID == "" {
@@ -146,6 +172,7 @@ func UpdateService(ctx *gin.Context) {
 	if update {
 		result = tx.Save(&service)
 	} else {
+		// MARK: Create new service instead of updating
 		deleteResult := deleteService(tx, service)
 		if !deleteResult.Success {
 			SendMessageOnly(deleteResult.Message, ctx, 500)
@@ -192,6 +219,7 @@ func UpdateService(ctx *gin.Context) {
 	SendMessageOnly("Service was updated successfully", ctx, 200)
 }
 
+// MARK: DELETE
 func DeleteServiceWrapper(ctx *gin.Context) {
 	userID, _ := CheckAuth(ctx, true)
 	if userID == "" {

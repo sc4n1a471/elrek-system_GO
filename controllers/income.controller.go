@@ -10,8 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// ========== GET /incomes ==========
-
+// MARK: GET /incomes
 func GetIncomes(ctx *gin.Context) {
 	userID, _ := CheckAuth(ctx, true)
 	if userID == "" {
@@ -66,8 +65,7 @@ func GetIncome(ctx *gin.Context) {
 	ctx.JSON(200, income)
 }
 
-// ========== POST /incomes ==========
-
+// MARK: POST /incomes
 // CreateIncomeWrapper is a wrapper for the endpoint
 func CreateIncomeWrapper(ctx *gin.Context) {
 	userID, _ := CheckAuth(ctx, true)
@@ -95,6 +93,7 @@ func CreateIncomeWrapper(ctx *gin.Context) {
 	SendMessageOnly("Income was created successfully", ctx, 201)
 }
 
+// MARK: Create multiple incomes
 // CreateIncomeMultipleUsersWrapper is a wrapper for the endpoint which receives multiple users
 func CreateIncomeMultipleUsersWrapper(ctx *gin.Context) {
 	userID, _ := CheckAuth(ctx, true)
@@ -176,6 +175,7 @@ func CreateIncomeMultipleUsersWrapper(ctx *gin.Context) {
 	SendMessageOnly("Incomes were created successfully", ctx, 201)
 }
 
+// MARK: createIncome
 // createIncome creates an income using the provided data (incomeCreate) and the provided user ID (userID
 func createIncome(tx *gorm.DB, incomeCreate models.IncomeCreate, userID openapitypes.UUID, numOfAttendees int) ActionResponse {
 
@@ -222,6 +222,7 @@ func createIncome(tx *gorm.DB, incomeCreate models.IncomeCreate, userID openapit
 				income.Name = &service.Name
 			}
 
+			// MARK: Using active pass
 			useResult := useActivePass(tx, incomeCreate.PayerID, service.ID)
 			fmt.Println("createIncome / useResult: ", useResult)
 			if !useResult.Success {
@@ -257,6 +258,7 @@ func createIncome(tx *gorm.DB, incomeCreate models.IncomeCreate, userID openapit
 			} else {
 				// Has valid activePass
 				income.Amount = 0
+				income.IsPaid = true
 			}
 		} else {
 			return ActionResponse{
@@ -307,8 +309,7 @@ func createIncome(tx *gorm.DB, incomeCreate models.IncomeCreate, userID openapit
 	}
 }
 
-// ========== PATCH /incomes/:id ==========
-
+// MARK: PATCH /incomes/:id
 func UpdateIncome(ctx *gin.Context) {
 	userID, _ := CheckAuth(ctx, true)
 	if userID == "" {
@@ -367,7 +368,7 @@ func UpdateIncome(ctx *gin.Context) {
 	SendMessageOnly("Income was updated successfully", ctx, 200)
 }
 
-// ========== DELETE /incomes/:id ==========
+// MARK: DELETE /incomes/:id
 
 func DeleteIncome(ctx *gin.Context) {
 	userID, _ := CheckAuth(ctx, true)
