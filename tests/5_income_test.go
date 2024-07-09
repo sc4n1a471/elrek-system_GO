@@ -32,6 +32,11 @@ var testUser3 openapitypes.Email
 var testUser4 openapitypes.Email
 var testUser5 openapitypes.Email
 
+var serviceObjectForPrevTest models.Service
+var serviceObjectForPrevTestUpdated models.Service
+var passObjectForPrevTest models.Pass
+var activePassObjectForPrevTest models.ActivePass
+
 func checkIncomeEquality(
 	t *testing.T,
 	expected models.Income,
@@ -221,7 +226,7 @@ func TestCreateIncomeDPCheck(t *testing.T) {
 		Service:      &serviceWDPObject,
 		PayerID:      nonAdminUserID,
 		Name:         &incomeNameDP,
-		IsPaid:       false,
+		IsPaid:       true,
 	}
 
 	w := httptest.NewRecorder()
@@ -530,4 +535,275 @@ func TestCreateIncomeDPMultipleUsers2CheckWrong(t *testing.T) {
 		correctResponseBody.PayerID = user.ID
 		checkIncomeEquality(t, correctResponseBody, responseBody, false, true, testUsers[:3])
 	}
+}
+
+// MARK: Pass validity for prev service
+func createServiceForPrevTest() string {
+	requestBody := models.ServiceCreate{
+		Name:  serviceName + "_prev_test",
+		Price: 6000,
+	}
+	marshalledRequestBody, _ := json.Marshal(requestBody)
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/services", bytes.NewBuffer(marshalledRequestBody))
+	req.AddCookie(adminCookies[0])
+	router.ServeHTTP(w, req)
+
+	responseBody := models.ServiceList{}
+	correctResponseBody := models.Service{
+		IsActive:      true,
+		Name:          serviceName + "_prev_test",
+		UserID:        adminUserID,
+		PrevServiceID: openapitypes.UUID{},
+		Price:         6000,
+	}
+
+	w = httptest.NewRecorder()
+	req, _ = http.NewRequest("GET", "/services", nil)
+	req.AddCookie(adminCookies[0])
+	router.ServeHTTP(w, req)
+
+	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
+	if err != nil {
+		return "Error: Could not unmarshal response body"
+	}
+
+	for _, service := range responseBody {
+		if service.Name == correctResponseBody.Name {
+			if service.Price == correctResponseBody.Price &&
+				service.IsActive &&
+				service.UserID == correctResponseBody.UserID &&
+				service.PrevServiceID == correctResponseBody.PrevServiceID {
+				service.DynamicPrices = nil
+				serviceObjectForPrevTest = service
+				return service.ID.String()
+			}
+			return "Error: \"Service attributes do not match\""
+		}
+	}
+	return "Error: Service not found"
+}
+func createPassForPrevTest(t *testing.T) models.Pass {
+	requestBody := models.PassCreate{
+		Name:          passName + "_prev_test",
+		OccasionLimit: &occasionLimit,
+		UserID:        adminUserID,
+		Price:         5000,
+		ServiceIDs:    []openapitypes.UUID{serviceObjectForPrevTest.ID},
+	}
+	marshalledRequestBody, _ := json.Marshal(requestBody)
+
+	var responseBody []models.Pass
+	correctResponseBody := models.Pass{
+		IsActive:      true,
+		Comment:       nil,
+		Duration:      nil,
+		Name:          passName + "_prev_test",
+		OccasionLimit: &occasionLimit,
+		UserID:        adminUserID,
+		PrevPassID:    openapitypes.UUID{},
+		Price:         5000,
+		Services: []models.Service{
+			serviceObjectForPrevTest,
+		},
+	}
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/passes", bytes.NewBuffer(marshalledRequestBody))
+	req.AddCookie(adminCookies[0])
+	router.ServeHTTP(w, req)
+
+	w = httptest.NewRecorder()
+	req, _ = http.NewRequest("GET", "/passes", nil)
+	req.AddCookie(adminCookies[0])
+	router.ServeHTTP(w, req)
+
+	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
+	if err != nil {
+		t.Error(err)
+		return models.Pass{}
+	}
+
+	return checkPassEqual(t, responseBody, correctResponseBody, false, false)
+}
+func createActivePassForPrevTest(t *testing.T) {
+	passObject2 = createPass(t)
+	requestBody := models.ActivePassCreate{
+		UserID:     adminUserID,
+		PassID:     passObjectForPrevTest.ID,
+		PayerID:    nonAdminUserID,
+		ValidFrom:  validFrom,
+		ValidUntil: &validUntil,
+	}
+	marshalledRequestBody, _ := json.Marshal(requestBody)
+
+	responseBody := models.MessageOnlyResponse{}
+	correctResponseBody := models.MessageOnlyResponse{
+		Message: "Active pass was created successfully",
+	}
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/active-passes", bytes.NewBuffer(marshalledRequestBody))
+	req.AddCookie(adminCookies[0])
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusCreated, w.Code)
+	err := json.Unmarshal(w.Body.Bytes(), &responseBody)
+	if err != nil {
+		t.Error(err)
+	}
+	assert.Equal(t, correctResponseBody, responseBody)
+}
+func createActivePassForPrevTestCheck(t *testing.T) {
+	var responseBody []models.ActivePass
+	correctResponseBody := models.ActivePass{
+		IsActive:   true,
+		Comment:    nil,
+		UserID:     adminUserID,
+		PassID:     passObjectForPrevTest.ID,
+		PayerID:    nonAdminUserID,
+		ValidFrom:  &validFrom,
+		ValidUntil: &validUntil,
+		Occasions:  0,
+		Pass:       passObjectForPrevTest,
+	}
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/active-passes", nil)
+	req.AddCookie(adminCookies[0])
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	err := json.Unmarshal(w.Body.Bytes(), &responseBody)
+	if err != nil {
+		t.Error(err)
+	}
+
+	activePassObjectForPrevTest = checkActivePassEqual(t, responseBody, correctResponseBody)
+}
+func updateServiceForPrevTest(t *testing.T) {
+	updatedPrice := 6001
+	updatedName := serviceName + "prev_test_Updated"
+	requestBody := models.ServiceUpdate{
+		Name:  &updatedName,
+		Price: &updatedPrice,
+	}
+	marshalledRequestBody, _ := json.Marshal(requestBody)
+
+	responseBody := models.MessageOnlyResponse{}
+	correctResponseBody := models.MessageOnlyResponse{Message: "Service was updated successfully"}
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("PATCH", "/services/"+serviceObjectForPrevTest.ID.String(), bytes.NewBuffer(marshalledRequestBody))
+	req.AddCookie(adminCookies[0])
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
+	if err != nil {
+		t.Errorf("Error unmarshalling response body: %v", err)
+	}
+	assert.Equal(t, correctResponseBody, responseBody)
+}
+func updateServiceForPrevTestCheck(t *testing.T) {
+	responseBody := models.ServiceList{}
+	correctResponseBody := models.Service{
+		Name:   serviceName + "prev_test_Updated",
+		UserID: adminUserID,
+		Price:  6001,
+	}
+
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/services", nil)
+	req.AddCookie(adminCookies[0])
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	err := json.Unmarshal([]byte(w.Body.String()), &responseBody)
+	if err != nil {
+		t.Errorf("Error unmarshalling response body: %v", err)
+	}
+
+	for _, service := range responseBody {
+		if service.Name == correctResponseBody.Name {
+			if service.Price == correctResponseBody.Price &&
+				service.IsActive &&
+				service.UserID == adminUserID {
+
+				serviceObjectForPrevTestUpdated = service
+				fmt.Println("yaay")
+				fmt.Println(serviceObjectForPrevTestUpdated)
+				assert.Equal(t, correctResponseBody.Name, service.Name)
+				return
+			}
+		}
+	}
+	t.Errorf("Service not found")
+}
+func TestCreateIncomePrevServicePass(t *testing.T) {
+	err := createServiceForPrevTest()
+	if err != "" {
+	}
+
+	passObjectForPrevTest = createPassForPrevTest(t)
+	createActivePassForPrevTest(t)
+	createActivePassForPrevTestCheck(t)
+	updateServiceForPrevTest(t)
+	updateServiceForPrevTestCheck(t)
+
+	name := incomeName + "_prev_test"
+	requestBody := models.IncomeCreate{
+		ServiceID: &serviceObjectForPrevTestUpdated.ID,
+		PayerID:   nonAdminUserID,
+		Name:      &name,
+	}
+	marshalledRequestBody, _ := json.Marshal(requestBody)
+
+	responseBody := models.MessageOnlyResponse{}
+	correctResponseBody := models.MessageOnlyResponse{
+		Message: "Income was created successfully",
+	}
+
+	w := httptest.NewRecorder()
+	req := httptest.NewRequest("POST", "/incomes", bytes.NewBuffer(marshalledRequestBody))
+	req.AddCookie(adminCookies[0])
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusCreated, w.Code)
+	err2 := json.Unmarshal(w.Body.Bytes(), &responseBody)
+	if err2 != nil {
+		t.Error(err)
+	}
+	assert.Equal(t, correctResponseBody, responseBody)
+}
+
+func TestCreateIncomePrevServicePassCheck(t *testing.T) {
+	var responseBody []models.Income
+	name := incomeName + "_prev_test"
+	correctResponseBody := models.Income{
+		IsActive:     true,
+		Amount:       0,
+		Comment:      nil,
+		UserID:       adminUserID,
+		ActivePassID: nil,
+		ActivePass:   nil,
+		ServiceID:    &serviceObjectForPrevTestUpdated.ID,
+		Service:      &serviceObjectForPrevTestUpdated,
+		PayerID:      nonAdminUserID,
+		Name:         &name,
+		IsPaid:       true,
+	}
+
+	w := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "/incomes", nil)
+	req.AddCookie(adminCookies[0])
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	err := json.Unmarshal(w.Body.Bytes(), &responseBody)
+	if err != nil {
+		t.Error(err)
+	}
+	checkIncomeEquality(t, correctResponseBody, responseBody, false, false, nil)
 }

@@ -27,6 +27,7 @@ func TestPassSetup(t *testing.T) {
 	fmt.Println("Pass name: ", passName)
 }
 
+// MARK: TestPassCreate
 func TestPassCreateWithoutLoggingIn(t *testing.T) {
 	// Create a pass without logging in
 	requestBody := models.PassCreate{
@@ -140,6 +141,7 @@ func TestPassCreateCheck(t *testing.T) {
 	passObject = checkPassEqual(t, responseBody, correctResponseBody, true, false)
 }
 
+// MARK: checkPassEqual
 func checkPassEqual(t *testing.T, responseBody []models.Pass, correctResponseBody models.Pass, checkServices bool, checkPrevPass bool) models.Pass {
 	for _, pass := range responseBody {
 		if pass.Name == correctResponseBody.Name {
@@ -181,6 +183,7 @@ func checkServicesEqual(t *testing.T, responseBody []models.Service, correctResp
 	}
 }
 
+// MARK: TestPassUpdate
 func TestPassUpdate1(t *testing.T) {
 	updatedName := passName + "_Updated"
 	updatedComment := "Updated comment"
@@ -476,6 +479,7 @@ func TestPassUpdate3CheckIfPrevDisabled(t *testing.T) {
 	checkPassEqual(t, []models.Pass{responseBody}, correctResponseBody, true, false)
 }
 
+// MARK: TestPassDelete
 // TestPassDelete deletes passObject
 func TestPassDelete(t *testing.T) {
 	responseBody := models.MessageOnlyResponse{}
@@ -520,6 +524,7 @@ func TestPassDeleteCheck(t *testing.T) {
 	}
 }
 
+// MARK: TestPassCreateWDP
 // Pass for later testing (income)
 func TestPassCreateWDP(t *testing.T) {
 	requestBody := models.PassCreate{

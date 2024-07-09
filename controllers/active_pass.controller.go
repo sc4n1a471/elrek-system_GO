@@ -386,7 +386,7 @@ func CreateActivePass(ctx *gin.Context) {
 	}
 
 	tx.Commit()
-	SendMessageOnly("Pass in use was created successfully", ctx, 201)
+	SendMessageOnly("Active pass was created successfully", ctx, 201)
 }
 
 // MARK: PATCH /active-passes/:id

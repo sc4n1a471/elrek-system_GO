@@ -168,7 +168,7 @@ func TestActivePassCreate(t *testing.T) {
 
 	responseBody := models.MessageOnlyResponse{}
 	correctResponseBody := models.MessageOnlyResponse{
-		Message: "Pass in use was created successfully",
+		Message: "Active pass was created successfully",
 	}
 
 	w := httptest.NewRecorder()
@@ -343,7 +343,7 @@ func TestActivePassCreateWDP(t *testing.T) {
 
 	responseBody := models.MessageOnlyResponse{}
 	correctResponseBody := models.MessageOnlyResponse{
-		Message: "Pass in use was created successfully",
+		Message: "Active pass was created successfully",
 	}
 
 	w := httptest.NewRecorder()
@@ -476,7 +476,7 @@ func TestActivePassCreateWDPCheck(t *testing.T) {
 //
 //	responseBody := models.MessageOnlyResponse{}
 //	correctResponseBody := models.MessageOnlyResponse{
-//		Message: "Pass in use was created successfully",
+//		Message: "Active pass was created successfully",
 //	}
 //
 //	w := httptest.NewRecorder()
