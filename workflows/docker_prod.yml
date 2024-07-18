@@ -1,0 +1,67 @@
+name: Build, Publish, Redeploy Production
+
+on:
+  push:
+    branches:
+    - main
+
+jobs:
+  docker:
+    name: Publish - Docker Hub
+    runs-on: ubuntu-latest
+    env:
+      REPO: sc4n1a471/elrek-system_go
+      VERSION: "latest"
+    steps:
+      -
+        name: Checkout 
+        uses: actions/checkout@v2
+      - 
+        name: Set variables
+        run: |
+          ls
+          VER=$(cat version)
+          echo "VERSION=$VER" >> $GITHUB_ENV
+      -
+        name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: sc4n1a471
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      -
+        name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          file: ./Dockerfile
+          push: true
+          tags: |
+            sc4n1a471/elrek-system_go:${{ env.VERSION }}
+            sc4n1a471/elrek-system_go:latest
+
+  redeploy:
+    name: Redeploying on production server
+    runs-on: ubuntu-latest
+    needs: [docker]
+    env:  
+      VERSION: "latest"
+    steps:
+      -
+        name: Checkout 
+        uses: actions/checkout@v2
+      - 
+        name: Set variables
+        run: |
+          ls
+          VER=$(cat version)
+          echo "VERSION=$VER" >> $GITHUB_ENV
+      - 
+        name: Deploy docker container webhook
+        uses: joelwmale/webhook-action@master
+        with:
+          url: ${{ secrets.DEPLOY_WEBHOOK_URL  }}
+          body: '{ "version": "${{ env.VERSION  }}", "env": "prod" }'
