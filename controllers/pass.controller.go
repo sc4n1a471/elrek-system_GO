@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"elrek-system_GO/models"
+	"log/slog"
+
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	openapitypes "github.com/oapi-codegen/runtime/types"
@@ -69,6 +71,8 @@ func CreatePassWrapper(ctx *gin.Context) {
 		return
 	}
 
+	slog.Info("CreatePassWrapper", "passCreate: ", passCreate)
+
 	tx := DB.Begin()
 	result := createPass(passCreate, userID, tx)
 	if !result.Success {
@@ -93,6 +97,8 @@ func createPass(passCreate models.PassCreate, userID string, tx *gorm.DB) Action
 	pass.OccasionLimit = passCreate.OccasionLimit
 	pass.Duration = passCreate.Duration
 	pass.ID = openapitypes.UUID(uuid.New())
+
+	slog.Info("createPass", "pass: ", pass)
 
 	var services []models.Service
 	result := DB.Find(&services, passCreate.ServiceIDs)
@@ -131,6 +137,8 @@ func UpdatePass(ctx *gin.Context) {
 
 	var pass models.Pass
 	id := ctx.Param("id")
+
+	slog.Info("UpdatePass", "passUpdate: ", pass, "id: ", id)
 
 	result := DB.Preload("Services").First(&pass, "id = ?", id)
 	if result.Error != nil {

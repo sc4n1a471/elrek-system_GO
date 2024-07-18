@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"elrek-system_GO/models"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -245,6 +246,8 @@ func CreateAdminUserWrapper(ctx *gin.Context) {
 		return
 	}
 
+	slog.Info("CreateAdminUserWrapper", "userCreate: ", userCreate)
+
 	tx := DB.Begin()
 
 	createResult := createUser(userCreate, userID, tx, true)
@@ -319,6 +322,8 @@ func UpdateUser(ctx *gin.Context) {
 		}
 	}
 
+	slog.Info("UpdateUser", "userUpdate: ", userUpdate, "id: ", id)
+
 	result := DB.First(&user, "id = ?", id)
 	if result.Error != nil {
 		SendMessageOnly("Could not get existing user: "+result.Error.Error(), ctx, 500)
@@ -369,6 +374,8 @@ func DeleteUser(ctx *gin.Context) {
 		SendMessageOnly("Could not get existing user: "+result.Error.Error(), ctx, 500)
 		return
 	}
+
+	slog.Info("DeleteUser", "user: ", user)
 
 	user.IsActive = false
 

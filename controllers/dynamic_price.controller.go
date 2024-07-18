@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"elrek-system_GO/models"
-	"fmt"
+	"log/slog"
 	"sort"
 
 	"github.com/gin-gonic/gin"
@@ -177,7 +177,9 @@ func updateDynamicPrices(
 
 // MARK: DELETE
 func deleteDynamicPrices(tx *gorm.DB, deletableDynamicPrices []models.DynamicPrice) ActionResponse {
-	fmt.Println("Deleting ", len(deletableDynamicPrices), " dynamic prices")
+	slog.Info("deleteDynamicPrices",
+		slog.Int("deletableDynamicPrices", len(deletableDynamicPrices)),
+	)
 	for _, deletableDynamicPrice := range deletableDynamicPrices {
 		deletableDynamicPrice.Active = false
 

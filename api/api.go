@@ -2,7 +2,7 @@ package api
 
 import (
 	"elrek-system_GO/controllers"
-	"fmt"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -13,7 +13,7 @@ import (
 func Api() {
 	err := controllers.SetupDB()
 	if err != nil {
-		fmt.Print(err.Error())
+		slog.Error(err.Error())
 		return
 	}
 
@@ -22,7 +22,7 @@ func Api() {
 	router.Run("localhost:3000")
 	err = http.ListenAndServe(":3000", router)
 	if err != nil {
-		fmt.Print(err.Error())
+		slog.Error(err.Error())
 		return
 	}
 }
@@ -88,8 +88,8 @@ func SetupRouter() *gin.Engine {
 	router.GET("/active-passes", controllers.GetActivePasses)
 	router.GET("/active-passes/:id", controllers.GetActivePass)
 	router.POST("/active-passes", controllers.CreateActivePass)
-	router.PATCH("/active-passes/:id", controllers.UpdateactivePass)
-	router.DELETE("/active-passes/:id", controllers.DeleteactivePass)
+	router.PATCH("/active-passes/:id", controllers.UpdateActivePass)
+	router.DELETE("/active-passes/:id", controllers.DeleteActivePass)
 	router.GET("/active-passes/:id/validity", controllers.CheckactivePassValidityWrapper)
 	//router.GET("/active-passes/:id/use", controllers.UseactivePassWrapper)
 

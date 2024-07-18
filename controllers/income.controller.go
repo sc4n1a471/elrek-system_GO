@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"elrek-system_GO/models"
-	"fmt"
+	"log/slog"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -28,19 +28,6 @@ func GetIncomes(ctx *gin.Context) {
 		SendMessageOnly("Could not get incomes: "+result.Error.Error(), ctx, 500)
 		return
 	}
-
-	// Why did I do this?
-	//for _, income := range incomes {
-	//	if income.ActivePassID != nil {
-	//		activePass, err := getactivePass(*income.ActivePassID)
-	//		if err != nil {
-	//			SendMessageOnly("Could not get active pass: "+err.Error(), ctx, 500)
-	//			return
-	//		}
-	//
-	//		income.activePass = &activePass
-	//	}
-	//}
 
 	ctx.JSON(200, incomes)
 }
@@ -82,6 +69,8 @@ func CreateIncomeWrapper(ctx *gin.Context) {
 		return
 	}
 
+	slog.Info("CreateIncomeWrapper", "incomeCreate: ", incomeCreate)
+
 	result := createIncome(tx, incomeCreate, openapitypes.UUID(uuid.MustParse(userID)), 1)
 	if !result.Success {
 		SendMessageOnly(result.Message, ctx, 500)
@@ -107,6 +96,8 @@ func CreateIncomeMultipleUsersWrapper(ctx *gin.Context) {
 		SendMessageOnly("Could not bind incomeCreateMultipleUsers: "+err.Error(), ctx, 400)
 		return
 	}
+
+	slog.Info("CreateIncomeMultipleUsersWrapper", "incomeCreateMultipleUsers: ", incomeCreateMultipleUsers)
 
 	tx := DB.Begin()
 
@@ -224,15 +215,18 @@ func createIncome(tx *gorm.DB, incomeCreate models.IncomeCreate, userID openapit
 
 			// MARK: Using active pass
 			useResult := useActivePass(tx, incomeCreate.PayerID, service.ID)
-			fmt.Println("createIncome / useResult: ", useResult)
+			slog.Info("createIncome", "useResult", useResult)
+
 			if !useResult.Success {
 				if useResult.Message == NoActivePassWasFound || useResult.Message == NoValidActivePassWasFound {
 					income.Amount = service.Price
 
 					var dynamicPrices []models.DynamicPrice
 					dynamicPrices, dpResult := getDynamicPrices(service.ID)
-					fmt.Println("createIncome / dynamicPrices: ", dynamicPrices)
-					fmt.Println("createIncome / dpResult: ", dpResult)
+
+					slog.Info("createIncome", "dynamicPrices", dynamicPrices)
+					slog.Info("createIncome", "dpResult", dpResult)
+
 					if !dpResult.Success {
 						return ActionResponse{
 							Success: false,
@@ -244,7 +238,7 @@ func createIncome(tx *gorm.DB, incomeCreate models.IncomeCreate, userID openapit
 						for _, dynamicPrice := range dynamicPrices {
 							if dynamicPrice.Attendees >= numOfAttendees {
 								income.Amount = dynamicPrice.Price
-								fmt.Println("Dynamic price used: ", income.Amount)
+								slog.Info("Dynamic price used: ", "income.Amount", income.Amount)
 								break
 							}
 						}

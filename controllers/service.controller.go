@@ -3,6 +3,7 @@ package controllers
 import (
 	"elrek-system_GO/models"
 	"fmt"
+	"log/slog"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -92,6 +93,8 @@ func createService(ctx *gin.Context, tx *gorm.DB, userID string, prevServiceID o
 		return ActionResponse{false, "Could not create service: " + err.Error()}
 	}
 
+	slog.Info("CreateServiceWrapper", "serviceCreate: ", serviceCreate)
+
 	var service models.Service
 	service.UserID = openapitypes.UUID(uuid.MustParse(userID))
 	service.ID = openapitypes.UUID(uuid.New())
@@ -133,6 +136,8 @@ func UpdateService(ctx *gin.Context) {
 	var service models.Service
 	id := ctx.Param("id")
 
+	slog.Info("UpdateService", "serviceUpdate: ", serviceUpdate, "id: ", id)
+
 	result := DB.First(&service, "id = ?", id)
 	if result.Error != nil {
 		SendMessageOnly("Could not get existing service: "+result.Error.Error(), ctx, 500)
@@ -148,24 +153,20 @@ func UpdateService(ctx *gin.Context) {
 
 	update := true
 	if serviceUpdate.Name != nil {
-		fmt.Println("New name: ", *serviceUpdate.Name)
 		service.Name = *serviceUpdate.Name
 		update = false
 	}
 
 	if serviceUpdate.Price != nil {
-		fmt.Println("New price: ", *serviceUpdate.Price)
 		service.Price = *serviceUpdate.Price
 		update = false
 	}
 
 	if serviceUpdate.DynamicPrices != nil {
-		fmt.Println("New dynamic prices: ", *serviceUpdate.DynamicPrices)
 		update = false
 	}
 
 	if serviceUpdate.Comment != nil {
-		fmt.Println("New comment: ", *serviceUpdate.Comment)
 		service.Comment = serviceUpdate.Comment
 	}
 
@@ -227,6 +228,9 @@ func DeleteServiceWrapper(ctx *gin.Context) {
 	}
 
 	id := ctx.Param("id")
+
+	slog.Info("DeleteServiceWrapper", "id: ", id)
+
 	tx := DB.Begin()
 
 	result := DeleteService(tx, id)
@@ -258,7 +262,7 @@ func deleteService(tx *gorm.DB, service models.Service) ActionResponse {
 	if result.Error != nil {
 		return ActionResponse{false, "Could not delete service: " + result.Error.Error()}
 	} else {
-		fmt.Println("Service part deleted")
+		slog.Info("Service part deleted")
 	}
 
 	dpResult := deleteDynamicPricesByServiceID(tx, service.ID)

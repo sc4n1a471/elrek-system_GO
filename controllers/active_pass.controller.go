@@ -3,6 +3,7 @@ package controllers
 import (
 	"elrek-system_GO/models"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"errors"
@@ -30,6 +31,9 @@ func CheckactivePassValidityWrapper(ctx *gin.Context) {
 
 	tx := DB.Begin()
 	id := ctx.Param("id")
+
+	slog.Info("CheckactivePassValidityWrapper", "id", id)
+
 	valid, err := checkActivePassValidity(tx, openapitypes.UUID(uuid.MustParse(id)), openapitypes.UUID{})
 	if err != nil {
 		tx.Rollback()
@@ -40,9 +44,9 @@ func CheckactivePassValidityWrapper(ctx *gin.Context) {
 	tx.Commit()
 	ctx.JSON(200, valid)
 }
+
 func checkActivePassValidity(tx *gorm.DB, ActivePassID openapitypes.UUID, serviceID openapitypes.UUID) (bool, error) {
-	fmt.Println("============ checkactivePassValidity begin ============")
-	fmt.Println("ActivePassID: ", ActivePassID)
+	slog.Info("============ checkactivePassValidity begin ============", "ActivePassID: ", ActivePassID, "serviceID: ", serviceID)
 	var activePass models.ActivePass
 	result := DB.Preload("Pass").First(&activePass, "id = ?", ActivePassID)
 	if result.Error != nil {
@@ -57,10 +61,10 @@ func checkActivePassValidity(tx *gorm.DB, ActivePassID openapitypes.UUID, servic
 	}
 
 	if occasionLimit == nil {
-		fmt.Println("occasionLimit is nil")
+		slog.Info("occasionLimit is nil")
 
 		if activePass.ValidUntil == nil {
-			fmt.Println("activePass.ValidUntil is nil, too...")
+			slog.Info("activePass.ValidUntil is nil, too...")
 			return false, errors.New("The Active Pass does not have a valid occasion limit or a valid until date")
 		}
 
@@ -73,11 +77,11 @@ func checkActivePassValidity(tx *gorm.DB, ActivePassID openapitypes.UUID, servic
 			return false, nil
 		}
 	} else {
-		fmt.Println("occasionLimit is not nil")
+		slog.Info("occasionLimit is not nil")
 		if activePass.ValidUntil == nil {
-			fmt.Println("activePass.ValidUntil is nil")
+			slog.Info("activePass.ValidUntil is nil")
 			if activePass.Occasions >= *occasionLimit {
-				fmt.Println("Deactivating activePass...")
+				slog.Info("Deactivating activePass...")
 				activePass.IsActive = false
 				result := tx.Save(&activePass)
 				if result.Error != nil {
@@ -86,10 +90,17 @@ func checkActivePassValidity(tx *gorm.DB, ActivePassID openapitypes.UUID, servic
 				return false, nil
 			}
 		} else {
-			fmt.Println("now.After(*activePass.ValidUntil)", *activePass.ValidUntil, ": ", now.After(*activePass.ValidUntil))
-			fmt.Println("activePass.Occasions (", activePass.Occasions, ") >= *occasionLimit (", *occasionLimit, "):", activePass.Occasions >= *occasionLimit)
+			slog.Info(
+				"activePass.ValidUntil is not nil",
+				slog.String("*activePass.ValidUntil.String()", activePass.ValidUntil.String()),
+				slog.String("now.After(*activePass.ValidUntil)", fmt.Sprintf("%v", now.After(*activePass.ValidUntil))),
+				slog.String("activePass.Occasions", fmt.Sprintf("%v", activePass.Occasions)),
+				slog.String("*occasionLimit", fmt.Sprintf("%v", *occasionLimit)),
+				slog.String("activePass.Occasions >= *occasionLimit", fmt.Sprintf("%v", activePass.Occasions >= *occasionLimit)),
+			)
+
 			if now.After(*activePass.ValidUntil) || activePass.Occasions >= *occasionLimit {
-				fmt.Println("Deactivating activePass...")
+				slog.Info("Deactivating activePass...")
 				activePass.IsActive = false
 				result := tx.Save(&activePass)
 				if result.Error != nil {
@@ -103,9 +114,10 @@ func checkActivePassValidity(tx *gorm.DB, ActivePassID openapitypes.UUID, servic
 	// MARK: Checking if pass is valid for a specific service
 	defaultUUID := openapitypes.UUID{}
 	if serviceID != defaultUUID {
-		fmt.Println("ServiceID is not default, searching for: ", serviceID)
+		slog.Info("ServiceID is not default ", "searching for:", serviceID)
 		pass, err := getPass(activePass.PassID.String())
-		fmt.Println("Pass found: ", pass)
+		slog.Info("Pass found: ", "pass", pass)
+
 		if err != nil {
 			return false, err
 		}
@@ -117,24 +129,33 @@ func checkActivePassValidity(tx *gorm.DB, ActivePassID openapitypes.UUID, servic
 
 		for _, service := range pass.Services {
 
-			fmt.Println("Checking: ", service.ID, " == ", serviceID, " -> ", service.ID == serviceID)
+			slog.Info("Checking: ",
+				slog.String("service.ID (checking)", fmt.Sprintf("%v", service.ID)),
+				slog.String("serviceID (search for)", fmt.Sprintf("%v", serviceID)),
+				slog.String("service.ID == serviceID", fmt.Sprintf("%v", service.ID == serviceID)),
+			)
 			if service.ID == serviceID {
-				fmt.Println("Service found in pass -> user has valid pass")
+				slog.Info("Service found in pass -> user has valid pass")
 				return true, nil
 			} else {
 
 				// Check if the user has an older pass that is valid for the used service's predecessor
 				for _, prevService := range prevServices {
-					fmt.Println("Checking prev service: ", prevService.ID, " == ", service.ID, " -> ", prevService.ID == service.ID)
+					slog.Info("Checking prev service: ",
+						slog.String("prevService.ID (checking)", fmt.Sprintf("%v", prevService.ID)),
+						slog.String("service.ID (search for)", fmt.Sprintf("%v", service.ID)),
+						slog.String("prevService.ID == service.ID", fmt.Sprintf("%v", prevService.ID == service.ID)),
+					)
+
 					if prevService.ID == service.ID {
-						fmt.Println("Service found in prevServices -> user has valid pass for previous service")
+						slog.Info("Service found in prevServices -> user has valid pass for previous service")
 						return true, nil
 					}
 				}
 			}
 		}
 
-		fmt.Println("Searched serviceID was not found in pass' valid services array")
+		slog.Info("Searched serviceID was not found in pass' valid services array")
 		return false, nil
 	}
 	return true, nil
@@ -149,6 +170,9 @@ func CheckPayerHasValidActivePassForServiceWrapper(ctx *gin.Context) {
 	tx := DB.Begin()
 	payerID := ctx.Param("payer_id")
 	serviceID := ctx.Param("service_id")
+
+	slog.Info("CheckPayerHasValidActivePassForServiceWrapper", "payerID", payerID, "serviceID", serviceID)
+
 	valid, err := checkPayerHasValidActivePassForService(
 		tx,
 		openapitypes.UUID(uuid.MustParse(payerID)),
@@ -188,6 +212,7 @@ func UseActivePassWrapper(ctx *gin.Context) {
 	}
 
 	id := ctx.Param("id")
+	slog.Info("UseActivePassWrapper", "id", id)
 
 	tx := DB.Begin()
 	response := useActivePass(tx, openapitypes.UUID(uuid.MustParse(id)), openapitypes.UUID{})
@@ -309,6 +334,8 @@ func CreateActivePass(ctx *gin.Context) {
 		return
 	}
 
+	slog.Info("CreateActivePass", "activePassCreate", activePassCreate)
+
 	tx := DB.Begin()
 
 	var pass models.Pass
@@ -327,12 +354,15 @@ func CreateActivePass(ctx *gin.Context) {
 		return
 	}
 
-	fmt.Println("activePassCreate.ValidFrom: ", activePassCreate.ValidFrom)
+	slog.Info("CreateActivePass", "activePassCreate.ValidFrom", activePassCreate.ValidFrom)
 	roundedValidFrom := activePassCreate.ValidFrom.Round(time.Second)
 	activePass := models.ActivePass{}
 
-	fmt.Println("activePassCreate.ValidUntil: ", activePassCreate.ValidUntil)
-	fmt.Println("activePassCreate.ValidUntil == nil: ", activePassCreate.ValidUntil == nil)
+	slog.Info("CreateActivePass",
+		slog.String("activePassCreate.ValidUntil", fmt.Sprintf("%v", activePassCreate.ValidUntil)),
+		slog.String("activePassCreate.ValidUntil == nil", fmt.Sprintf("%v", activePassCreate.ValidUntil == nil)),
+	)
+
 	if activePassCreate.ValidUntil == nil {
 		activePass = models.ActivePass{
 			IsActive:  true,
@@ -390,7 +420,7 @@ func CreateActivePass(ctx *gin.Context) {
 }
 
 // MARK: PATCH /active-passes/:id
-func UpdateactivePass(ctx *gin.Context) {
+func UpdateActivePass(ctx *gin.Context) {
 	userID, _ := CheckAuth(ctx, true)
 	if userID == "" {
 		return
@@ -402,6 +432,8 @@ func UpdateactivePass(ctx *gin.Context) {
 		SendMessageOnly("Parse error: "+err.Error(), ctx, 400)
 		return
 	}
+
+	slog.Info("UpdateActivePass", "activePassUpdate", activePassUpdate)
 
 	var activePass models.ActivePass
 	id := ctx.Param("id")
@@ -441,7 +473,7 @@ func UpdateactivePass(ctx *gin.Context) {
 }
 
 // MARK: DELETE /active-passes/:id
-func DeleteactivePass(ctx *gin.Context) {
+func DeleteActivePass(ctx *gin.Context) {
 	userID, _ := CheckAuth(ctx, true)
 	if userID == "" {
 		return
@@ -449,6 +481,9 @@ func DeleteactivePass(ctx *gin.Context) {
 
 	var activePass models.ActivePass
 	id := ctx.Param("id")
+
+	slog.Info("DeleteActivePass", "id", id)
+
 	result := DB.First(&activePass, "id = ?", id)
 	if result.Error != nil {
 		SendMessageOnly("Could not get active pass: "+result.Error.Error(), ctx, 500)

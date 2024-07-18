@@ -3,6 +3,7 @@ package controllers
 import (
 	"elrek-system_GO/models"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 
@@ -20,11 +21,12 @@ type ActionResponse struct {
 	Message string
 }
 
+// MARK: DB
 func SetupDB() error {
 	godotenv.Load(".env")
 	godotenv.Load("../.env")
 
-	fmt.Println("Connecting to database: " + os.Getenv("DB_HOST") + "...")
+	slog.Info("Connecting to database: " + os.Getenv("DB_HOST") + "...")
 
 	//loc, err := time.LoadLocation("Europe/Budapest")
 	//if err != nil {
@@ -52,6 +54,7 @@ func SetupDB() error {
 		return Error
 	}
 
+	// MARK: Migration
 	err := DB.AutoMigrate(
 		&models.User{},
 		&models.Service{},
@@ -63,13 +66,14 @@ func SetupDB() error {
 		fmt.Print(err.Error())
 		return err
 	}
-	fmt.Println("Successfully connected to database!")
+	slog.Info("Successfully connected to database!")
 
 	return nil
 }
 
 // MARK: Senders
 func SendMessageOnly(message string, ctx *gin.Context, statusCode int) {
+	slog.Info("Message sent", "message", message)
 	ctx.IndentedJSON(statusCode, models.MessageOnlyResponse{
 		Message: message,
 	})
@@ -79,6 +83,7 @@ func SendData(message interface{}, ctx *gin.Context) {
 	response := map[string]interface{}{
 		"message": message,
 	}
+	slog.Info("Data sent", "response", response)
 
 	ctx.IndentedJSON(http.StatusOK, response)
 }
