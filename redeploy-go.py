@@ -32,7 +32,7 @@ def main():
             "DB_PORT=<DB_PORT>",
             "DB_NAME=<DB_NAME>",
         ]
-        ports = {"3000/tcp": "<PORT_AS_INT>"}
+        ports = {"3000/tcp": 3000}
     else:
         print("Redeploying development container...")
         name = "elrek-system_go_dev"
@@ -44,7 +44,10 @@ def main():
             "DB_PORT=<DB_PORT>",
             "DB_NAME=<DB_NAME>",
         ]
-        ports = {"3000/tcp": "<PORT_AS_INT>"}
+
+        ports = {"3000/tcp": 3001}
+
+    print(f"Using the following env variables: {name} / {volumes} / {environment} / {ports}")
 
     client = docker.from_env()
     try:
@@ -56,16 +59,24 @@ def main():
     client.containers.prune()
     print("Removed current version")
 
-    client.containers.run(
-        f"sc4n1a471/elrek-system_go:{version}",
-        detach=True,
-        volumes=volumes,
-        environment=environment,
-        ports=ports,
-        name=name,
-        restart_policy={"Name": "on-failure", "MaximumRetryCount": 5},
-    )
-    print(f"Version {version} was deployed successfully")
+    print("Logging in...")
+    client.login("sc4n1a471")
+    print("Logged in successfully")
+
+    try:
+        client.containers.run(
+            f"sc4n1a471/elrek-system_go:{version}",
+            detach=True,
+            volumes=volumes,
+            environment=environment,
+            ports=ports,
+            name=name,
+            restart_policy={"Name": "on-failure", "MaximumRetryCount": 5},
+        )
+        print(f"Version {version} was deployed successfully")
+    except Exception as e:
+        print(f"Error deploying version {version}: {e}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
