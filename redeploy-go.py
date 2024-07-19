@@ -26,11 +26,11 @@ def main():
         name = "elrek-system_go_prod"
         volumes = {"logs": {"bind": "/app/logs", "mode": "rw"}}
         environment = [
-            "DB_USERNAME=<DB_USERNAME>",
-            "DB_PASSWORD=<DB_PASSWORD>",
-            "DB_IP=<DB_IP>",
-            "DB_PORT=<DB_PORT>",
-            "DB_NAME=<DB_NAME>",
+            "DB_USERNAME=<username>",
+            "DB_PASSWORD=<password>",
+            "DB_HOST=<host>",
+            "DB_PORT=<port>",
+            "DB_NAME=<name>",
         ]
         ports = {"3000/tcp": 3000}
     else:
@@ -38,13 +38,12 @@ def main():
         name = "elrek-system_go_dev"
         volumes = {"logs": {"bind": "/app/logs", "mode": "rw"}}
         environment = [
-            "DB_USERNAME=<DB_USERNAME>",
-            "DB_PASSWORD=<DB_PASSWORD>",
-            "DB_IP=<DB_IP>",
-            "DB_PORT=<DB_PORT>",
-            "DB_NAME=<DB_NAME>",
+            "DB_USERNAME=<username>",
+            "DB_PASSWORD=<password>",
+            "DB_HOST=<host>",
+            "DB_PORT=<port>",
+            "DB_NAME=<name>",
         ]
-
         ports = {"3000/tcp": 3001}
 
     print(f"Using the following env variables: {name} / {volumes} / {environment} / {ports}")

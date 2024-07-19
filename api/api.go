@@ -19,7 +19,7 @@ func Api() {
 
 	router := SetupRouter()
 
-	router.Run("localhost:3000")
+	router.Run("0.0.0.0:3000")
 	err = http.ListenAndServe(":3000", router)
 	if err != nil {
 		slog.Error(err.Error())
@@ -29,7 +29,7 @@ func Api() {
 
 func SetupRouter() *gin.Engine {
 	router := gin.Default()
-	//gin.SetMode(gin.ReleaseMode)
+	gin.SetMode(gin.ReleaseMode)
 
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:4200"},
@@ -37,9 +37,9 @@ func SetupRouter() *gin.Engine {
 		AllowHeaders:     []string{"Origin", "Content-Type"},
 		ExposeHeaders:    []string{"Content-Length", "Content-Type"},
 		AllowCredentials: true,
-		AllowOriginFunc: func(origin string) bool {
-			return origin == "http://localhost:4200"
-		},
+		// AllowOriginFunc: func(origin string) bool {
+		// 	return origin == "http://localhost:4200"
+		// },
 		MaxAge: 12 * time.Hour,
 	}))
 
