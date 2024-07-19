@@ -1,2 +1,6 @@
 
 .env
+.venv
+logs
+test_redeploy.sh
+redeploy-go-used.py

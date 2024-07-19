@@ -26,25 +26,31 @@ def main():
         name = "elrek-system_go_prod"
         volumes = {"logs": {"bind": "/app/logs", "mode": "rw"}}
         environment = [
-            "DB_USERNAME=<DB_USERNAME>",
-            "DB_PASSWORD=<DB_PASSWORD>",
-            "DB_IP=<DB_IP>",
-            "DB_PORT=<DB_PORT>",
-            "DB_NAME=<DB_NAME>",
+            "DB_USERNAME=<username>",
+            "DB_PASSWORD=<password>",
+            "DB_HOST=<host>",
+            "DB_PORT=<port>",
+            "DB_NAME=<name>",
+            "FRONTEND_URL=<frontend_url>",
+            "BACKEND_URL=<backend_url>",
         ]
-        ports = {"3000/tcp": "<PORT_AS_INT>"}
+        ports = {"3000/tcp": 3000}
     else:
         print("Redeploying development container...")
         name = "elrek-system_go_dev"
         volumes = {"logs": {"bind": "/app/logs", "mode": "rw"}}
         environment = [
-            "DB_USERNAME=<DB_USERNAME>",
-            "DB_PASSWORD=<DB_PASSWORD>",
-            "DB_IP=<DB_IP>",
-            "DB_PORT=<DB_PORT>",
-            "DB_NAME=<DB_NAME>",
+            "DB_USERNAME=<username>",
+            "DB_PASSWORD=<password>",
+            "DB_HOST=<host>",
+            "DB_PORT=<port>",
+            "DB_NAME=<name>",
+            "FRONTEND_URL=<frontend_url>",
+            "BACKEND_URL=<backend_url>",
         ]
-        ports = {"3000/tcp": "<PORT_AS_INT>"}
+        ports = {"3000/tcp": 3001}
+
+    print(f"Using the following env variables: {name} / {volumes} / {environment} / {ports}")
 
     client = docker.from_env()
     try:
@@ -56,16 +62,24 @@ def main():
     client.containers.prune()
     print("Removed current version")
 
-    client.containers.run(
-        f"sc4n1a471/elrek-system_go:{version}",
-        detach=True,
-        volumes=volumes,
-        environment=environment,
-        ports=ports,
-        name=name,
-        restart_policy={"Name": "on-failure", "MaximumRetryCount": 5},
-    )
-    print(f"Version {version} was deployed successfully")
+    print("Logging in...")
+    client.login("sc4n1a471")
+    print("Logged in successfully")
+
+    try:
+        client.containers.run(
+            f"sc4n1a471/elrek-system_go:{version}",
+            detach=True,
+            volumes=volumes,
+            environment=environment,
+            ports=ports,
+            name=name,
+            restart_policy={"Name": "on-failure", "MaximumRetryCount": 5},
+        )
+        print(f"Version {version} was deployed successfully")
+    except Exception as e:
+        print(f"Error deploying version {version}: {e}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":

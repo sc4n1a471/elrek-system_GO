@@ -4,6 +4,7 @@ import (
 	"elrek-system_GO/controllers"
 	"log/slog"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -19,7 +20,8 @@ func Api() {
 
 	router := SetupRouter()
 
-	router.Run("localhost:3000")
+	slog.Info("Starting server on " + os.Getenv("BACKEND_URL"))
+	router.Run(os.Getenv("BACKEND_URL") + ":3000")
 	err = http.ListenAndServe(":3000", router)
 	if err != nil {
 		slog.Error(err.Error())
@@ -29,18 +31,17 @@ func Api() {
 
 func SetupRouter() *gin.Engine {
 	router := gin.Default()
-	//gin.SetMode(gin.ReleaseMode)
+	// gin.SetMode(gin.ReleaseMode)
+
+	slog.Info("Setting up CORS with origin: " + os.Getenv("FRONTEND_URL"))
 
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:4200"},
+		AllowOrigins:     []string{os.Getenv("FRONTEND_URL")},
 		AllowMethods:     []string{"GET", "HEAD", "OPTIONS", "POST", "PUT", "PATCH", "DELETE"},
 		AllowHeaders:     []string{"Origin", "Content-Type"},
 		ExposeHeaders:    []string{"Content-Length", "Content-Type"},
 		AllowCredentials: true,
-		AllowOriginFunc: func(origin string) bool {
-			return origin == "http://localhost:4200"
-		},
-		MaxAge: 12 * time.Hour,
+		MaxAge:           12 * time.Hour,
 	}))
 
 	// PING

@@ -52,9 +52,9 @@ func Login(ctx *gin.Context) {
 	_, err = ctx.Cookie("jwt")
 	if err != nil {
 		//cookie = "he"
-		ctx.SetCookie("jwt", token, 3600, "/", "localhost", false, true)
+		ctx.SetCookie("jwt", token, 3600, "/", "elrek.hu", false, true)
 	}
-	ctx.SetCookie("jwt", token, 3600, "/", "localhost", false, true)
+	ctx.SetCookie("jwt", token, 3600, "/", "elrek.hu", false, true)
 
 	var userLoginResponse models.UserLoginResponse
 	userLoginResponse.Email = user.Email
