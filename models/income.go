@@ -61,3 +61,9 @@ type IncomeUpdate struct {
 	CreatedAt    *time.Time         `json:"createdAt,omitempty"`
 	IsPaid       *bool              `json:"isPaid,omitempty"`
 }
+
+// IncomeListResponse defines model for IncomeListResponse, used only for tests.
+type IncomeListResponse struct {
+	Incomes      []Income `json:"incomes"`
+	TotalIncomes int64    `json:"totalIncomes"`
+}

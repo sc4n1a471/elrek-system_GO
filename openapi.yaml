@@ -766,13 +766,60 @@ paths:
   /incomes:
     get:
       description: Endpoint for income(s) listing
+      parameters:
+        - name: startDate
+          in: query
+          description: Get incomes from this date
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          description: Get incomes until this date
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: userId
+          in: query
+          description: Get incomes for this user
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: isPaid
+          in: query
+          description: Get incomes that are paid or not (Összes / Nem fizetett / Fizetett)
+          required: false
+          schema:
+            type: string
+        - name: pageIndex
+          in: query
+          description: Page index for pagination
+          required: false
+          schema:
+            type: integer
+        - name: pageSize
+          in: query
+          description: Page size for pagination
+          required: false
+          schema:
+            type: integer
       responses:
         200:
           description: Returns a list of incomes
           content:
             application/json:
               schema:
-                $ref: './models/income.yaml#/components/schemas/IncomeList'
+                type: object
+                properties:
+                  incomes:
+                    type: array
+                    items:
+                      $ref: './models/income.yaml#/components/schemas/Income'
+                  totalIncome:
+                    type: number
         default:
           description: Unexpected error, error is returned in message
           content:

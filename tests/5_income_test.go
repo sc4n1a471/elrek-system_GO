@@ -128,7 +128,7 @@ func TestCreateIncomeBasic(t *testing.T) {
 	assert.Equal(t, correctResponseBody, responseBody)
 }
 func TestCreateIncomeBasicCheck(t *testing.T) {
-	var responseBody []models.Income
+	var responseBody models.IncomeListResponse
 	correctResponseBody := models.Income{
 		IsActive:     true,
 		Amount:       serviceWoPassObject.Price,
@@ -153,12 +153,12 @@ func TestCreateIncomeBasicCheck(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	checkIncomeEquality(t, correctResponseBody, responseBody, false, false, nil)
+	checkIncomeEquality(t, correctResponseBody, responseBody.Incomes, false, false, nil)
 }
 
 // Check for income that was created when TestactivePassCreate was run
 //func TestCreateIncomeActivePassCheck(t *testing.T) {
-//	var responseBody []models.Income
+//	var responseBody models.IncomeListResponse
 //	name := "Bérlet vásárlás"
 //	correctResponseBody := models.Income{
 //		IsActive:    true,
@@ -214,7 +214,7 @@ func TestCreateIncomeDP(t *testing.T) {
 	assert.Equal(t, correctResponseBody, responseBody)
 }
 func TestCreateIncomeDPCheck(t *testing.T) {
-	var responseBody []models.Income
+	var responseBody models.IncomeListResponse
 	correctResponseBody := models.Income{
 		IsActive:     true,
 		Amount:       0,
@@ -239,7 +239,7 @@ func TestCreateIncomeDPCheck(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	checkIncomeEquality(t, correctResponseBody, responseBody, false, false, nil)
+	checkIncomeEquality(t, correctResponseBody, responseBody.Incomes, false, false, nil)
 }
 
 func TestCreateIncomeDPwoActivePass(t *testing.T) {
@@ -268,7 +268,7 @@ func TestCreateIncomeDPwoActivePass(t *testing.T) {
 	assert.Equal(t, correctResponseBody, responseBody)
 }
 func TestCreateIncomeDPwoActivePassCheck(t *testing.T) {
-	var responseBody []models.Income
+	var responseBody models.IncomeListResponse
 	correctResponseBody := models.Income{
 		IsActive:     true,
 		Amount:       (*serviceWithDPWoActivePassObject.DynamicPrices)[2].Price,
@@ -293,7 +293,7 @@ func TestCreateIncomeDPwoActivePassCheck(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	checkIncomeEquality(t, correctResponseBody, responseBody, false, false, nil)
+	checkIncomeEquality(t, correctResponseBody, responseBody.Incomes, false, false, nil)
 }
 
 func createTestUsers() {
@@ -413,7 +413,7 @@ func TestCreateIncomeDPMultipleUsers(t *testing.T) {
 	assert.Equal(t, correctResponseBody, responseBody)
 }
 func TestCreateIncomeDPMultipleUsersCheck(t *testing.T) {
-	var responseBody []models.Income
+	var responseBody models.IncomeListResponse
 	correctResponseBody := models.Income{
 		IsActive:     true,
 		Amount:       serviceWDPObject.Price,
@@ -441,7 +441,7 @@ func TestCreateIncomeDPMultipleUsersCheck(t *testing.T) {
 
 	for _, user := range testUsers[:4] {
 		correctResponseBody.PayerID = user.ID
-		checkIncomeEquality(t, correctResponseBody, responseBody, true, false, testUsers[:4])
+		checkIncomeEquality(t, correctResponseBody, responseBody.Incomes, true, false, testUsers[:4])
 	}
 }
 
@@ -475,7 +475,7 @@ func TestCreateIncomeDPMultipleUsers2(t *testing.T) {
 	assert.Equal(t, correctResponseBody, responseBody)
 }
 func TestCreateIncomeDPMultipleUsers2Check(t *testing.T) {
-	var responseBody []models.Income
+	var responseBody models.IncomeListResponse
 	correctResponseBody := models.Income{
 		IsActive:     true,
 		Amount:       (*serviceWDPObject.DynamicPrices)[0].Price,
@@ -502,11 +502,11 @@ func TestCreateIncomeDPMultipleUsers2Check(t *testing.T) {
 
 	for _, user := range testUsers[:3] {
 		correctResponseBody.PayerID = user.ID
-		checkIncomeEquality(t, correctResponseBody, responseBody, false, false, testUsers[:3])
+		checkIncomeEquality(t, correctResponseBody, responseBody.Incomes, false, false, testUsers[:3])
 	}
 }
 func TestCreateIncomeDPMultipleUsers2CheckWrong(t *testing.T) {
-	var responseBody []models.Income
+	var responseBody models.IncomeListResponse
 	correctResponseBody := models.Income{
 		IsActive:     true,
 		Amount:       (*serviceWDPObject.DynamicPrices)[1].Price,
@@ -533,7 +533,7 @@ func TestCreateIncomeDPMultipleUsers2CheckWrong(t *testing.T) {
 
 	for _, user := range testUsers[:3] {
 		correctResponseBody.PayerID = user.ID
-		checkIncomeEquality(t, correctResponseBody, responseBody, false, true, testUsers[:3])
+		checkIncomeEquality(t, correctResponseBody, responseBody.Incomes, false, true, testUsers[:3])
 	}
 }
 
@@ -779,7 +779,7 @@ func TestCreateIncomePrevServicePass(t *testing.T) {
 }
 
 func TestCreateIncomePrevServicePassCheck(t *testing.T) {
-	var responseBody []models.Income
+	var responseBody models.IncomeListResponse
 	name := incomeName + "_prev_test"
 	correctResponseBody := models.Income{
 		IsActive:     true,
@@ -805,5 +805,5 @@ func TestCreateIncomePrevServicePassCheck(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	checkIncomeEquality(t, correctResponseBody, responseBody, false, false, nil)
+	checkIncomeEquality(t, correctResponseBody, responseBody.Incomes, false, false, nil)
 }
