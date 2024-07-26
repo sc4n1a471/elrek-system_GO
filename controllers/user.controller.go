@@ -4,6 +4,7 @@ import (
 	"elrek-system_GO/models"
 	"log/slog"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -52,9 +53,9 @@ func Login(ctx *gin.Context) {
 	_, err = ctx.Cookie("jwt")
 	if err != nil {
 		//cookie = "he"
-		ctx.SetCookie("jwt", token, 3600, "/", "elrek.hu", false, true)
+		ctx.SetCookie("jwt", token, 3600, "/", os.Getenv("DOMAIN"), false, true)
 	}
-	ctx.SetCookie("jwt", token, 3600, "/", "elrek.hu", false, true)
+	ctx.SetCookie("jwt", token, 3600, "/", os.Getenv("DOMAIN"), false, true)
 
 	var userLoginResponse models.UserLoginResponse
 	userLoginResponse.Email = user.Email

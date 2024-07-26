@@ -33,6 +33,7 @@ def main():
             "DB_NAME=<name>",
             "FRONTEND_URL=<frontend_url>",
             "BACKEND_URL=<backend_url>",
+            "DOMAIN=<domain>",
         ]
         ports = {"3000/tcp": 3000}
     else:
@@ -47,6 +48,7 @@ def main():
             "DB_NAME=<name>",
             "FRONTEND_URL=<frontend_url>",
             "BACKEND_URL=<backend_url>",
+            "DOMAIN=<domain>",
         ]
         ports = {"3000/tcp": 3001}
 
