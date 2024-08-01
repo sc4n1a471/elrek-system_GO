@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func Api() {
@@ -30,6 +31,9 @@ func Api() {
 }
 
 func SetupRouter() *gin.Engine {
+	godotenv.Load(".env")
+	godotenv.Load("../.env")
+
 	router := gin.Default()
 	// gin.SetMode(gin.ReleaseMode)
 

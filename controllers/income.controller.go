@@ -3,6 +3,7 @@ package controllers
 import (
 	"elrek-system_GO/models"
 	"log/slog"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -17,19 +18,64 @@ func GetIncomes(ctx *gin.Context) {
 		return
 	}
 
+	startDate := ctx.Query("startDate")
+	endDate := ctx.Query("endDate")
+	requestedUserId := ctx.Query("userId")
+	isPaid := ctx.Query("isPaid")
+	pageIndex, _ := strconv.Atoi(ctx.Query("pageIndex"))
+	pageSize, _ := strconv.Atoi(ctx.Query("pageSize"))
+
 	var incomes []models.Income
-	result := DB.Where("user_id = ? and is_active = ?", userID, true).
+	query := DB.Where("user_id = ? and is_active = ?", userID, true)
+
+	if startDate != "" {
+		query = query.Where("created_at >= ?", startDate)
+	}
+	if endDate != "" {
+		query = query.Where("created_at <= ?", endDate)
+	}
+	if requestedUserId != "" {
+		query = query.Where("payer_id = ?", requestedUserId)
+	}
+	if isPaid != "Összes" {
+		if isPaid == "Fizetett" {
+			query = query.Where("is_paid = ?", true)
+		} else if isPaid == "Nem fizetett" {
+			query = query.Where("is_paid = ?", false)
+		}
+	}
+
+	var totalIncome int64
+	result := query.
+		Find(&incomes).
+		Count(&totalIncome)
+	if result.Error != nil {
+		SendMessageOnly("Could not get total income: "+result.Error.Error(), ctx, 500)
+		return
+	}
+
+	if pageSize == 0 {
+		pageSize = int(totalIncome)
+	}
+	// he
+
+	result = query.
 		Preload("ActivePass.Pass").
 		Preload("User").
 		Preload("Service").
 		Order("created_at desc").
+		Limit(pageSize).
+		Offset(pageIndex * pageSize).
 		Find(&incomes)
 	if result.Error != nil {
 		SendMessageOnly("Could not get incomes: "+result.Error.Error(), ctx, 500)
 		return
 	}
 
-	ctx.JSON(200, incomes)
+	ctx.JSON(200, models.IncomeListResponse{
+		Incomes:      incomes,
+		TotalIncomes: totalIncome,
+	})
 }
 
 func GetIncome(ctx *gin.Context) {

@@ -8,7 +8,7 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
-	// "github.com/joho/godotenv"
+	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -23,8 +23,8 @@ type ActionResponse struct {
 
 // MARK: DB
 func SetupDB() error {
-	// godotenv.Load(".env")
-	// godotenv.Load("../.env")
+	godotenv.Load(".env")
+	godotenv.Load("../.env")
 
 	slog.Info("Connecting to database: " + os.Getenv("DB_HOST") + "...")
 
