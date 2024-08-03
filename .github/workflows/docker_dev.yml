@@ -43,10 +43,27 @@ jobs:
             sc4n1a471/elrek-system_go:${{ env.VERSION }}
             sc4n1a471/elrek-system_go:latest
 
+  db:
+    name: Backing up databases
+    runs-on: ubuntu-latest
+    needs: [docker]
+    env:
+      VERSION: "latest"
+    steps:
+      -
+        name: Checkout 
+        uses: actions/checkout@v2
+      -
+        name: Deploy docker container webhook
+        uses: joelwmale/webhook-action@master
+        with:
+          url: ${{ secrets.DB_BACKUP  }}
+          body: '{ "version": "${{ env.VERSION  }}", "env": "dev" }'
+
   redeploy:
     name: Redeploying on development server
     runs-on: ubuntu-latest
-    needs: [docker]
+    needs: [docker,db]
     env:
       VERSION: "latest"
     steps:
