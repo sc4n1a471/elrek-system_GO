@@ -1,9 +1,11 @@
 package controllers
 
 import (
+	"database/sql"
 	"elrek-system_GO/models"
 	"log/slog"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	openapitypes "github.com/oapi-codegen/runtime/types"
@@ -43,7 +45,7 @@ func GetStatistics(ctx *gin.Context) {
 	}
 
 	// MARK: sum all incomes
-	var incomeSum int64
+	var incomeSum sql.NullInt64
 	err = DB.
 		Model(&models.Income{}).
 		Select("SUM(amount)").
@@ -57,16 +59,58 @@ func GetStatistics(ctx *gin.Context) {
 	}
 	// #endregion
 
+	currentTime := time.Now()
 	// #region yearly statistics
-	// TODO: implement yearly statistics
+	var everyYearIncomeSum []models.EveryYearIncomeSum
+	for i := currentTime.Year(); i >= 2021; i-- {
+		yearStartDate := time.Date(i, time.January, 1, 0, 0, 0, 0, currentTime.Location())
+		yearEndDate := time.Date(i+1, time.January, 1, 0, 0, 0, 0, currentTime.Location())
+
+		var yearlyIncomeSum models.EveryYearIncomeSum
+		err = DB.
+			Model(&models.Income{}).
+			Select("SUM(amount)").
+			Where("created_at >= ? AND created_at <= ? AND user_id = ?", yearStartDate, yearEndDate, userID).
+			Scan(&yearlyIncomeSum.Sum).
+			Error
+		if err != nil {
+			slog.Error(err.Error())
+			SendMessageOnly("Internal server error: could not get yearly income sum", ctx, http.StatusInternalServerError)
+			return
+		}
+		yearlyIncomeSum.Year = i
+
+		everyYearIncomeSum = append(everyYearIncomeSum, yearlyIncomeSum)
+	}
+
 	// #endregion
 
 	// #region monthly statistics
-	// TODO: implement monthly statistics
+	var everyMonthIncomeSum []models.EveryMonthIncomeSum
+	for i := 1; i <= 12; i++ {
+		monthStartDate := time.Date(currentTime.Year(), time.Month(i), 1, 0, 0, 0, 0, currentTime.Location())
+		monthEndDate := time.Date(currentTime.Year(), time.Month(i)+1, 1, 0, 0, 0, 0, currentTime.Location())
+
+		var monthlyIncomeSum models.EveryMonthIncomeSum
+		err = DB.
+			Model(&models.Income{}).
+			Select("SUM(amount)").
+			Where("created_at >= ? AND created_at <= ? AND user_id = ?", monthStartDate, monthEndDate, userID).
+			Scan(&monthlyIncomeSum.Sum).
+			Error
+		if err != nil {
+			slog.Error(err.Error())
+			SendMessageOnly("Internal server error: could not get monthly income sum", ctx, http.StatusInternalServerError)
+			return
+		}
+		monthlyIncomeSum.Month = monthStartDate.Month().String()
+
+		everyMonthIncomeSum = append(everyMonthIncomeSum, monthlyIncomeSum)
+	}
 	// #endregion
 
 	// MARK: sum all paid/unpaid incomes
-	var paidIncomeSum int64
+	var paidIncomeSum sql.NullInt64
 	err = DB.
 		Model(&models.Income{}).
 		Select("SUM(amount)").
@@ -79,7 +123,7 @@ func GetStatistics(ctx *gin.Context) {
 		return
 	}
 
-	var unpaidIncomeSum int64
+	var unpaidIncomeSum sql.NullInt64
 	err = DB.
 		Model(&models.Income{}).
 		Select("SUM(amount)").
@@ -172,6 +216,8 @@ func GetStatistics(ctx *gin.Context) {
 		IncomeSum:           incomeSum,
 		PaidIncomeSum:       paidIncomeSum,
 		UnpaidIncomeSum:     unpaidIncomeSum,
+		EveryYearIncomeSum:  everyYearIncomeSum,
+		EveryMonthIncomeSum: everyMonthIncomeSum,
 		IncomesByService:    incomeByService,
 		IncomesByUser:       incomeByUser,
 		IncomesByActivePass: incomeByActivePass,
