@@ -109,6 +109,30 @@ func GetStatistics(ctx *gin.Context) {
 	}
 	// #endregion
 
+	// #region daily statistics
+	var everyDayIncomeSum []models.EveryDayIncomeSum
+	for i := 1; i <= 31; i++ {
+		dayStartDate := time.Date(currentTime.Year(), currentTime.Month(), i, 0, 0, 0, 0, currentTime.Location())
+		dayEndDate := time.Date(currentTime.Year(), currentTime.Month(), i+1, 0, 0, 0, 0, currentTime.Location())
+
+		var dailyIncomeSum models.EveryDayIncomeSum
+		err = DB.
+			Model(&models.Income{}).
+			Select("SUM(amount)").
+			Where("created_at >= ? AND created_at <= ? AND user_id = ?", dayStartDate, dayEndDate, userID).
+			Scan(&dailyIncomeSum.Sum).
+			Error
+		if err != nil {
+			slog.Error(err.Error())
+			SendMessageOnly("Internal server error: could not get daily income sum", ctx, http.StatusInternalServerError)
+			return
+		}
+		dailyIncomeSum.Day = i
+
+		everyDayIncomeSum = append(everyDayIncomeSum, dailyIncomeSum)
+	}
+	// #endregion
+
 	// MARK: sum all paid/unpaid incomes
 	var paidIncomeSum sql.NullInt64
 	err = DB.
@@ -218,6 +242,7 @@ func GetStatistics(ctx *gin.Context) {
 		UnpaidIncomeSum:     unpaidIncomeSum,
 		EveryYearIncomeSum:  everyYearIncomeSum,
 		EveryMonthIncomeSum: everyMonthIncomeSum,
+		EveryDayIncomeSum:   everyDayIncomeSum,
 		IncomesByService:    incomeByService,
 		IncomesByUser:       incomeByUser,
 		IncomesByActivePass: incomeByActivePass,

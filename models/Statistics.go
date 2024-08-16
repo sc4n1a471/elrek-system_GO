@@ -10,6 +10,7 @@ type Statistics struct {
 	UnpaidIncomeSum     sql.NullInt64         `json:"unpaidIncomeSum"`
 	EveryYearIncomeSum  []EveryYearIncomeSum  `json:"everyYearIncomeSum"`
 	EveryMonthIncomeSum []EveryMonthIncomeSum `json:"everyMonthIncomeSum"`
+	EveryDayIncomeSum   []EveryDayIncomeSum   `json:"everyDayIncomeSum"`
 	IncomesByService    []IncomeByService     `json:"incomesByService"`
 	IncomesByUser       []IncomeByUser        `json:"incomesByUser"`
 	IncomesByActivePass []IncomeByActivePass  `json:"incomesByActivePass"`
@@ -23,6 +24,11 @@ type EveryYearIncomeSum struct {
 type EveryMonthIncomeSum struct {
 	Month string        `json:"month"`
 	Sum   sql.NullInt64 `json:"sum"`
+}
+
+type EveryDayIncomeSum struct {
+	Day int           `json:"day"`
+	Sum sql.NullInt64 `json:"sum"`
 }
 
 // IncomeByService defines model for IncomeByService.
