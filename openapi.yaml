@@ -966,6 +966,60 @@ paths:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - incomes
+  /statistics:
+    get:
+      description: Endpoint for statistics, returns the following
+
+          - Number of users
+
+          - Number of active passes
+
+          - Total income in a specific time range
+
+          - Total income yearly
+
+          - Total income monthly
+
+          - Total income daily
+
+          - Total paid/unpaid income in a specific time range
+
+          - Total income for a specific service in a specific time range
+
+          - Total income for a specific user in a specific time range
+
+          - Total income for a specific pass in a specific time range
+      parameters:
+        - name: startDate
+          in: query
+          description: Get stats from this date
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          description: Get stats until this date
+          required: false
+          schema:
+            type: string
+            format: date-time
+      responses:
+        200:
+          description: Returns a list of statistics
+          content:
+            application/json:
+              schema:
+                $ref: './models/statistics.yaml#/components/schemas/Statistics'
+       
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - statistics
 
 tags:
   - name: login
@@ -982,3 +1036,5 @@ tags:
     description: Active pass related endpoints
   - name: incomes
     description: Income related endpoints
+  - name: statistics
+    description: Statistics related endpoints

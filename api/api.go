@@ -106,5 +106,8 @@ func SetupRouter() *gin.Engine {
 	router.PATCH("/incomes/:id", controllers.UpdateIncome)
 	router.DELETE("/incomes/:id", controllers.DeleteIncome)
 
+	// STATISTICS
+	router.GET("/statistics", controllers.GetStatistics)
+
 	return router
 }
