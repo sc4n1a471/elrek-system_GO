@@ -1,0 +1,83 @@
+components:
+  schemas:
+    Statistics:
+      type: object
+      properties:
+        userCount:
+          type: integer
+        activePassCount:
+          type: integer
+        incomeSum:
+          type: number
+        paidIncomeSum:
+          type: number
+        unpaidIncomeSum:
+          type: number
+        everyYearIncomeSum:
+          type: array
+          items:
+            type: object
+            properties:
+              year:
+                type: integer
+              sum:
+                schema:
+                $ref: '#/components/schemas/SumSchema'
+        everyMonthIncomeSum:
+          type: array
+          items:
+            type: object
+            properties:
+              month:
+                type: string
+              sum:
+                schema:
+                $ref: '#/components/schemas/SumSchema'
+        everyDayIncomeSum:
+          type: array
+          items:
+            type: object
+            properties:
+              day:
+                type: number
+              sum:
+                schema:
+                $ref: '#/components/schemas/SumSchema'
+        incomesByService:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              sum:
+                schema:
+                $ref: '#/components/schemas/SumSchema'
+        incomesByUser:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              sum:
+                schema:
+                $ref: '#/components/schemas/SumSchema'
+        incomesByActivePass:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              sum:
+                schema:
+                $ref: '#/components/schemas/SumSchema'
+    SumSchema:
+      type: object
+      properties:
+        Int64:
+          type: number
+          format: int64
+        Valid:
+          type: boolean
