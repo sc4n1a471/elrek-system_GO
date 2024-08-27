@@ -982,15 +982,13 @@ paths:
 
           - Total income daily
 
-          - Total paid income
+          - Total paid/unpaid income in a specific time range
 
-          - Total unpaid income
+          - Total income for a specific service in a specific time range
 
-          - Total income for a specific service
+          - Total income for a specific user in a specific time range
 
-          - Total income for a specific user
-
-          - Total income for a specific pass
+          - Total income for a specific pass in a specific time range
       parameters:
         - name: startDate
           in: query

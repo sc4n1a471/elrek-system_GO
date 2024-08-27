@@ -3,6 +3,7 @@ package controllers
 import (
 	"database/sql"
 	"elrek-system_GO/models"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"time"
@@ -35,7 +36,7 @@ func GetStatistics(ctx *gin.Context) {
 	var activePassCount int64
 	err = DB.
 		Model(&models.Pass{}).
-		Where("is_active = ?", true).
+		Where("is_active = ? and user_id = ?", true, userID).
 		Count(&activePassCount).
 		Error
 	if err != nil {
@@ -61,8 +62,8 @@ func GetStatistics(ctx *gin.Context) {
 
 	currentTime := time.Now()
 	// #region yearly statistics
-	var everyYearIncomeSum []models.EveryYearIncomeSum
-	for i := currentTime.Year(); i >= 2021; i-- {
+	var everyYearIncomeSum []models.EveryYearIncomeSum = []models.EveryYearIncomeSum{}
+	for i := 2021; i <= currentTime.Year(); i++ {
 		yearStartDate := time.Date(i, time.January, 1, 0, 0, 0, 0, currentTime.Location())
 		yearEndDate := time.Date(i+1, time.January, 1, 0, 0, 0, 0, currentTime.Location())
 
@@ -86,7 +87,7 @@ func GetStatistics(ctx *gin.Context) {
 	// #endregion
 
 	// #region monthly statistics
-	var everyMonthIncomeSum []models.EveryMonthIncomeSum
+	var everyMonthIncomeSum []models.EveryMonthIncomeSum = []models.EveryMonthIncomeSum{}
 	for i := 1; i <= 12; i++ {
 		monthStartDate := time.Date(currentTime.Year(), time.Month(i), 1, 0, 0, 0, 0, currentTime.Location())
 		monthEndDate := time.Date(currentTime.Year(), time.Month(i)+1, 1, 0, 0, 0, 0, currentTime.Location())
@@ -110,7 +111,7 @@ func GetStatistics(ctx *gin.Context) {
 	// #endregion
 
 	// #region daily statistics
-	var everyDayIncomeSum []models.EveryDayIncomeSum
+	var everyDayIncomeSum []models.EveryDayIncomeSum = []models.EveryDayIncomeSum{}
 	for i := 1; i <= 31; i++ {
 		dayStartDate := time.Date(currentTime.Year(), currentTime.Month(), i, 0, 0, 0, 0, currentTime.Location())
 		dayEndDate := time.Date(currentTime.Year(), currentTime.Month(), i+1, 0, 0, 0, 0, currentTime.Location())
@@ -160,33 +161,8 @@ func GetStatistics(ctx *gin.Context) {
 		return
 	}
 
-	// MARK: count all paid/unpaid incomes
-	var paidIncomeCount int64
-	err = DB.
-		Model(&models.Income{}).
-		Where("created_at >= ? AND created_at <= ? AND is_paid = ?", startDate, endDate, true).
-		Count(&paidIncomeCount).
-		Error
-	if err != nil {
-		slog.Error(err.Error())
-		SendMessageOnly("Internal server error: could not get paid income count", ctx, http.StatusInternalServerError)
-		return
-	}
-
-	var unpaidIncomeCount int64
-	err = DB.
-		Model(&models.Income{}).
-		Where("created_at >= ? AND created_at <= ? AND is_paid = ?", startDate, endDate, false).
-		Count(&unpaidIncomeCount).
-		Error
-	if err != nil {
-		slog.Error(err.Error())
-		SendMessageOnly("Internal server error: could not get unpaid income count", ctx, http.StatusInternalServerError)
-		return
-	}
-
 	// MARK: sum all incomes by service
-	var incomeByService []models.IncomeByService
+	var incomeByService []models.IncomeByService = []models.IncomeByService{}
 	err = DB.
 		Model(&models.Income{}).
 		Select("services.name as name, SUM(amount) as sum").
@@ -202,7 +178,7 @@ func GetStatistics(ctx *gin.Context) {
 	}
 
 	// MARK: sum all incomes by user
-	var incomeByUser []models.IncomeByUser
+	var incomeByUser []models.IncomeByUser = []models.IncomeByUser{}
 	err = DB.
 		Model(&models.Income{}).
 		Select("users.name as name, SUM(amount) as sum").
@@ -218,7 +194,7 @@ func GetStatistics(ctx *gin.Context) {
 	}
 
 	// MARK: sum all incomes by activePass
-	var incomeByActivePass []models.IncomeByActivePass
+	var incomeByActivePass []models.IncomeByActivePass = []models.IncomeByActivePass{}
 	err = DB.
 		Model(&models.Income{}).
 		Select("passes.name as name, SUM(amount) as sum").
@@ -233,6 +209,8 @@ func GetStatistics(ctx *gin.Context) {
 		SendMessageOnly("Internal server error: could not get income by active pass", ctx, http.StatusInternalServerError)
 		return
 	}
+
+	fmt.Println("IncomesByService", incomeByService)
 
 	statistics := models.Statistics{
 		UserCount:           userCount,
