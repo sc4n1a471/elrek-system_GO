@@ -114,7 +114,7 @@ func GetStatistics(ctx *gin.Context) {
 	var everyDayIncomeSum []models.EveryDayIncomeSum = []models.EveryDayIncomeSum{}
 	for i := 1; i <= 31; i++ {
 		dayStartDate := time.Date(currentTime.Year(), currentTime.Month(), i, 0, 0, 0, 0, currentTime.Location())
-		dayEndDate := time.Date(currentTime.Year(), currentTime.Month(), i+1, 0, 0, 0, 0, currentTime.Location())
+		dayEndDate := time.Date(currentTime.Year(), currentTime.Month(), i, 23, 59, 0, 0, currentTime.Location())
 
 		var dailyIncomeSum models.EveryDayIncomeSum
 		err = DB.

@@ -59,6 +59,7 @@ func SetupRouter() *gin.Engine {
 	router.POST("/login", controllers.Login)
 	router.GET("/check-permissions", controllers.CheckPermissions)
 	router.POST("/logout", controllers.Logout)
+	router.POST("/register", controllers.Register)
 
 	// USERS
 	router.GET("/users", controllers.GetUsers)

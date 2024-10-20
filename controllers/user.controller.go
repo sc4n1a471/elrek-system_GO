@@ -139,6 +139,37 @@ func Logout(ctx *gin.Context) {
 	SendMessageOnly("Logged out successfully", ctx, 200)
 }
 
+// MARK: Register
+func Register(ctx *gin.Context) {
+	var userRegister models.UserRegister
+	if err := ctx.BindJSON(&userRegister); err != nil {
+		SendMessageOnly("Parse error: "+err.Error(), ctx, 400)
+		return
+	}
+
+	tx := DB.Begin()
+
+	password, _ := bcrypt.GenerateFromPassword([]byte(userRegister.Password), 14)
+
+	var user models.UserCreate
+	user.Email = userRegister.Email
+	user.Name = userRegister.Name
+	user.Password = string(password)
+
+	createResult := createUser(user, userRegister.OwnerID.String(), tx, false)
+	if !createResult.Success {
+		SendMessageOnly(createResult.Message, ctx, 500)
+		tx.Rollback()
+		return
+	}
+
+	tx.Commit()
+
+	SendMessageOnly("User was registered successfully", ctx, 201)
+}
+
+// ================ USERS ================
+
 // MARK: GET Users
 func GetUsers(ctx *gin.Context) {
 	userID, _ := CheckAuth(ctx, true)
