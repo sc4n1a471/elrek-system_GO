@@ -1,0 +1,61 @@
+components:
+  schemas:
+    Location:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        userID:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        name:
+          type: string
+        address:
+          type: string
+        comment:
+          type: string
+        isActive:
+          type: boolean
+      required:
+        - id
+        - userID
+        - createdAt
+        - updatedAt
+        - name
+        - address
+        - isActive
+    LocationList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Location'
+    LocationCreate:
+      type: object
+      properties:
+        name:
+          type: string
+        address:
+          type: string
+        comment:
+          type: string
+        isActive:
+          type: boolean
+      required:
+        - name
+    LocationUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        address:
+          type: string
+        comment:
+          type: string
+        isActive:
+          type: boolean
