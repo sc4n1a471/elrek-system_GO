@@ -59,6 +59,7 @@ func SetupRouter() *gin.Engine {
 	router.POST("/login", controllers.Login)
 	router.GET("/check-permissions", controllers.CheckPermissions)
 	router.POST("/logout", controllers.Logout)
+	router.POST("/register", controllers.Register)
 
 	// USERS
 	router.GET("/users", controllers.GetUsers)
@@ -108,6 +109,21 @@ func SetupRouter() *gin.Engine {
 
 	// STATISTICS
 	router.GET("/statistics", controllers.GetStatistics)
+
+	// LOCATIONS
+	router.GET("/locations", controllers.GetLocations)
+	router.GET("/locations/:id", controllers.GetLocation)
+	router.GET("/locations/:id/events", controllers.GetLocationEvents)
+	router.POST("/locations", controllers.CreateLocation)
+	router.PATCH("/locations/:id", controllers.UpdateLocation)
+	router.DELETE("/locations/:id", controllers.DeleteLocation)
+
+	// EVENTS
+	router.GET("/events", controllers.GetEvents)
+	router.GET("/events/:id", controllers.GetEvent)
+	router.POST("/events", controllers.CreateEvent)
+	router.PATCH("/events/:id", controllers.UpdateEvent)
+	router.DELETE("/events/:id", controllers.DeleteEvent)
 
 	return router
 }

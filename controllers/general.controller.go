@@ -61,9 +61,12 @@ func SetupDB() error {
 		&models.DynamicPrice{},
 		&models.Pass{},
 		&models.ActivePass{},
-		&models.Income{})
+		&models.Income{},
+		&models.Location{},
+		// &models.Event{})
+	)
 	if err != nil {
-		fmt.Print(err.Error())
+		fmt.Printf("AutoMigrate error: %v\n", err)
 		return err
 	}
 	slog.Info("Successfully connected to database!")

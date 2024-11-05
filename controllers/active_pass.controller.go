@@ -403,10 +403,13 @@ func CreateActivePass(ctx *gin.Context) {
 		return
 	}
 
+	isPaid := true
 	income := models.IncomeCreate{
 		Amount:       activePass.Pass.Price,
 		ActivePassID: &activePass.ID,
 		PayerID:      payer.ID,
+		CreatedAt:    &roundedValidFrom,
+		IsPaid:       &isPaid,
 	}
 	incomeResult := createIncome(tx, income, openapitypes.UUID(uuid.MustParse(userID)), 0)
 	if !incomeResult.Success {

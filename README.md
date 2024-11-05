@@ -1,2 +1,3 @@
-this is going to be a merge conflict...
-and this one
+# elrek-system_GO
+
+Ez lenni repository for elrek-system_GO
