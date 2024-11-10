@@ -66,69 +66,73 @@ pipeline {
             }
         }
 
-        // MARK: Test
-        stage('Test') {
-            steps {
-                sh 'go test -v ./tests'
-            }
-        }
-
-        // MARK: Build Docker image
-        stage('Build Docker image') {
-            steps {
-                script {
-                    dockerImage = docker.build('sc4n1a471/elrek-system_go')
-                }
-            }
-        }
-
-        // MARK: Push Docker image
-        stage('Push production docker image') {
-            when {
-                branch 'main'
-            }
-            steps {
-                script {
-                    docker.withRegistry('https://registry.hub.docker.com', 'DOCKER_HUB') {
-                        dockerImage.push("latest")
-                        dockerImage.push("${version}")
+        // MARK: Test and Build Docker image
+        stage('Test and Build Docker image') {
+            parallel {
+                stage('Test') {
+                    steps {
+                        sh 'go test -v ./tests'
                     }
                 }
-            }
-        }
-        stage('Push development docker image') {
-            when {
-                branch 'dev'
-            }
-            steps {
-                script {
-                    docker.withRegistry('https://registry.hub.docker.com', 'DOCKER_HUB') {
-                        dockerImage.push("latest-dev")
-                        dockerImage.push("${version}-dev")
+                stage('Build Docker image') {
+                    steps {
+                        script {
+                            dockerImage = docker.build('sc4n1a471/elrek-system_go')
+                        }
                     }
                 }
             }
         }
 
-        // MARK: Backup DB
-        stage('Backup DB') {
-            when {
-                anyOf {
-                    branch 'main'
-                    branch 'dev'
+        // MARK: Push and Backup
+        stage('Push and Backup') {
+            parallel {
+                stage('Push production docker image') {
+                    when {
+                        branch 'main'
+                    }
+                    steps {
+                        script {
+                            docker.withRegistry('https://registry.hub.docker.com', 'DOCKER_HUB') {
+                                dockerImage.push("latest")
+                                dockerImage.push("${version}")
+                            }
+                        }
+                    }
                 }
-            }
 
-            steps {
-                script {
-                    echo "Backing up DB"
+                stage('Push development docker image') {
+                    when {
+                        branch 'dev'
+                    }
+                    steps {
+                        script {
+                            docker.withRegistry('https://registry.hub.docker.com', 'DOCKER_HUB') {
+                                dockerImage.push("latest-dev")
+                                dockerImage.push("${version}-dev")
+                            }
+                        }
+                    }
+                }
 
-                    sh '''
-                    ssh -tt $SSH_DB << EOF
-                    cd $SCRIPTS_DB
-                    ./elrek-backup.sh
-                    exit
-                    EOF'''
+                stage('Backup DB') {
+                    when {
+                        anyOf {
+                            branch 'main'
+                            branch 'dev'
+                        }
+                    }
+                    steps {
+                        script {
+                            echo "Backing up DB"
+                            sh '''
+                            ssh -tt $SSH_DB << EOF
+                            cd $SCRIPTS_DB
+                            ./elrek-backup.sh
+                            exit
+                            EOF'''
+                        }
+                    }
                 }
             }
         }
