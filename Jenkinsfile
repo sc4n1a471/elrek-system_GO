@@ -107,10 +107,10 @@ pipeline {
         // MARK: Backup DB
         stage('Backup DB') {
             when {
-                branch 'main'
-            }
-            when {
-                branch 'dev'
+                anyOf {
+                    branch 'main'
+                    branch 'dev'
+                }
             }
 
             steps {
