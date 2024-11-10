@@ -45,6 +45,12 @@ pipeline {
 
         // MARK: Read Version
         stage('Read Version') {
+            when {
+                anyOf {
+                    branch 'main'
+                    branch 'dev'
+                }
+            }
             steps {
                 script {
                     version = readFile('version').trim()
@@ -168,6 +174,9 @@ pipeline {
     post {
         always {
             cleanWs()
+            echo "Cleaning docker images"
+            sh "docker rmi -f sc4n1a471/elrek-system_go"
+            sh "docker image prune -f"
         }
     }
 }
