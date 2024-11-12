@@ -10,15 +10,22 @@ pipeline {
     
     environment {
         DB_HOST = credentials('DB_IP')
+
+        DB_NAME = credentials('DB_NAME_elrek-system_DEV')           // For go tests
         DB_NAME_DEV = credentials('DB_NAME_elrek-system_DEV')
         DB_NAME_PROD = credentials('DB_NAME_elrek-system_PROD')
+
         DB_PASSWORD = credentials('DB_PASSWD')
         DB_PORT = credentials('DB_PORT')
         DB_USERNAME = credentials('DB_USERNAME')
+
+        FRONTEND_URL = credentials('FRONTEND_URL_elrek-system_DEV') // For go tests
+        BACKEND_URL = credentials('BACKEND_URL_elrek-system_DEV')   // For go tests
         FRONTEND_URL_DEV = credentials('FRONTEND_URL_elrek-system_DEV')
         BACKEND_URL_DEV = credentials('BACKEND_URL_elrek-system_DEV')
         FRONTEND_URL_PROD = credentials('FRONTEND_URL_elrek-system_PROD')
         BACKEND_URL_PROD = credentials('BACKEND_URL_elrek-system_PROD')
+
         DOMAIN = credentials('DOMAIN_elrek-system')
         REPO = credentials('GITHUB_REPO_elrek-system')
         SSH_HOST = credentials('HOST_SSH_elrek-system')
