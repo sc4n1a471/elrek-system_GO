@@ -57,3 +57,15 @@ variable "backend_url" {
   type        = string
   sensitive = true
 }
+
+variable "ssh_host" {
+  description = "The SSH host in a <username>@<hostname> format"
+  type        = string
+  sensitive = true
+}
+
+variable "ssh_port" {
+  description = "The SSH port"
+  type        = string
+  sensitive = true
+}

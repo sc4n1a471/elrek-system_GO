@@ -10,12 +10,15 @@ pipeline {
     
     environment {
         DB_HOST = credentials('DB_IP')
-        DB_NAME = credentials('DB_NAME_elrek-system_DEV')
+        DB_NAME_DEV = credentials('DB_NAME_elrek-system_DEV')
+        DB_NAME_PROD = credentials('DB_NAME_elrek-system_PROD')
         DB_PASSWORD = credentials('DB_PASSWD')
         DB_PORT = credentials('DB_PORT')
         DB_USERNAME = credentials('DB_USERNAME')
-        FRONTEND_URL = credentials('FRONTEND_URL_elrek-system')
-        BACKEND_URL = credentials('BACKEND_URL_elrek-system')
+        FRONTEND_URL_DEV = credentials('FRONTEND_URL_elrek-system_DEV')
+        BACKEND_URL_DEV = credentials('BACKEND_URL_elrek-system_DEV')
+        FRONTEND_URL_PROD = credentials('FRONTEND_URL_elrek-system_PROD')
+        BACKEND_URL_PROD = credentials('BACKEND_URL_elrek-system_PROD')
         DOMAIN = credentials('DOMAIN_elrek-system')
         REPO = credentials('GITHUB_REPO_elrek-system')
         SSH_HOST = credentials('HOST_SSH_elrek-system')
@@ -146,13 +149,22 @@ pipeline {
             steps {
                 script {
                     echo "Deploying version ${version} to DEV"
-
+                    
                     sh """
-                    ssh -tt \$SSH_HOST << EOF
-                    cd \$SCRIPTS_HOST
-                    ./redeploy-go.py '{"version": "${version}-dev", "env": "dev"}'
-                    exit
-                    EOF"""
+                    terraform apply \
+                        -var="container_version=${version}-dev" \
+                        -var="env=dev" \
+                        -var="db_username=${DB_USERNAME}" \
+                        -var="db_name=${DB_NAME_DEV}" \
+                        -var="db_password=${DB_PASSWORD}" \
+                        -var="db_host=${DB_HOST}" \
+                        -var="db_port=${DB_PORT}" \
+                        -var="domain=${DOMAIN}" \
+                        -var="frontend_url=${FRONTEND_URL_DEV}" \
+                        -var="backend_url=${BACKEND_URL_DEV}" \
+                        -var="ssh_host=${SSH_HOST}" \
+                        -var="ssh_port=22"
+                    """
                 }
             }
         }
@@ -166,11 +178,20 @@ pipeline {
                     echo "Deploying version ${version} to PROD"
 
                     sh """
-                    ssh -tt \$SSH_HOST << EOF
-                    cd \$SCRIPTS_HOST
-                    ./redeploy-go.py '{"version": "${version}", "env": "prod"}'
-                    exit
-                    EOF"""
+                    terraform apply \
+                        -var="container_version=${version}" \
+                        -var="env=prod" \
+                        -var="db_username=${DB_USERNAME}" \
+                        -var="db_name=${DB_NAME_PROD}" \
+                        -var="db_password=${DB_PASSWORD}" \
+                        -var="db_host=${DB_HOST}" \
+                        -var="db_port=${DB_PORT}" \
+                        -var="domain=${DOMAIN}" \
+                        -var="frontend_url=${FRONTEND_URL_PROD}" \
+                        -var="backend_url=${BACKEND_URL_PROD}" \
+                        -var="ssh_host=${SSH_HOST}" \
+                        -var="ssh_port=22"
+                    """
                 }
             }
         }

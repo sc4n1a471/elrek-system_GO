@@ -8,7 +8,8 @@ terraform {
 }
 
 provider "docker" {
-  host = "unix:///var/run/docker.sock"
+  host     = "ssh://{var.ssh_host}:{var.ssh_port}"
+  ssh_opts = []
 }
 
 locals {
@@ -46,4 +47,5 @@ resource "docker_container" "elrek_system_go" {
   }
 
   restart = "on-failure"
+  max_retry_count = 5
 }
