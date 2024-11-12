@@ -159,7 +159,7 @@ pipeline {
                     
                     sh """
                     terraform init
-                    
+
                     terraform apply \
                         -var="container_version=${version}-dev" \
                         -var="env=dev" \
@@ -172,7 +172,6 @@ pipeline {
                         -var="frontend_url=${FRONTEND_URL_DEV}" \
                         -var="backend_url=${BACKEND_URL_DEV}" \
                         -var="ssh_host=${SSH_HOST}" \
-                        -var="ssh_port=22" \
                         -auto-approve
                     """
                 }
@@ -202,7 +201,6 @@ pipeline {
                         -var="frontend_url=${FRONTEND_URL_PROD}" \
                         -var="backend_url=${BACKEND_URL_PROD}" \
                         -var="ssh_host=${SSH_HOST}" \
-                        -var="ssh_port=22" \
                         -auto-approve
                     """
                 }

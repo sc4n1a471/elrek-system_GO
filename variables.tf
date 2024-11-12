@@ -63,9 +63,3 @@ variable "ssh_host" {
   type        = string
   sensitive = true
 }
-
-variable "ssh_port" {
-  description = "The SSH port"
-  type        = string
-  sensitive = true
-}
