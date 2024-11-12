@@ -31,13 +31,11 @@ variable "db_host" {
 variable "db_port" {
   description = "The database port"
   type        = string
-  sensitive = true
 }
 
 variable "db_name" {
   description = "The database name"
   type        = string
-  sensitive = true
 }
 
 variable "domain" {
@@ -62,4 +60,9 @@ variable "ssh_host" {
   description = "The SSH host in a <username>@<hostname> format"
   type        = string
   sensitive = true
+}
+
+variable "graylog_host" {
+  description = "The Graylog host with ip and port: <ip>:<port>"
+  type        = string
 }

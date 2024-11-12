@@ -2,6 +2,8 @@ package api
 
 import (
 	"elrek-system_GO/controllers"
+	"elrek-system_GO/middlewares"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -10,6 +12,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"gopkg.in/Graylog2/go-gelf.v2/gelf"
 )
 
 func Api() {
@@ -22,6 +25,17 @@ func Api() {
 	router := SetupRouter()
 
 	slog.Info("Starting server on " + os.Getenv("BACKEND_URL"))
+
+	// TODO: https://github.com/samber/slog-graylog
+	graylogHost := os.Getenv("GRAYLOG_HOST")
+	gelfWriter, err := gelf.NewTCPWriter(graylogHost)
+	if err != nil {
+		fmt.Println("error gelf.NewWriter:", err)
+		return
+	}
+
+	router.Use(middlewares.LoggingMiddleware(gelfWriter))
+
 	router.Run(os.Getenv("BACKEND_URL") + ":3000")
 	err = http.ListenAndServe(":3000", router)
 	if err != nil {
