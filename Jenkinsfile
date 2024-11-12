@@ -32,6 +32,9 @@ pipeline {
         SCRIPTS_HOST = credentials('HOST-SCRIPT-FOLDER_elrek-system')
         SSH_DB = credentials('DB_SSH')
         SCRIPTS_DB = credentials('DB-SCRIPT-FOLDER')
+
+        GRAYLOG_HOST_DEV = credentials('GRAYLOG_HOST_elrek-system_DEV')
+        GRAYLOG_HOST_PROD = credentials('GRAYLOG_HOST_elrek-system_PROD')
     }
     
     stages {
@@ -172,6 +175,7 @@ pipeline {
                         -var="frontend_url=${FRONTEND_URL_DEV}" \
                         -var="backend_url=${BACKEND_URL_DEV}" \
                         -var="ssh_host=${SSH_HOST}" \
+                        -var="graylog_host=${GRAYLOG_HOST_DEV}" \
                         -auto-approve
                     """
                 }
@@ -201,6 +205,7 @@ pipeline {
                         -var="frontend_url=${FRONTEND_URL_PROD}" \
                         -var="backend_url=${BACKEND_URL_PROD}" \
                         -var="ssh_host=${SSH_HOST}" \
+                        -var="graylog_host=${GRAYLOG_HOST_PROD}" \
                         -auto-approve
                     """
                 }

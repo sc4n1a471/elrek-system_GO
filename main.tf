@@ -39,6 +39,7 @@ resource "docker_container" "elrek_system_go" {
     "FRONTEND_URL=${var.frontend_url}",
     "BACKEND_URL=${var.backend_url}",
     "DOMAIN=${var.domain}",
+    "GRAYLOG_HOST=${var.graylog_host}",
   ]
 
   ports {
