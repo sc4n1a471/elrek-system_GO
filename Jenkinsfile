@@ -159,23 +159,29 @@ pipeline {
             steps {
                 script {
                     echo "Deploying version ${version} to DEV"
-                    
+
+                    sh """
+                    ssh -tt $SSH_HOST << EOF
+                    docker rm -f elrek-system_go_dev
+                    exit
+                    """
+
                     sh """
                     terraform init
 
                     terraform apply \
-                        -var="container_version=${version}-dev" \
+                        -var="container_version=$version-dev" \
                         -var="env=dev" \
-                        -var="db_username=${DB_USERNAME}" \
-                        -var="db_name=${DB_NAME_DEV}" \
-                        -var="db_password=${DB_PASSWORD}" \
-                        -var="db_host=${DB_HOST}" \
-                        -var="db_port=${DB_PORT}" \
-                        -var="domain=${DOMAIN}" \
-                        -var="frontend_url=${FRONTEND_URL_DEV}" \
-                        -var="backend_url=${BACKEND_URL_DEV}" \
-                        -var="ssh_host=${SSH_HOST}" \
-                        -var="graylog_host=${GRAYLOG_HOST_DEV}" \
+                        -var="db_username=$DB_USERNAME" \
+                        -var="db_name=$DB_NAME_DEV" \
+                        -var="db_password=$DB_PASSWORD" \
+                        -var="db_host=$DB_HOST" \
+                        -var="db_port=$DB_PORT" \
+                        -var="domain=$DOMAIN" \
+                        -var="frontend_url=$FRONTEND_URL_DEV" \
+                        -var="backend_url=$BACKEND_URL_DEV" \
+                        -var="ssh_host=$SSH_HOST" \
+                        -var="graylog_host=$GRAYLOG_HOST_DEV" \
                         -auto-approve
                     """
                 }
@@ -191,21 +197,27 @@ pipeline {
                     echo "Deploying version ${version} to PROD"
 
                     sh """
+                    ssh -tt $SSH_HOST << EOF
+                    docker rm -f elrek-system_go_prod
+                    exit
+                    """
+
+                    sh """
                     terraform init
 
                     terraform apply \
-                        -var="container_version=${version}" \
+                        -var="container_version=\$version" \
                         -var="env=prod" \
-                        -var="db_username=${DB_USERNAME}" \
-                        -var="db_name=${DB_NAME_PROD}" \
-                        -var="db_password=${DB_PASSWORD}" \
-                        -var="db_host=${DB_HOST}" \
-                        -var="db_port=${DB_PORT}" \
-                        -var="domain=${DOMAIN}" \
-                        -var="frontend_url=${FRONTEND_URL_PROD}" \
-                        -var="backend_url=${BACKEND_URL_PROD}" \
-                        -var="ssh_host=${SSH_HOST}" \
-                        -var="graylog_host=${GRAYLOG_HOST_PROD}" \
+                        -var="db_username=$DB_USERNAME" \
+                        -var="db_name=$DB_NAME_PROD" \
+                        -var="db_password=$DB_PASSWORD" \
+                        -var="db_host=$DB_HOST" \
+                        -var="db_port=$DB_PORT" \
+                        -var="domain=$DOMAIN" \
+                        -var="frontend_url=$FRONTEND_URL_PROD" \
+                        -var="backend_url=$BACKEND_URL_PROD" \
+                        -var="ssh_host=$SSH_HOST" \
+                        -var="graylog_host=$GRAYLOG_HOST_PROD" \
                         -auto-approve
                     """
                 }
