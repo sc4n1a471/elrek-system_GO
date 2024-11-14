@@ -162,8 +162,13 @@ pipeline {
 
                     sh """
                     ssh -tt $SSH_HOST << EOF
-                    docker rm -f elrek-system_go_dev
-                    docker image rm sc4n1a471/elrek-system_go:$version-dev
+                    if [ "\$(docker ps -a -q -f name=elrek-system_go_dev)" ]; then
+                        docker rm -f elrek-system_go_dev
+                    fi
+                    
+                    if [ "\$(docker images -q sc4n1a471/elrek-system_go:$version-dev)" ]; then
+                        docker rmi -f sc4n1a471/elrek-system_go:$version-dev
+                    fi
                     exit
                     """
 
@@ -199,7 +204,13 @@ pipeline {
 
                     sh """
                     ssh -tt $SSH_HOST << EOF
-                    docker rm -f elrek-system_go_prod
+                    if [ "\$(docker ps -a -q -f name=elrek-system_go_prod)" ]; then
+                        docker rm -f elrek-system_go_prod
+                    fi
+                    
+                    if [ "\$(docker images -q sc4n1a471/elrek-system_go:$version)" ]; then
+                        docker rmi -f sc4n1a471/elrek-system_go:$version
+                    fi
                     docker image rm sc4n1a471/elrek-system_go:$version
                     exit
                     """
