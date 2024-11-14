@@ -163,6 +163,7 @@ pipeline {
                     sh """
                     ssh -tt $SSH_HOST << EOF
                     docker rm -f elrek-system_go_dev
+                    docker image rm sc4n1a471/elrek-system_go:$version-dev
                     exit
                     """
 
@@ -199,6 +200,7 @@ pipeline {
                     sh """
                     ssh -tt $SSH_HOST << EOF
                     docker rm -f elrek-system_go_prod
+                    docker image rm sc4n1a471/elrek-system_go:$version
                     exit
                     """
 
