@@ -90,3 +90,10 @@ func SendData(message interface{}, ctx *gin.Context) {
 
 	ctx.IndentedJSON(http.StatusOK, response)
 }
+
+// Only for error testing
+func Peng(ctx *gin.Context) {
+	he := []int{1, 2, 3, 4, 5}
+	hee := he[5]
+	SendData(hee, ctx)
+}

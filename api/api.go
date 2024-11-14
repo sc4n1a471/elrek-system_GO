@@ -2,8 +2,7 @@ package api
 
 import (
 	"elrek-system_GO/controllers"
-	"elrek-system_GO/middlewares"
-	"fmt"
+	"log"
 	"log/slog"
 	"net/http"
 	"os"
@@ -16,7 +15,20 @@ import (
 )
 
 func Api() {
-	err := controllers.SetupDB()
+	graylogHost := os.Getenv("GRAYLOG_HOST")
+	if graylogHost == "" {
+		log.Fatalf("GRAYLOG_HOST is not set")
+		return
+	}
+
+	gelfWriter, err := gelf.NewTCPWriter(graylogHost)
+	if err != nil {
+		log.Fatalf("gelf.NewWriter: %s", err)
+	}
+	logger := slog.New(slog.NewJSONHandler(gelfWriter, nil))
+	slog.SetDefault(logger)
+
+	err = controllers.SetupDB()
 	if err != nil {
 		slog.Error(err.Error())
 		return
@@ -25,16 +37,6 @@ func Api() {
 	router := SetupRouter()
 
 	slog.Info("Starting server on " + os.Getenv("BACKEND_URL"))
-
-	// TODO: https://github.com/samber/slog-graylog
-	graylogHost := os.Getenv("GRAYLOG_HOST")
-	gelfWriter, err := gelf.NewTCPWriter(graylogHost)
-	if err != nil {
-		fmt.Println("error gelf.NewWriter:", err)
-		return
-	}
-
-	router.Use(middlewares.LoggingMiddleware(gelfWriter))
 
 	router.Run(os.Getenv("BACKEND_URL") + ":3000")
 	err = http.ListenAndServe(":3000", router)
@@ -68,6 +70,7 @@ func SetupRouter() *gin.Engine {
 			"message": "pong",
 		})
 	})
+	router.GET("/peng", controllers.Peng)
 
 	// AUTH
 	router.POST("/login", controllers.Login)
