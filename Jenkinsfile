@@ -160,16 +160,18 @@ pipeline {
                 script {
                     echo "Deploying version ${version} to DEV"
 
+                    // Read the contents of pre-deploy_dev.sh into a variable
+                    def preDeployDevScript = readFile('pre-deploy_dev.sh')
+
+                    // Create and run the script on the remote server
                     sh """
                     ssh -tt $SSH_HOST << EOF
-                    if [ "\$(docker ps -a -q -f name=elrek-system_go_dev)" ]; then
-                        docker rm -f elrek-system_go_dev
-                    fi
-                    
-                    if [ "\$(docker images -q sc4n1a471/elrek-system_go:$version-dev)" ]; then
-                        docker rmi -f sc4n1a471/elrek-system_go:$version-dev
-                    fi
+                    echo "${preDeployDevScript}" > pre-deploy_dev.sh
+                    chmod +x pre-deploy_dev.sh
+                    ./pre-deploy_dev.sh
+                    rm pre-deploy_dev.sh
                     exit
+                    EOF
                     """
 
                     sh """
@@ -202,24 +204,25 @@ pipeline {
                 script {
                     echo "Deploying version ${version} to PROD"
 
+                    // Read the contents of pre-deploy_prod.sh into a variable
+                    def preDeployProdScript = readFile('pre-deploy_prod.sh')
+
+                    // Create and run the script on the remote server
                     sh """
                     ssh -tt $SSH_HOST << EOF
-                    if [ "\$(docker ps -a -q -f name=elrek-system_go_prod)" ]; then
-                        docker rm -f elrek-system_go_prod
-                    fi
-                    
-                    if [ "\$(docker images -q sc4n1a471/elrek-system_go:$version)" ]; then
-                        docker rmi -f sc4n1a471/elrek-system_go:$version
-                    fi
-                    docker image rm sc4n1a471/elrek-system_go:$version
+                    echo "${preDeployProdScript}" > pre-deploy_prod.sh
+                    chmod +x pre-deploy_prod.sh
+                    ./pre-deploy_prod.sh
+                    rm pre-deploy_prod.sh
                     exit
+                    EOF
                     """
 
                     sh """
                     terraform init
 
                     terraform apply \
-                        -var="container_version=\$version" \
+                        -var="container_version=$version" \
                         -var="env=prod" \
                         -var="db_username=$DB_USERNAME" \
                         -var="db_name=$DB_NAME_PROD" \
