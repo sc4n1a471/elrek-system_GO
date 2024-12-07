@@ -61,9 +61,12 @@ func SetupDB() error {
 		&models.DynamicPrice{},
 		&models.Pass{},
 		&models.ActivePass{},
-		&models.Income{})
+		&models.Income{},
+		&models.Location{},
+		// &models.Event{})
+	)
 	if err != nil {
-		fmt.Print(err.Error())
+		fmt.Printf("AutoMigrate error: %v\n", err)
 		return err
 	}
 	slog.Info("Successfully connected to database!")
@@ -86,4 +89,11 @@ func SendData(message interface{}, ctx *gin.Context) {
 	slog.Info("Data sent", "response", response)
 
 	ctx.IndentedJSON(http.StatusOK, response)
+}
+
+// Only for error testing
+func Peng(ctx *gin.Context) {
+	he := []int{1, 2, 3, 4, 5}
+	hee := he[5]
+	SendData(hee, ctx)
 }

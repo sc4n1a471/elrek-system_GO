@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: elrek-system_GO
   description: Ez lenni elrek-system_GO backend cuccli
-  version: 1.0.0
+  version: 2.0.0
 #servers:
 #  - url: 'yas'
 paths:
@@ -38,6 +38,30 @@ paths:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - login
+  # MARK: Check permission
+  /check-permission:
+    get:
+      description: Endpoint for checking user permission
+      responses:
+        200:
+          description: Returns 2 booleans, true if user is admin / is authenticated, false if not
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isAdmin:
+                    type: boolean
+                  isAuthenticated:
+                    type: boolean
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - login
   # MARK: Logout
   /logout:
     post:
@@ -52,6 +76,32 @@ paths:
                 example: 'User logged out successfully'
         401:
           description: User was not logged out successfully
+          content:
+            application/json:
+              schema:
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - login
+  # MARK: Registration
+  /register:
+    post:
+      description: Endpoint for user registration
+      requestBody:
+        description: User object that needs to be registered
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './models/user.yaml#/components/schemas/UserRegister'
+      responses:
+        200:
+          description: User was registered successfully
           content:
             application/json:
               schema:
@@ -966,6 +1016,8 @@ paths:
                 $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
       tags:
         - incomes
+  
+  # MARK: Statistics
   /statistics:
     get:
       description: Endpoint for statistics, returns the following
@@ -1021,6 +1073,287 @@ paths:
       tags:
         - statistics
 
+  # MARK: Events
+  /events:
+    get:
+      description: Endpoint for event(s) listing
+      parameters:
+        - name: startDate
+          in: query
+          description: Get events from this date
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          description: Get events until this date
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: pageIndex
+          in: query
+          description: Page index for pagination
+          required: false
+          schema:
+            type: integer
+        - name: pageSize
+          in: query
+          description: Page size for pagination
+          required: false
+          schema:
+            type: integer
+        - name: isActive
+          in: query
+          description: Filter events by isActive
+          required: false
+          schema:
+            type: boolean
+      responses:
+        200:
+          description: Returns a list of events
+          content:
+            application/json:
+              schema:
+                $ref: './models/event.yaml#/components/schemas/EventList'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - events
+    post:
+      description: Endpoint for event creation
+      requestBody:
+        description: Event object that needs to be added to the database
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './models/event.yaml#/components/schemas/EventCreate'
+      responses:
+        200:
+          description: Event was created successfully
+          content:
+            application/json:
+              schema:
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - events
+  # MARK: Event / ID
+  /events/{id}:
+    get:
+      description: Endpoint for event listing
+      parameters:
+        - name: id
+          in: path
+          description: ID of the event to list
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Returns an event
+          content:
+            application/json:
+              schema:
+                $ref: './models/event.yaml#/components/schemas/Event'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - events
+    patch:
+      description: Endpoint for event update
+      parameters:
+        - name: id
+          in: path
+          description: ID of the event to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Event object that needs to be updated in the database
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './models/event.yaml#/components/schemas/EventCreate'
+      responses:
+        200:
+          description: Event was updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - events
+    delete:
+      description: Endpoint for event deletion
+      parameters:
+        - name: id
+          in: path
+          description: ID of the event to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Event was deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - events
+  # MARK: Locations
+  /locations:
+    get:
+      description: Endpoint for location(s) listing
+      responses:
+        200:
+          description: Returns a list of locations
+          content:
+            application/json:
+              schema:
+                $ref: './models/location.yaml#/components/schemas/LocationList'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - locations
+    post:
+      description: Endpoint for location creation
+      requestBody:
+        description: Location object that needs to be added to the database
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './models/location.yaml#/components/schemas/LocationCreate'
+      responses:
+        200:
+          description: Location was created successfully
+          content:
+            application/json:
+              schema:
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - locations
+  # MARK: Location / ID
+  /locations/{id}:
+    get:
+      description: Endpoint for location listing
+      parameters:
+        - name: id
+          in: path
+          description: ID of the location to list
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Returns a location
+          content:
+            application/json:
+              schema:
+                $ref: './models/location.yaml#/components/schemas/Location'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - locations
+    patch:
+      description: Endpoint for location update
+      parameters:
+        - name: id
+          in: path
+          description: ID of the location to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Location object that needs to be updated in the database
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './models/location.yaml#/components/schemas/LocationCreate'
+      responses:
+        200:
+          description: Location was updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - locations
+    delete:
+      description: Endpoint for location deletion
+      parameters:
+        - name: id
+          in: path
+          description: ID of the location to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Location was deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
+        default:
+          description: Unexpected error, error is returned in message
+          content:
+            application/json:
+              schema:
+                $ref: './models/responses.yaml#/components/schemas/MessageOnlyResponse'
+      tags:
+        - locations
 tags:
   - name: login
     description: Login related endpoints

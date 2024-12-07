@@ -1,0 +1,146 @@
+components:
+  schemas:
+    Event:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        userID:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        name:
+          type: string
+        datetime:
+          type: string
+          format: date-time
+        rootEventID:
+          type: string
+          format: uuid
+        rootEvent:
+          $ref: './event.yaml#/components/schemas/Event'
+        comment:
+          type: string
+        capacity:
+          type: integer
+        attendees:
+          type: array
+          items:
+            $ref: './user.yaml#/components/schemas/UserList'
+        isActive:
+          type: boolean
+        closeTime:
+          type: string
+          format: date-time
+        locationID:
+          type: string
+          format: uuid
+        location:
+          $ref: './location.yaml#/components/schemas/Location'
+        price:
+          type: number
+        serviceID:
+          type: string
+          format: uuid
+        service:
+          $ref: './service.yaml#/components/schemas/ServiceOnly'
+        hostIDs:
+          type: array
+          items:
+            type: string
+            format: uuid
+        hosts:
+          type: array
+          items:
+            $ref: './user.yaml#/components/schemas/UserList'
+      required:
+        - id
+        - userID
+        - createdAt
+        - updatedAt
+        - name
+        - datetime
+        - isActive
+        - closeTime
+        - price
+        - hostIDs
+    EventList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Event'
+    EventCreate:
+      type: object
+      properties:
+        name:
+          type: string
+        datetime:
+          type: string
+          format: date-time
+        rootEventID:
+          type: string
+          format: uuid
+        comment:
+          type: string
+        capacity:
+          type: integer
+        isActive:
+          type: boolean
+        closeTime:
+          type: string
+          format: date-time
+        locationID:
+          type: string
+          format: uuid
+        price:
+          type: number
+        serviceID:
+          type: string
+          format: uuid
+        hostIDs:
+          type: array
+          items:
+            type: string
+            format: uuid
+      required:
+        - name
+        - datetime
+        - hostIDs
+    EventUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        datetime:
+          type: string
+          format: date-time
+        rootEventID:
+          type: string
+          format: uuid
+        comment:
+          type: string
+        capacity:
+          type: integer
+        isActive:
+          type: boolean
+        closeTime:
+          type: string
+          format: date-time
+        locationID:
+          type: string
+          format: uuid
+        price:
+          type: number
+        serviceID:
+          type: string
+          format: uuid
+        hostIDs:
+          type: array
+          items:
+            type: string
+            format: uuid

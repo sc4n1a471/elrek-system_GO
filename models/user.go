@@ -59,6 +59,13 @@ type UserLoginResponse struct {
 	IsAdmin bool               `json:"isAdmin"`
 }
 
+type UserRegister struct {
+	Email    openapitypes.Email `json:"email"`
+	Name     string             `json:"name"`
+	Password string             `json:"password"`
+	OwnerID  openapitypes.UUID  `json:"ownerID"`
+}
+
 // UserUpdate defines model for UserUpdate.
 type UserUpdate struct {
 	Email    *openapitypes.Email `json:"email,omitempty"`

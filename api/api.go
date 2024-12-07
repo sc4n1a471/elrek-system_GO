@@ -2,6 +2,7 @@ package api
 
 import (
 	"elrek-system_GO/controllers"
+	"log"
 	"log/slog"
 	"net/http"
 	"os"
@@ -10,10 +11,24 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"gopkg.in/Graylog2/go-gelf.v2/gelf"
 )
 
 func Api() {
-	err := controllers.SetupDB()
+	graylogHost := os.Getenv("GRAYLOG_HOST")
+	if graylogHost == "" {
+		log.Fatalf("GRAYLOG_HOST is not set")
+		return
+	}
+
+	gelfWriter, err := gelf.NewTCPWriter(graylogHost)
+	if err != nil {
+		log.Fatalf("gelf.NewWriter: %s", err)
+	}
+	logger := slog.New(slog.NewJSONHandler(gelfWriter, nil))
+	slog.SetDefault(logger)
+
+	err = controllers.SetupDB()
 	if err != nil {
 		slog.Error(err.Error())
 		return
@@ -22,6 +37,7 @@ func Api() {
 	router := SetupRouter()
 
 	slog.Info("Starting server on " + os.Getenv("BACKEND_URL"))
+
 	router.Run(os.Getenv("BACKEND_URL") + ":3000")
 	err = http.ListenAndServe(":3000", router)
 	if err != nil {
@@ -54,11 +70,13 @@ func SetupRouter() *gin.Engine {
 			"message": "pong",
 		})
 	})
+	router.GET("/peng", controllers.Peng)
 
 	// AUTH
 	router.POST("/login", controllers.Login)
 	router.GET("/check-permissions", controllers.CheckPermissions)
 	router.POST("/logout", controllers.Logout)
+	router.POST("/register", controllers.Register)
 
 	// USERS
 	router.GET("/users", controllers.GetUsers)
@@ -108,6 +126,21 @@ func SetupRouter() *gin.Engine {
 
 	// STATISTICS
 	router.GET("/statistics", controllers.GetStatistics)
+
+	// LOCATIONS
+	router.GET("/locations", controllers.GetLocations)
+	router.GET("/locations/:id", controllers.GetLocation)
+	router.GET("/locations/:id/events", controllers.GetLocationEvents)
+	router.POST("/locations", controllers.CreateLocation)
+	router.PATCH("/locations/:id", controllers.UpdateLocation)
+	router.DELETE("/locations/:id", controllers.DeleteLocation)
+
+	// EVENTS
+	router.GET("/events", controllers.GetEvents)
+	router.GET("/events/:id", controllers.GetEvent)
+	router.POST("/events", controllers.CreateEvent)
+	router.PATCH("/events/:id", controllers.UpdateEvent)
+	router.DELETE("/events/:id", controllers.DeleteEvent)
 
 	return router
 }
